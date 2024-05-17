@@ -1,8 +1,6 @@
 #![allow(dead_code)]
+#![allow(non_camel_case_types)]
 use std::ops::BitOr;
-
-
-// 实现 BitOr for GX_FEATURE_TYPE
 
 impl BitOr for GX_FEATURE_TYPE {
     type Output = u32;
@@ -37,20 +35,9 @@ impl BitOr<GX_FEATURE_LEVEL> for u32 {
 }
 
 
-
-
 //------------------------------------------------------------------------------
 //  Frame Status Definition
 //------------------------------------------------------------------------------
-// 这种写法的好处暂时搁置
-// #[repr(C)]
-// #[derive(Debug, Clone, Copy)]
-// pub enum GXFrameStatusList {
-//     GX_FRAME_STATUS_SUCCESS = 0,           // Normal frame
-//     GX_FRAME_STATUS_INCOMPLETE = -1,       // Incomplete frame
-// }
-// pub type GX_FRAME_STATUS = i32;
-
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub enum GX_FRAME_STATUS {
@@ -71,14 +58,6 @@ pub enum GX_DEVICE_CLASS {
     GX_DEVICE_CLASS_GEV = 2,               // Gige Vision device
     GX_DEVICE_CLASS_U3V = 3,               // USB3 Vision device
 }
-// #[repr(C)]
-// #[derive(Debug, Clone, Copy)]
-// pub enum GX_DEVICE_CLASS {
-//     Unknown = 0,
-//     Usb2 = 1,
-//     Gev = 2,
-//     U3v = 3,
-// }
 
 //------------------------------------------------------------------------------
 //  Feature Type Definition
@@ -94,15 +73,6 @@ pub enum GX_FEATURE_TYPE {
     GX_FEATURE_BUFFER = 0x60000000,        // Block data type
     GX_FEATURE_COMMAND = 0x70000000,       // Command type
 }
-// pub enum GX_FEATURE_TYPE {
-//     GX_FEATURE_INT = 268435456,           // Integer type
-//     GX_FEATURE_FLOAT = 536870912,         // Floating point type
-//     GX_FEATURE_ENUM = 805306368,          // Enum type
-//     GX_FEATURE_BOOL = 1073741824,          // Boolean type
-//     GX_FEATURE_STRING = 1342177280,        // String type
-//     GX_FEATURE_BUFFER = 1610612736,        // Block data type
-//     GX_FEATURE_COMMAND = 1879048192,       // Command type
-// }
 
 //------------------------------------------------------------------------------
 //  Feature Level Definition
@@ -116,13 +86,7 @@ pub enum GX_FEATURE_LEVEL {
     GX_FEATURE_LEVEL_DEV                = 0x03000000,  //< Device layer
     GX_FEATURE_LEVEL_DS                 = 0x04000000,  //< DataStream layer
 }
-// pub enum GX_FEATURE_LEVEL {
-//     GX_FEATURE_LEVEL_REMOTE_DEV         = 0,  //< Remote device layer
-//     GX_FEATURE_LEVEL_TL                 = 16777216,  //< TL layer
-//     GX_FEATURE_LEVEL_IF                 = 33554432,  //< Interface layer    
-//     GX_FEATURE_LEVEL_DEV                = 50331648,  //< Device layer
-//     GX_FEATURE_LEVEL_DS                 = 67108864,  //< DataStream layer
-// }
+
 
 //------------------------------------------------------------------------------
 //  Access Mode of Device
@@ -136,18 +100,6 @@ pub enum GX_ACCESS_MODE
     GX_ACCESS_EXCLUSIVE                 = 4,           //< Open the device in exclusive mode
 }
 
-// 历史原因保留
-// #[repr(C)]
-// #[derive(Debug, Clone, Copy)]
-// pub enum GX_ACCESS_STATUS_CMD {
-//     Unknown = 0,
-//     ReadWrite = 1,
-//     ReadOnly = 2,
-//     NoAccess = 3,
-// }
-
-
-// 自己写的
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub enum GX_FEATURE_ID{
@@ -530,13 +482,7 @@ pub enum GX_FEATURE_ID{
     // GX_INT_COLORCORRECTIONPARAM       = (6019 | GX_FEATURE_TYPE::GX_FEATURE_INT as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32)as isize,    //< switch to GX_INT_COLOR_CORRECTION_PARAM
     GX_DS_INT_MAX_NUM_QUEUE_BUFFER    = (18 | GX_FEATURE_TYPE::GX_FEATURE_INT as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_DS as u32)as isize,              //< the max number queue buffer
 
-
-
-
 }
-
-// 下面是3.5写的，大多数应该是用不到的
-
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -565,13 +511,6 @@ pub enum GX_FRAME_STATUS_LIST {
     GX_FRAME_STATUS_INCOMPLETE = -1,
 }
 
-// #[repr(C)]
-// #[derive(Debug, Clone, Copy)]
-// pub enum GX_FRAME_STATUS {
-//     GX_FRAME_STATUS_SUCCESS = 0,
-//     GX_FRAME_STATUS_INCOMPLETE = -1,
-// }
-
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -581,39 +520,6 @@ pub enum GX_DEVICE_CLASS_LIST {
     GX_DEVICE_CLASS_GEV = 2,
     GX_DEVICE_CLASS_U3V = 3,
 }
-
-
-// #[repr(u32)]
-// #[derive(Debug, Clone, Copy)]
-// pub enum GX_FEATURE_TYPE {
-//     GX_FEATURE_INT = 0x10000000,
-//     GX_FEATURE_FLOAT = 0x20000000,
-//     GX_FEATURE_ENUM = 0x30000000,
-//     GX_FEATURE_BOOL = 0x40000000,
-//     GX_FEATURE_STRING = 0x50000000,
-//     GX_FEATURE_BUFFER = 0x60000000,
-//     GX_FEATURE_COMMAND = 0x70000000,
-// }
-
-// #[repr(u32)]
-// #[derive(Debug, Clone, Copy)]
-// pub enum GX_FEATURE_LEVEL {
-//     GX_FEATURE_LEVEL_REMOTE_DEV = 0x00000000,
-//     GX_FEATURE_LEVEL_TL = 0x01000000,
-//     GX_FEATURE_LEVEL_IF = 0x02000000,
-//     GX_FEATURE_LEVEL_DEV = 0x03000000,
-//     GX_FEATURE_LEVEL_DS = 0x04000000,
-// }
-
-// #[repr(C)]
-// #[derive(Debug, Clone, Copy)]
-// pub enum GX_ACCESS_MODE {
-//     GX_ACCESS_READONLY = 2,
-//     GX_ACCESS_CONTROL = 3,
-//     GX_ACCESS_EXCLUSIVE = 4,
-// }
-
-pub type GX_ACCESS_MODE_CMD = i32;
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -633,8 +539,6 @@ pub enum GX_OPEN_MODE {
     GX_OPEN_INDEX = 3,
     GX_OPEN_USERID = 4,
 }
-
-// pub type GX_OPEN_MODE_CMD = i32;
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]

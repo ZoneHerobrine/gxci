@@ -1,10 +1,10 @@
 #![allow(dead_code)]
-
+#![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
 
 use super::gx_const::*;
 use super::gx_enum::*;
-use std::ffi::c_int;
-use std::ffi::{c_char,c_void};
+use std::ffi::{c_int,c_char,c_void};
 
 
 #[repr(C)]
@@ -64,8 +64,6 @@ pub struct GX_FRAME_CALLBACK_PARAM {
 #[repr(C)]
 #[derive(Debug, Clone,Copy)]
 pub struct GX_FRAME_DATA {
-    // pub nStatus: GX_FRAME_STATUS,            // Image acquisition status
-    // pub nStatus: u32,
     pub nStatus: c_int,
     pub pImgBuf: *mut c_void,   // Pointer to the image buffer
     pub nWidth: i32,             // Image width, adjusted to i32 to match C definition
@@ -76,29 +74,6 @@ pub struct GX_FRAME_DATA {
     pub nTimestamp: u64,         // Timestamp of the frame
     pub reserved: [i32; 1],     // Reserved, array of 1 i32 to match C definition
 }
-// pub struct GX_FRAME_DATA {
-//     pub status: u32,            // Image acquisition status
-//     pub frame_id: u64,          // Frame ID
-//     pub p_img_buf: *mut c_void,     // Pointer to the image buffer
-//     pub img_size: usize,        // Size of the image buffer
-//     pub width: u32,             // Image width
-//     pub height: u32,            // Image height
-//     pub pixel_format: u32,      // Pixel format
-//     pub timestamp: u64,         // Timestamp of the frame
-// }
-// pub struct GX_FRAME_DATA {
-//     pub nStatus: GX_FRAME_STATUS,
-//     pub pImgBuf: *mut c_void,
-//     pub nWidth: i32,
-//     pub nHeight: i32,
-//     pub nPixelFormat: i32,
-//     pub nImgSize: i32,
-//     pub nFrameID: u64,
-//     pub nTimestamp: u64,
-//     pub nOffsetX: i32,
-//     pub nOffsetY: i32,
-//     pub reserved: [i32; 1],
-// }
 
 #[repr(C)]
 #[derive(Debug, Clone)]
