@@ -19,23 +19,23 @@
 # Introduction
 gxci(Galaxy Camera Interface)是一款用Rust基于大恒工业相机GxIAPI的库进行的接口开发;
 
-目前已实现USB单相机的HAL库封装，raw内包含着C语言接口除去网络相机的全部内容(句柄、常量、结构、枚举、回调函数等)的直接rust实现；HAL内做了硬件抽象层的封装(目前包括连接、采图、推流)，适合实际开发使用；utils内则是一些工具类函数(常用的Builder模式和Facade模式函数封装)；
+目前已实现USB单相机的HAL库封装，raw内包含着C语言接口除去网络相机的全部内容(句柄、常量、结构、枚举、回调函数等)的直接rust实现；HAL内做了硬件抽象层的封装(目前包括连接、采图、推流)，适合实际开发使用；utils内则是一些工具类函数(常用的Builder模式和Facade模式函数封装);
 
-旧版是一个叫做gxi_hako的crate库，里面raw部分和utils部分的不完全实现，现在已经暂时弃用了；
+旧版是一个叫做[gxi_hako](https://crates.io/crates/gxi_hako)的crate库，里面raw部分和utils部分的不完全实现，现在已经暂时弃用了;
 
-新版也就是这一款gxci，里面包含了raw、HAL、utils三个部分的实现。
+新版也就是这一款gxci，里面包含了raw、HAL、utils三个部分的实现;
 
-截至目前，2024年7月11日23点45分，已经完成了`features=["solo"]`部分的HAL库编写，多相机的feature还未实现，等再次闲下来再来更新吧w。
+截至目前，2024年7月11日23点45分，已经完成了`features=["solo"]`部分的HAL库编写，多相机的feature还未实现，等再次闲下来再来更新吧(๑˃ᴗ˂)ﻭ
 
 Gxci (Galaxy Camera Interface) is an interface developed using Rust based on the Daxi API library of Daheng Industrial Camera; 
 
 At present, HAL library encapsulation for USB single camera has been implemented, and raw contains a direct Rust implementation of all contents (handles, constants, structures, enumerations, callback functions, etc.) of the C language interface except for the network camera; HAL has encapsulated the hardware abstraction layer (currently including connections, image capture, and streaming), which is suitable for practical development and use; Inside the utilities are some utility class functions (encapsulated with commonly used Builder and Facade pattern functions); 
 
-The old version was a crate library called gxy_hako, which had incomplete implementations of the raw and utilities parts and has now been temporarily abandoned; 
+The old version was a crate library called [gxi_hako](https://crates.io/crates/gxi_hako), which had incomplete implementations of the raw and utilities parts and has now been temporarily abandoned; 
 
-The new version, also known as gxci, includes the implementation of three parts: raw, HAL, and utilities. 
+The new version, also known as gxci, includes the implementation of three parts: raw, HAL, and utilities;
 
-As of 23:45 on July 11, 2024, the HAL library for the 'features=["solo"]' section has been completed, but the multi camera features have not been implemented yet. Please update it when you have more free time.
+As of 23:45 on July 11, 2024, the HAL library for the 'features=["solo"]' section has been completed, but the multi camera features have not been implemented yet. i'll update it when i have more free time (๑˃ᴗ˂)ﻭ.
 
 # Overview
 You can get the sdk-dev-doc from the SDK of Daheng Imaging you have installed.
@@ -200,10 +200,13 @@ GXCI(GalaXy Camera Interface)的命名要感谢[MoonWX](https://github.com/MoonW
 
 同时也感谢同专业李同学的帮助，在gx_enum的冗长的类型转换中，他与我协力在十分钟之内完成了C接口到Rust接口的转换；
 
-he naming of GXCI (GalaXy Camera Interface) is thanks to MoonWX's suggestion, which is a concise, clear, and handsome name; 
+同时也感谢OpenAI的GPT模型DELTA·E绘制的炫酷LOGO :D
+
+he naming of GXCI (GalaXy Camera Interface) is thanks to [MoonWX](https://github.com/MoonWX)'s suggestion, which is a concise, clear, and handsome name; 
 
 Also, I would like to express my gratitude to fellow student Li for his assistance in the lengthy type conversion process at gx-enum. Together with me, we were able to complete the conversion from the C interface to the Rust interface within ten minutes;
 
+Also again, I would like to thank OpenAI's GPT model DELTA · E for creating a cool logo :D
 
 # Todolist
 - [ ] The feather of multi camera
