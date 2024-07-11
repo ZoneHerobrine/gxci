@@ -1,5 +1,5 @@
 <p align="center" dir="auto">
-    <img src="assets/logo.svg" alt="logo"/>
+    <img src="assets/GXCI1024.png" alt="logo"/>
 </p>
 
 <h1 align="center" tabindex="-1" class="heading-element" dir="auto">GXCI</h1>
