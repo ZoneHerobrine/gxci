@@ -11,7 +11,8 @@ use opencv::{
 use std::ffi::c_void;
 use std::sync::LazyLock;
 use std::slice;
-
+use std::thread::sleep;
+use std::time::Duration;
 
 
 //---------------Static Mut V-------------------------------
@@ -41,7 +42,7 @@ pub static mut GXI_IMAGE_BUFFER: Option<Vec<u8>> = Some(vec![]);
 //---------------Static Mut Fn-------------------------------
 
 extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM) {
-    // 避免刷屏
+    // For Debug if needed
     // println!("Frame callback triggered.");
     // println!("Frame status: {:?}", unsafe { (*p_frame_callback_data).status });
     // println!("Frame All: {:?}", unsafe { *p_frame_callback_data });
@@ -53,7 +54,6 @@ extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM
             let mat = core::Mat::new_rows_cols_with_data(
                 frame_callback_data.nHeight, 
                 frame_callback_data.nWidth, 
-                // core::CV_8UC1, 
                 data
             ).unwrap();
             highgui::imshow("Camera Frame", &mat).unwrap();
@@ -269,9 +269,7 @@ pub fn gxi_save_image_as_png(filename:&str) -> Result<(), GxciError> {
 #[cfg(feature = "solo")]
 pub fn gxi_open_stream() -> Result<(), GxciError> {
 
-    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START);
 
-    
     let status = unsafe {
         GXI.as_ref()
             .ok_or_else(|| {
@@ -279,7 +277,81 @@ pub fn gxi_open_stream() -> Result<(), GxciError> {
                     "GXI is None. Please check your gxci_init situation.".to_string(),
                 )
             })?
-            .gx_stream_on(*GXI_DEVICE.as_mut().unwrap())?
+            .gx_register_capture_callback(*GXI_DEVICE.as_mut().unwrap(),frame_callback)?
+    };
+
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START);
+
+    highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
+    loop {
+        sleep(Duration::from_secs(10));
+        break;
+    }
+
+    if status == 0 {
+        println!("Successfully opened stream");
+        Ok(())
+    } else {
+        Err(GxciError::GalaxyError(status))
+    }
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_close_stream() -> Result<(), GxciError> {
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP);
+
+    let status = unsafe {
+        GXI.as_ref()
+            .ok_or_else(|| {
+                GxciError::InitializationError(
+                    "GXI is None. Please check your gxci_init situation.".to_string(),
+                )
+            })?
+            .gx_unregister_capture_callback(*GXI_DEVICE.as_mut().unwrap())?
+    };
+
+    if status == 0 {
+        println!("Successfully closed stream");
+        Ok(())
+    } else {
+        Err(GxciError::GalaxyError(status))
+    }
+
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<(), GxciError> {
+
+    let status = unsafe {
+        GXI.as_ref()
+            .ok_or_else(|| {
+                GxciError::InitializationError(
+                    "GXI is None. Please check your gxci_init situation.".to_string(),
+                )
+            })?
+            .gx_register_capture_callback(*GXI_DEVICE.as_mut().unwrap(),frame_callback)?
+    };
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START);
+
+    highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
+    loop {
+        sleep(Duration::from_secs(interval_secs));
+        break;
+    }
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP);
+
+    let status = unsafe {
+        GXI.as_ref()
+            .ok_or_else(|| {
+                GxciError::InitializationError(
+                    "GXI is None. Please check your gxci_init situation.".to_string(),
+                )
+            })?
+            .gx_unregister_capture_callback(*GXI_DEVICE.as_mut().unwrap())?
     };
 
     if status == 0 {

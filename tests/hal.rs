@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
     use super::*;
-    use gxci::*;
-    use gxci::raw::gx_enum::GX_STATUS_LIST;
+    use gxci::hal::basement::*;
+    use gxci::hal::device::*;
 
     #[test]
     fn test_gxci_init_and_close() {
@@ -19,7 +19,7 @@ mod tests {
         // 关闭 GXInstance
         let status = gxci_close();
         // 这里根据实际情况验证关闭函数返回的状态
-        assert_eq!(status, GX_STATUS_LIST::GX_STATUS_SUCCESS);
+        assert_eq!(status, 0);
 
         // 再次初始化，确保可以重新初始化
         gxci_init(dll_path);
@@ -30,6 +30,6 @@ mod tests {
 
         // 最后关闭
         let status = gxci_close();
-        assert_eq!(status, GX_STATUS_LIST::GX_STATUS_SUCCESS);
+        assert_eq!(status, 0);
     }
 }

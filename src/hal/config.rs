@@ -1,3 +1,5 @@
+// Place holder for the configuration of the HAL,JUST MORE HUMAN READABLE
+
 // use crate::hal::basement::{GXI,gxi_check};
 // use crate::raw::{gx_interface::*, gx_const::*, gx_struct::*, gx_enum::*,gx_handle::*};
 // use crate::utils::builder::GXDeviceBaseInfoBuilder;

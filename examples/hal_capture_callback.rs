@@ -16,7 +16,11 @@ fn main() {
     
     gxi_open_device();
 
-    
+    // gxi_open_stream(); // default in 10s,waiting for enhancement
+
+    // gxi_close_stream();
+
+    gxi_open_stream_interval(10);
 
     gxi_close_device();
 

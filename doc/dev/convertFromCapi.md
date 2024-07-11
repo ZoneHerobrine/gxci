@@ -1,3 +1,5 @@
+在这里感谢李同学在编写gx_enum时提供的帮助
+
 //---------------TransportLayer Section-------------------------------
 GX_INT_PAYLOAD_SIZE                              =( 2000 | GX_FEATURE_TYPE::GX_FEATURE_INT as u32| GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32)as isize,  //< Provides the number of bytes transferred for each image or chunk on the stream channel. 
 GX_BOOL_GEV_CURRENT_IPCONFIGURATION_LLA          =( 2001 | GX_FEATURE_TYPE::GX_FEATURE_BOOL as u32| GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32)as isize, //< Controls whether the Link Local Address IP configuration scheme is activated on the given logical link.
@@ -15,7 +17,7 @@ GX_INT_GEV_LINK_SPEED                            =( 2008 | GX_FEATURE_TYPE::GX_F
 3. 给中间的那个加上前缀GX_FEATURE_TYPE::或者GX_FEATURE_LEVEL::
 
 现在需要处理的在下面
-大概是这样的，等有时间我们在327一起来调吧
+大概是这样的，等有时间我们来一起来调吧
 // DigitalIO 4000
 // AnalogControl 5000
 // CounterAndTimer 6000

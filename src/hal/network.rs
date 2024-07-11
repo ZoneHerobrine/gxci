@@ -1,0 +1,1 @@
+// Placeholder for future develop of network Camera
