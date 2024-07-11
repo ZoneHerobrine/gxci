@@ -12,6 +12,10 @@ use std::ffi::c_void;
 use std::sync::LazyLock;
 use std::slice;
 
+
+
+//---------------Static Mut V-------------------------------
+
 #[cfg(feature = "solo")]
 pub static mut GXI_DEVICE: Option<GX_DEV_HANDLE> = Some(std::ptr::null_mut());
 #[cfg(feature = "solo")]
@@ -30,6 +34,39 @@ pub static mut GXI_FRAME_DATA: Option<GX_FRAME_DATA> =  Some(GX_FRAME_DATA {
 pub static mut GXI_IMAGE_BUFFER: Option<Vec<u8>> = Some(vec![]);
 // pub static mut GXI_IMAGE_BUFFER: LazyLock<Option<Vec<u8>>> = LazyLock::new(|| Some(vec![1; 8]));
 // pub static mut GXI_IMAGE_BUFFER: Option<Vec<u8>> = Some(vec![1;8]);
+
+
+
+
+//---------------Static Mut Fn-------------------------------
+
+extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM) {
+    // 避免刷屏
+    // println!("Frame callback triggered.");
+    // println!("Frame status: {:?}", unsafe { (*p_frame_callback_data).status });
+    // println!("Frame All: {:?}", unsafe { *p_frame_callback_data });
+
+    unsafe {
+        let frame_callback_data = &*p_frame_callback_data;
+        if frame_callback_data.status == 0 {
+            let data = slice::from_raw_parts(frame_callback_data.pImgBuf as *const u8, (frame_callback_data.nWidth * frame_callback_data.nHeight) as usize);
+            let mat = core::Mat::new_rows_cols_with_data(
+                frame_callback_data.nHeight, 
+                frame_callback_data.nWidth, 
+                // core::CV_8UC1, 
+                data
+            ).unwrap();
+            highgui::imshow("Camera Frame", &mat).unwrap();
+            if highgui::wait_key(10).unwrap() > 0 {
+                highgui::destroy_window("Camera Frame").unwrap();
+            }
+        }
+    }
+}
+
+
+
+//---------------HAL Functions-------------------------------
 
 
 pub fn gxi_count_devices(timeout: u32) -> Result<u32, GxciError> {
@@ -188,24 +225,7 @@ pub fn gxi_get_image() -> Result<(), GxciError> {
         GXI_FRAME_DATA = Some(frame_data);
         GXI_IMAGE_BUFFER = Some(image_buffer);
 
-        println!("{:?}", GXI_FRAME_DATA.as_ref().unwrap());
-
-        frame_data = *GXI_FRAME_DATA.as_ref().unwrap();
-        if frame_data.nStatus == 0 {
-            let data = slice::from_raw_parts(frame_data.pImgBuf as *const u8, (frame_data.nWidth * frame_data.nHeight) as usize);
-            let mat = core::Mat::new_rows_cols_with_data(
-                frame_data.nHeight, 
-                frame_data.nWidth, 
-                data
-            ).unwrap();
-            if imgcodecs::imwrite("filename.png", &mat, &opencv::types::VectorOfi32::new()).unwrap() {
-                println!("Image saved successfully.");
-            } else {
-                println!("Failed to save the image.");
-            }
-
-
-        }
+        // println!("{:?}", GXI_FRAME_DATA.as_ref().unwrap());
 
         gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP);
 
@@ -223,6 +243,10 @@ pub fn gxi_get_image() -> Result<(), GxciError> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_save_image_as_png(filename:&str) -> Result<(), GxciError> {
+    // 最开始一直报错这个
+    // [ERROR:0@3.466] global loadsave.cpp:775 cv::imwrite_ imwrite_('filename.png'): can't write data: unknown exception
+    // 最后想起来是和自己之前遇到的同一个问题——指针还还活着，但是image_buffer已经死了，所以存不进去
+    // 最后加上GXI_IMAGE_BUFFER = Some(image_buffer);就解决了
     unsafe {
         let frame_data = *GXI_FRAME_DATA.as_ref().unwrap();
         if frame_data.nStatus == 0 {
@@ -237,14 +261,31 @@ pub fn gxi_save_image_as_png(filename:&str) -> Result<(), GxciError> {
             } else {
                 println!("Failed to save the image.");
             }
-
-
         }
-
     }
-    // 最开始报错最多的是这个
-    // [ERROR:0@3.466] global loadsave.cpp:775 cv::imwrite_ imwrite_('filename.png'): can't write data: unknown exception
-    // 最后想起来是和自己之前遇到的同一个问题——指针还还活着，但是image_buffer已经死了，所以存不进去
-    // 最后加上GXI_IMAGE_BUFFER = Some(image_buffer);就解决了
     Ok(())
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_open_stream() -> Result<(), GxciError> {
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START);
+
+    
+    let status = unsafe {
+        GXI.as_ref()
+            .ok_or_else(|| {
+                GxciError::InitializationError(
+                    "GXI is None. Please check your gxci_init situation.".to_string(),
+                )
+            })?
+            .gx_stream_on(*GXI_DEVICE.as_mut().unwrap())?
+    };
+
+    if status == 0 {
+        println!("Successfully opened stream");
+        Ok(())
+    } else {
+        Err(GxciError::GalaxyError(status))
+    }
 }

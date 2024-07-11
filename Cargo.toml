@@ -7,14 +7,14 @@ authors = [
 ]
 rust-version = "1.77.0"
 description = "A raw and HAL camera interface based on Daheng-Image's GxIAPI(Galaxy Camera SDK)"
-keywords = ["galaxy", "mer", "daheng", "camera","gxiapi","interface"]
+keywords = ["galaxy", "daheng", "camera","gxci","gxiapi","interface","hal","c"]
 categories = ["hardware-support"]
 license = "MIT"
 documentation = "https://docs.rs/gxci"
 repository = "https://github.com/zoneherobrine/gxci"
 
 [dependencies]
-libloading = "0.8.3"
+libloading = "0.8.4"
 image = "0.25.1"
 opencv = "0.92.0"
 
