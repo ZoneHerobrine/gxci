@@ -178,7 +178,7 @@ Then all the environment is ready.
 
 
 # Platform Support
-Now, is Windows only.
+Now, is Windows only. 
 
 
 # Licensing
@@ -196,15 +196,15 @@ or by Tencent QQ: 2212540603 (with related information in the friend request)
 
 
 # Acknowledgments
-GXCI(GalaXy Camera Interface)的命名要感谢[MoonWX](https://github.com/MoonWX)同学的建议，这是一个简洁明确并且很帅的名字；
+GXCI(GalaXy Camera Interface)的命名要感谢[MoonWX](https://github.com/MoonWX)同学的建议，这是一个简洁明确并且很帅的名字ヽ(・∀・)ﾉ；
 
-同时也感谢同专业李同学的帮助，在gx_enum的冗长的类型转换中，他与我协力在十分钟之内完成了C接口到Rust接口的转换；
+同时也感谢同专业李同学的帮助，在gx_enum的冗长的类型转换中，他与我协力在十分钟之内完成了C接口到Rust接口的转换(￣ω￣)；
 
 同时也感谢OpenAI的GPT模型DELTA·E绘制的炫酷LOGO :D
 
-he naming of GXCI (GalaXy Camera Interface) is thanks to [MoonWX](https://github.com/MoonWX)'s suggestion, which is a concise, clear, and handsome name; 
+he naming of GXCI (GalaXy Camera Interface) is thanks to [MoonWX](https://github.com/MoonWX)'s suggestion, which is a concise, clear, and handsome nameヽ(・∀・)ﾉ; 
 
-Also, I would like to express my gratitude to fellow student Li for his assistance in the lengthy type conversion process at gx-enum. Together with me, we were able to complete the conversion from the C interface to the Rust interface within ten minutes;
+Also, I would like to express my gratitude to fellow student Li for his assistance in the lengthy type conversion process at gx-enum. Together with me, we were able to complete the conversion from the C interface to the Rust interface within ten minutes(￣ω￣);
 
 Also again, I would like to thank OpenAI's GPT model DELTA · E for creating a cool logo :D
 
