@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use crate::raw::{gx_struct::*,gx_enum::*};
-use std::ffi::{c_void};
+use std::ffi::c_void;
 
 pub type GXCaptureCallBack = extern "C" fn(pFrameData: *mut GX_FRAME_CALLBACK_PARAM);
 pub type GXDeviceOfflineCallBack = extern "C" fn(pUserParam: *mut c_void);

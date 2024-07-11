@@ -1,0 +1,342 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'gxci'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "gxci",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'hal_capture_callback'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=hal_capture_callback",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "hal_capture_callback",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'hal_capture_callback'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=hal_capture_callback",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "hal_capture_callback",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'hal_check_device'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=hal_check_device",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "hal_check_device",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'hal_check_device'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=hal_check_device",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "hal_check_device",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'hal_get_image'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=hal_get_image",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "hal_get_image",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'hal_get_image'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=hal_get_image",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "hal_get_image",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'raw_callback_capture'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=raw_callback_capture",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "raw_callback_capture",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'raw_callback_capture'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=raw_callback_capture",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "raw_callback_capture",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'raw_get_image'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=raw_get_image",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "raw_get_image",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'raw_get_image'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=raw_get_image",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "raw_get_image",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'raw_list_devices_info'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=raw_list_devices_info",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "raw_list_devices_info",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'raw_list_devices_info'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=raw_list_devices_info",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "raw_list_devices_info",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'raw_open_device_by_index'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=raw_open_device_by_index",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "raw_open_device_by_index",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'raw_open_device_by_index'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=raw_open_device_by_index",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "raw_open_device_by_index",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'raw_open_device_by_sn'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=raw_open_device_by_sn",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "raw_open_device_by_sn",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'raw_open_device_by_sn'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=raw_open_device_by_sn",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "raw_open_device_by_sn",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'hal'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=hal",
+                    "--package=gxci"
+                ],
+                "filter": {
+                    "name": "hal",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

@@ -14,13 +14,5 @@ fn main() {
         print_device_info(&device);
     }
     
-    gxi_open_device();
-
-    gxi_get_image();
-    
-    gxi_save_image_as_png("test.png");
-
-    gxi_close_device();
-
     gxci_close();
 }

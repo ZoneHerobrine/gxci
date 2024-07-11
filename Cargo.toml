@@ -16,4 +16,10 @@ repository = "https://github.com/zoneherobrine/gxci"
 [dependencies]
 libloading = "0.8.3"
 image = "0.25.1"
-opencv = "0.91.1"
+opencv = "0.92.0"
+
+
+[features]
+default = ["solo"]
+solo = []   # 单个相机特性
+multi = []  # 多个相机特性

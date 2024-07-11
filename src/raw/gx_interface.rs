@@ -4,6 +4,15 @@
 use libloading::{Library, Symbol};
 use std::ffi::{c_void,c_char,CStr};
 
+#[derive(Debug)]
+pub enum GxciError {
+    InitializationError(String),
+    FunctionCallError(String),
+    LibLoadingError(libloading::Error),
+    GalaxyError(i32),
+    CommandError(String),
+}
+
 use crate::raw::{
     gx_enum::*, gx_handle::*, gx_struct::*,gx_callback::*
 };
@@ -43,42 +52,42 @@ impl From<libloading::Error> for CameraError {
     }
 }
 pub trait GXInterface {
-    unsafe fn new(library_path: &str) -> Result<Self, libloading::Error>
+    unsafe fn new(library_path: &str) -> Result<Self, GxciError>
     where
         Self: Sized;
 
     // Lib
-    unsafe fn gx_init_lib(&self) -> Result<i32, libloading::Error>;
-    unsafe fn gx_close_lib(&self) -> Result<(), libloading::Error>;
+    unsafe fn gx_init_lib(&self) -> Result<i32, GxciError>;
+    unsafe fn gx_close_lib(&self) -> Result<(), GxciError>;
 
     // Device
     unsafe fn gx_update_device_list(
         &self,
         device_num: *mut u32,
         timeout: u32,
-    ) -> Result<i32, libloading::Error>;
+    ) -> Result<i32, GxciError>;
     unsafe fn gx_update_all_device_list(
         &self,
         num_devices: *mut u32,
         timeout: u32,
-    ) -> Result<i32, libloading::Error>;
+    ) -> Result<i32, GxciError>;
     unsafe fn gx_get_all_device_base_info(
         &self,
         p_device_info: *mut GX_DEVICE_BASE_INFO,
         p_buffer_size: *mut usize,
-    ) -> Result<i32, libloading::Error>;
+    ) -> Result<i32, GxciError>;
     unsafe fn gx_open_device_by_index(
         &self,
         index: u32,
         device: *mut GX_DEV_HANDLE,
-    ) -> Result<i32, libloading::Error>;
+    ) -> Result<i32, GxciError>;
     unsafe fn gx_open_device(
         &self,
         open_param: *const GX_OPEN_PARAM,
         device_handle: *mut GX_DEV_HANDLE,
-    ) -> Result<i32, libloading::Error>;
+    ) -> Result<i32, GxciError>;
 
-    unsafe fn gx_close_device(&self, device: GX_DEV_HANDLE) -> Result<i32, libloading::Error>;
+    unsafe fn gx_close_device(&self, device: GX_DEV_HANDLE) -> Result<i32, GxciError>;
     
     // Config
 
@@ -86,20 +95,20 @@ pub trait GXInterface {
         &self,
         device: GX_DEV_HANDLE,
         file_path: *const c_char,
-    ) -> Result<i32, libloading::Error>;
+    ) -> Result<i32, GxciError>;
 
     unsafe fn gx_import_config_file(
         &self,
         device: GX_DEV_HANDLE,
         file_path: *const c_char,
-    ) -> Result<i32, libloading::Error>;
+    ) -> Result<i32, GxciError>;
 
     // Command
     unsafe fn gx_send_command(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
-    ) -> Result<(), CameraError>;
+    ) -> Result<i32, GxciError>;
 
     // Image
     unsafe fn gx_get_image(
@@ -107,7 +116,7 @@ pub trait GXInterface {
         device: GX_DEV_HANDLE,
         p_frame_data: *mut GX_FRAME_DATA,
         timeout: i32,
-    ) -> Result<(), CameraError>;
+    ) -> Result<i32, GxciError>;
 
     // Flush
 
@@ -359,8 +368,8 @@ impl GXInterface for GXInstance {
     ///
     /// }
     /// ```
-    unsafe fn new(library_path: &str) -> Result<Self, libloading::Error> {
-        let lib = Library::new(library_path)?;
+    unsafe fn new(library_path: &str) -> Result<Self, GxciError> {
+        let lib = Library::new(library_path).map_err(|e| GxciError::LibLoadingError(e))?;
         Ok(GXInstance { lib })
     }
 
@@ -383,8 +392,9 @@ impl GXInterface for GXInstance {
     ///
     /// }
     /// ```
-    unsafe fn gx_init_lib(&self) -> Result<i32, libloading::Error> {
-        let gx_init_lib: Symbol<unsafe extern "C" fn() -> i32> = self.lib.get(b"GXInitLib")?;
+    unsafe fn gx_init_lib(&self) -> Result<i32, GxciError> {
+        let gx_init_lib: Symbol<unsafe extern "C" fn() -> i32> = self.lib.get(b"GXInitLib")
+            .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXInitLib function: {}", e)))?;
         Ok(gx_init_lib())
     }
 
@@ -409,8 +419,9 @@ impl GXInterface for GXInstance {
     ///
     /// }
     /// ```
-    unsafe fn gx_close_lib(&self) -> Result<(), libloading::Error> {
-        let gx_close_lib: Symbol<unsafe extern "C" fn() -> i32> = self.lib.get(b"GXCloseLib")?;
+    unsafe fn gx_close_lib(&self) -> Result<(), GxciError> {
+        let gx_close_lib: Symbol<unsafe extern "C" fn() -> i32> = self.lib.get(b"GXCloseLib")
+            .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e)))?;
         gx_close_lib();
         Ok(())
     }
@@ -445,10 +456,10 @@ impl GXInterface for GXInstance {
         &self,
         device_num: *mut u32,
         timeout: u32,
-    ) -> Result<i32, libloading::Error> {
-        let gx_update_device_list: Symbol<
-            unsafe extern "C" fn(device_num: *mut u32, timeout: u32) -> i32,
-        > = self.lib.get(b"GXUpdateDeviceList")?;
+    ) -> Result<i32, GxciError> {
+        let gx_update_device_list: Symbol<unsafe extern "C" fn(device_num: *mut u32, timeout: u32) -> i32> =
+            self.lib.get(b"GXUpdateDeviceList")
+                .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
         Ok(gx_update_device_list(device_num, timeout))
     }
 
@@ -482,18 +493,16 @@ impl GXInterface for GXInstance {
         &self,
         num_devices: *mut u32,
         timeout: u32,
-    ) -> Result<i32, libloading::Error> {
+    ) -> Result<i32, GxciError> {
         let gx_update_all_device_list: Symbol<
             unsafe extern "C" fn(
                 num_devices: *mut u32,
                 timeout: u32,
             ) -> i32,
-        > = self.lib.get(b"GXUpdateAllDeviceList")?;
-    
-        // 调用 C 函数全网枚举当前可用的所有设备
-        let result = gx_update_all_device_list(num_devices, timeout);
+        > = self.lib.get(b"GXUpdateAllDeviceList")
+                    .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
         println!("num_devices: {:?}, timeout: {:?}", num_devices, timeout);
-        Ok(result)
+        Ok(gx_update_all_device_list(num_devices, timeout))
     }
     
 
@@ -548,13 +557,14 @@ impl GXInterface for GXInstance {
         &self,
         p_device_info: *mut GX_DEVICE_BASE_INFO,
         p_buffer_size: *mut usize,
-    ) -> Result<i32, libloading::Error> {
+    ) -> Result<i32, GxciError> {
         let gx_get_all_device_base_info: Symbol<
             unsafe extern "C" fn(
                 p_device_info: *mut GX_DEVICE_BASE_INFO,
                 p_buffer_size: *mut usize,
             ) -> i32,
-        > = self.lib.get(b"GXGetAllDeviceBaseInfo")?;
+        > = self.lib.get(b"GXGetAllDeviceBaseInfo")
+                    .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;;
         println!(
             "p_device_info: {:?}, p_buffer_size: {:?}",
             p_device_info, p_buffer_size
@@ -576,10 +586,11 @@ impl GXInterface for GXInstance {
         &self,
         index: u32,
         device: *mut GX_DEV_HANDLE,
-    ) -> Result<i32, libloading::Error> {
+    ) -> Result<i32, GxciError> {
         let gx_open_device_by_index: Symbol<
             unsafe extern "C" fn(index: u32, device: *mut GX_DEV_HANDLE) -> i32,
-        > = self.lib.get(b"GXOpenDeviceByIndex")?;
+        > = self.lib.get(b"GXOpenDeviceByIndex")
+        .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
         Ok(gx_open_device_by_index(index, device))
     }
 
@@ -595,18 +606,17 @@ impl GXInterface for GXInstance {
         &self,
         open_param: *const GX_OPEN_PARAM,
         device_handle: *mut GX_DEV_HANDLE,
-    ) -> Result<i32, libloading::Error> {
+    ) -> Result<i32, GxciError> {
         let gx_open_device: Symbol<
             unsafe extern "C" fn(
                 open_param: *const GX_OPEN_PARAM,
                 device_handle: *mut GX_DEV_HANDLE,
             ) -> i32,
-        > = self.lib.get(b"GXOpenDevice")?;
+        > = self.lib.get(b"GXOpenDevice")
+                    .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
     
-        // 调用 C 函数打开设备
-        let result = gx_open_device(open_param, device_handle);
         println!("device_handle: {:?}", device_handle);
-        Ok(result)
+        Ok(gx_open_device(open_param, device_handle))
     }
     
 
@@ -619,9 +629,10 @@ impl GXInterface for GXInstance {
     /// use crate::gx::gx_interface::GXInterface;
     ///
     /// ```
-    unsafe fn gx_close_device(&self, device: GX_DEV_HANDLE) -> Result<i32, libloading::Error> {
+    unsafe fn gx_close_device(&self, device: GX_DEV_HANDLE) -> Result<i32, GxciError> {
         let gx_close_device: Symbol<unsafe extern "C" fn(device: GX_DEV_HANDLE) -> i32> =
-            self.lib.get(b"GXCloseDevice")?;
+            self.lib.get(b"GXCloseDevice")
+                    .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
         Ok(gx_close_device(device))
     }
 
@@ -636,18 +647,16 @@ impl GXInterface for GXInstance {
         &self,
         device: GX_DEV_HANDLE,
         file_path: *const c_char,
-    ) -> Result<i32, libloading::Error> {
+    ) -> Result<i32, GxciError> {
         let gx_export_config_file: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
                 file_path: *const c_char,
             ) -> i32,
-        > = self.lib.get(b"GXExportConfigFile")?;
-    
-        // 调用 C 函数导出配置文件
-        let result = gx_export_config_file(device, file_path);
+        > = self.lib.get(b"GXExportConfigFile")
+                    .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
         println!("Exported config file to: {:?}", CStr::from_ptr(file_path));
-        Ok(result)
+        Ok(gx_export_config_file(device, file_path))
     }
 
     /// Import a configuration file to the camera
@@ -661,18 +670,16 @@ impl GXInterface for GXInstance {
         &self,
         device: GX_DEV_HANDLE,
         file_path: *const c_char,
-    ) -> Result<i32, libloading::Error> {
+    ) -> Result<i32, GxciError> {
         let gx_import_config_file: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
                 file_path: *const c_char,
             ) -> i32,
-        > = self.lib.get(b"GXImportConfigFile")?;
-    
-        // 调用 C 函数导入配置文件
-        let result = gx_import_config_file(device, file_path);
+        > = self.lib.get(b"GXImportConfigFile")
+                    .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
         println!("Imported config file from: {:?}", CStr::from_ptr(file_path));
-        Ok(result)
+        Ok(gx_import_config_file(device, file_path))
     }
     
     
@@ -690,15 +697,16 @@ impl GXInterface for GXInstance {
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
-    ) -> Result<(), CameraError> {
+    ) -> Result<i32, GxciError> {
         let gx_send_command: Symbol<unsafe extern "C" fn(GX_DEV_HANDLE, GX_FEATURE_ID) -> i32> =
-            self.lib.get(b"GXSendCommand")?;
+            self.lib.get(b"GXSendCommand")
+                    .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
 
         let status_code = gx_send_command(device, feature_id);
         let status = convert_to_gx_status(status_code);
         match status {
-            GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(()),
-            _ => Err(CameraError::OperationError(format!(
+            GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(0),
+            _ => Err(GxciError::CommandError(format!(
                 "GXSendCommand failed with status: {:?}",
                 status
             ))),
@@ -719,21 +727,22 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         p_frame_data: *mut GX_FRAME_DATA,
         timeout: i32,
-    ) -> Result<(), CameraError> {
+    ) -> Result<i32, GxciError> {
         let gx_get_image: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
                 p_frame_data: *mut GX_FRAME_DATA,
                 timeout: i32,
             ) -> i32,
-        > = self.lib.get(b"GXGetImage")?;
+        > = self.lib.get(b"GXGetImage")
+        .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
         println!("p_frame_data: {:?}", p_frame_data);
         println!("frame_data: {:?}", *p_frame_data);
         let status_code = gx_get_image(device, p_frame_data, timeout);
         let status = convert_to_gx_status(status_code);
         match status {
-            GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(()),
-            _ => Err(CameraError::OperationError(format!(
+            GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(0),
+            _ => Err(GxciError::CommandError(format!(
                 "Failed to get image with status: {:?}",
                 status
             ))),

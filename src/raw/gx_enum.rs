@@ -485,7 +485,7 @@ pub enum GX_FEATURE_ID{
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy,PartialEq)]
 pub enum GX_STATUS_LIST {
     GX_STATUS_SUCCESS = 0,
     GX_STATUS_ERROR = -1,
