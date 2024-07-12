@@ -14,60 +14,9 @@ use std::slice;
 use std::thread::sleep;
 use std::time::Duration;
 
-
-//---------------Static Mut V-------------------------------
-
-#[cfg(feature = "solo")]
-pub static mut GXI_DEVICE: Option<GX_DEV_HANDLE> = Some(std::ptr::null_mut());
-#[cfg(feature = "solo")]
-pub static mut GXI_FRAME_DATA: Option<GX_FRAME_DATA> =  Some(GX_FRAME_DATA {
-    nStatus: 0,
-    pImgBuf: std::ptr::null_mut(),
-    nWidth: 0,
-    nHeight: 0,
-    nPixelFormat: 0,
-    nImgSize: 0,
-    nFrameID: 0,
-    nTimestamp: 0,
-    reserved: [0; 1],
-});
-#[cfg(feature = "solo")]
-pub static mut GXI_IMAGE_BUFFER: Option<Vec<u8>> = Some(vec![]);
-// pub static mut GXI_IMAGE_BUFFER: LazyLock<Option<Vec<u8>>> = LazyLock::new(|| Some(vec![1; 8]));
-// pub static mut GXI_IMAGE_BUFFER: Option<Vec<u8>> = Some(vec![1;8]);
-
-
-
-
-//---------------Static Mut Fn-------------------------------
-
-extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM) {
-    // For Debug if needed
-    // println!("Frame callback triggered.");
-    // println!("Frame status: {:?}", unsafe { (*p_frame_callback_data).status });
-    // println!("Frame All: {:?}", unsafe { *p_frame_callback_data });
-
-    unsafe {
-        let frame_callback_data = &*p_frame_callback_data;
-        if frame_callback_data.status == 0 {
-            let data = slice::from_raw_parts(frame_callback_data.pImgBuf as *const u8, (frame_callback_data.nWidth * frame_callback_data.nHeight) as usize);
-            let mat = core::Mat::new_rows_cols_with_data(
-                frame_callback_data.nHeight, 
-                frame_callback_data.nWidth, 
-                data
-            ).unwrap();
-            highgui::imshow("Camera Frame", &mat).unwrap();
-            if highgui::wait_key(10).unwrap() > 0 {
-                highgui::destroy_window("Camera Frame").unwrap();
-            }
-        }
-    }
-}
-
-
-
-//---------------HAL Functions-------------------------------
-
+//----------------------------------------------------------
+//---------------Common Functions---------------------------
+//----------------------------------------------------------
 
 pub fn gxi_count_devices(timeout: u32) -> Result<u32, GxciError> {
     let mut device_num = 0;
@@ -118,6 +67,61 @@ pub fn gxi_list_devices() -> Result<Vec<GX_DEVICE_BASE_INFO>, GxciError> {
         Err(GxciError::GalaxyError(status))
     }
 }
+
+
+//----------------------------------------------------------
+//---------------Solo Camera--------------------------------
+//----------------------------------------------------------
+
+//---------------Static Mut V-------------------------------
+
+#[cfg(feature = "solo")]
+pub static mut GXI_DEVICE: Option<GX_DEV_HANDLE> = Some(std::ptr::null_mut());
+#[cfg(feature = "solo")]
+pub static mut GXI_FRAME_DATA: Option<GX_FRAME_DATA> =  Some(GX_FRAME_DATA {
+    nStatus: 0,
+    pImgBuf: std::ptr::null_mut(),
+    nWidth: 0,
+    nHeight: 0,
+    nPixelFormat: 0,
+    nImgSize: 0,
+    nFrameID: 0,
+    nTimestamp: 0,
+    reserved: [0; 1],
+});
+#[cfg(feature = "solo")]
+pub static mut GXI_IMAGE_BUFFER: Option<Vec<u8>> = Some(vec![]);
+// pub static mut GXI_IMAGE_BUFFER: LazyLock<Option<Vec<u8>>> = LazyLock::new(|| Some(vec![1; 8]));
+// pub static mut GXI_IMAGE_BUFFER: Option<Vec<u8>> = Some(vec![1;8]);
+
+
+//---------------Static Mut Fn-------------------------------
+
+extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM) {
+    // For Debug if needed
+    // println!("Frame callback triggered.");
+    // println!("Frame status: {:?}", unsafe { (*p_frame_callback_data).status });
+    // println!("Frame All: {:?}", unsafe { *p_frame_callback_data });
+
+    unsafe {
+        let frame_callback_data = &*p_frame_callback_data;
+        if frame_callback_data.status == 0 {
+            let data = slice::from_raw_parts(frame_callback_data.pImgBuf as *const u8, (frame_callback_data.nWidth * frame_callback_data.nHeight) as usize);
+            let mat = core::Mat::new_rows_cols_with_data(
+                frame_callback_data.nHeight, 
+                frame_callback_data.nWidth, 
+                data
+            ).unwrap();
+            highgui::imshow("Camera Frame", &mat).unwrap();
+            if highgui::wait_key(10).unwrap() > 0 {
+                highgui::destroy_window("Camera Frame").unwrap();
+            }
+        }
+    }
+}
+
+
+
 
 #[cfg(feature = "solo")]
 pub fn gxi_open_device() -> Result<(), GxciError> {
@@ -361,3 +365,9 @@ pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<(), GxciError> {
         Err(GxciError::GalaxyError(status))
     }
 }
+
+
+
+//----------------------------------------------------------
+//---------------Multi Camera-------------------------------
+//----------------------------------------------------------

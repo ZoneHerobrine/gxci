@@ -85,6 +85,45 @@ fn main() {
 }
 ```
 
+The terminal output should be like this:
+
+```shell
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.84s
+     Running `target\debug\examples\hal_get_image.exe`
+Device number: 1
+p_device_info: 0x1ad375f3cd0, p_buffer_size: 0xaa9f0ff8d8
+Vendor Name: Daheng Imaging
+Model Name: MER-132-43U3M
+Serial Number: FS0170060031
+Display Name: MER-132-43U3M(FS0170060031)
+Device ID: MER-132-43U3M(FS0170060031)
+User ID:
+Access Status: GX_ACCESS_STATUS_UNKNOWN
+Device Class: GX_DEVICE_CLASS_U3V
+-----------------------
+Device handle: Some(0x1ad3738f3e0)
+Successfully opened device index 1
+Successfully sent command
+int_value: 0xaa9f0ff250
+int_value: 0xaa9f0ff258
+enum_value: 0xaa9f0ff270
+enum_value: 0xaa9f0ff260
+int_value: 0xaa9f0ff268
+p_frame_data: 0xaa9f0ff6f8
+frame_data: GX_FRAME_DATA { nStatus: 0, pImgBuf: 0x1ad39635040, nWidth: 1292, nHeight: 964, nPixelFormat: 17301505, nImgSize: 9963904, nFrameID: 0, nTimestamp: 0, reserved: [17301505] }
+Frame data: GX_FRAME_DATA { nStatus: 0, pImgBuf: 0x1ad39635040, nWidth: 1292, nHeight: 964, nPixelFormat: 17301505, nImgSize: 1245488, nFrameID: 0, nTimestamp: 61947717921575, reserved: [17301505] }
+Successfully sent command
+Successfully got image
+Image saved successfully.
+Device handle: Some(0x0)
+Successfully closed device
+```
+
+and you will get a test.png as
+
+![test.png](assets/test.png)
+![alt text](image.png)
+
 more codes just see the examples.
 
 
