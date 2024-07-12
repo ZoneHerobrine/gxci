@@ -91,13 +91,13 @@ more codes just see the examples.
 # Example
 Here 5 raw-examples and 3 hal-example are provided, they are:
 - raw-examples
-  - [x] gxci_raw_example
-  - [x] gxci_raw_example2
-  - [x] gxci_raw_example3
-  - [x] gxci_raw_example4
-  - [x] gxci_raw_example5
+  - [x] raw_open_device_by_index
+  - [x] raw_open_device_by_sn
+  - [x] raw_list_device_info
+  - [x] raw_get_image
+  - [x] raw_capture_callback
 - hal-examples
-  - [x] gxci_hal_example
+  - [x] hal_list_device_info
   - [x] hal_get_image
   - [x] hal_capture_callback
 
