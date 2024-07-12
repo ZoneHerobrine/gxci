@@ -1,6 +1,6 @@
 [package]
 name = "gxci"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = [
     "Hako Chest <zoneherobrine@gmail.com>"
@@ -23,3 +23,4 @@ opencv = "0.92.0"
 default = ["solo"]
 solo = []   # 单个相机特性
 multi = []  # 多个相机特性
+no-opencv = []  # 不使用opencv特性

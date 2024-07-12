@@ -125,7 +125,7 @@ if your camera is as the following:
 
 ![alt text](assets/image.png)
 
-and you will get a test.png as
+then you will get a test.png as
 
 ![test.png](assets/test.png)
 
@@ -145,15 +145,23 @@ Here 5 raw-examples and 3 hal-example are provided, they are:
   - [x] hal_get_image
   - [x] hal_capture_callback
 
+you can run them like:
+
+```shell
+cargo run --example hal_list_device_info
+```
 
 # Dependencies
 
 
-## OpenCV 4.9.0 Environment
-The OpenCV lib here is only used to easily provide a GUI to show the image, so you can ignore this part if you don't want to show the image.
+## OpenCV Environment
+The OpenCV lib here is used to easily matlization the image and provide a GUI to show the image. 
 
-(Now the newest OpenCV is 4.10.0, but I haven't try it yet.)
+Anyway I think OpenCV is exactly a necessary lib in image processing region. 
 
+But the shortcoming is that the OpenCV is a little bit heavy, I'm trying to find a lighter lib to replace it in a feature like `no-opencv`. But it's also need time.
+
+(Now the newest OpenCV is 4.10.0, but I haven't try it yet. So here is a 4.9.0 tutorial)
 
 ### Install LLVM and OpenCV 4.9.0
 In Windows 10/11, I would like using choco as the following command to install LLVM and OpenCV 4.9.0:
@@ -242,18 +250,19 @@ or by Tencent QQ: 2212540603 (with related information in the friend request)
 # Acknowledgments
 GXCI(GalaXy Camera Interface)的命名要感谢[MoonWX](https://github.com/MoonWX)同学的建议，这是一个简洁明确并且很帅的名字ヽ(・∀・)ﾉ；
 
-同时也感谢同专业李同学的帮助，在gx_enum的冗长的类型转换中，他与我协力在十分钟之内完成了C接口到Rust接口的转换(￣ω￣)；
+同时也感谢同专业李同学的帮助，在gx_enum的冗长的类型转换中，他与我协力在十分钟之内完成了C枚举到Rust枚举的转换(￣ω￣)；
 
 同时也感谢OpenAI的GPT模型DELTA·E绘制的炫酷LOGO :D
 
 he naming of GXCI (GalaXy Camera Interface) is thanks to [MoonWX](https://github.com/MoonWX)'s suggestion, which is a concise, clear, and handsome nameヽ(・∀・)ﾉ; 
 
-Also, I would like to express my gratitude to fellow student Li for his assistance in the lengthy type conversion process at gx-enum. Together with me, we were able to complete the conversion from the C interface to the Rust interface within ten minutes(￣ω￣);
+Also, I would like to express my gratitude to fellow student Li for his assistance in the lengthy type conversion process at gx-enum. Together with me, we were able to complete the conversion from the C enum to the Rust enum within ten minutes(￣ω￣);
 
 Also again, I would like to thank OpenAI's GPT model DELTA · E for creating a cool logo :D
 
 # Todolist
-- [ ] The feather of multi camera
+- [ ] The feature of multi camera
+- [ ] The feature of no-opencv
 - [ ] 补全网络相机(Gige)相关的函数
 
 
