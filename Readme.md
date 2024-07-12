@@ -54,6 +54,8 @@ in your Cargo.toml, add the following dependencies:
 gxci = {version="0.1.0", features=["solo"]}
 ```
 
+(because the 0.1.0 version has no images in Readme.md assets, it will be more lightwieght lol~)
+
 then, you can use the following code to get a single image from the camera and save it as png.
 
 ```rust
@@ -119,10 +121,13 @@ Device handle: Some(0x0)
 Successfully closed device
 ```
 
+if your camera is as the following:
+
+![alt text](assets/image.png)
+
 and you will get a test.png as
 
 ![test.png](assets/test.png)
-![alt text](image.png)
 
 more codes just see the examples.
 
