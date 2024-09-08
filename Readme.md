@@ -17,9 +17,12 @@
 <hr />
 
 # New Things in 2.0
-1. The safe GXI and GXCI interface
-2. The inner error handling
-3. no-opencv feature
+1. [x] All the lib functions are safe now
+2. [x] The inner error handling
+
+# Plan in 3.0
+1. [ ] no-opencv feature
+2. [ ] multi feature
 
 # Introduction
 gxci(Galaxy Camera Interface)是一款用Rust基于大恒工业相机GxIAPI的库进行的接口开发;
@@ -32,6 +35,8 @@ gxci(Galaxy Camera Interface)是一款用Rust基于大恒工业相机GxIAPI的�
 
 截至目前，2024年7月11日23点45分，已经完成了`features=["solo"]`部分的HAL库编写，多相机的feature还未实现，等再次闲下来再来更新吧(๑˃ᴗ˂)ﻭ
 
+2024年9月8日21点15分，2.0更新！主要是错误处理和安全化，现在所有的库函数都是安全的了，同时建立了非常规范和健壮的错误处理。此外也更新了所有例子，消除了所有的Warning。
+
 Gxci (Galaxy Camera Interface) is an interface developed using Rust based on the Daxi API library of Daheng Industrial Camera; 
 
 At present, HAL library encapsulation for USB single camera has been implemented, and raw contains a direct Rust implementation of all contents (handles, constants, structures, enumerations, callback functions, etc.) of the C language interface except for the network camera; HAL has encapsulated the hardware abstraction layer (currently including connections, image capture, and streaming), which is suitable for practical development and use; Inside the utilities are some utility class functions (encapsulated with commonly used Builder and Facade pattern functions); 
@@ -41,6 +46,8 @@ The old version was a crate library called [gxi_hako](https://crates.io/crates/g
 The new version, also known as gxci, includes the implementation of three parts: raw, HAL, and utilities;
 
 As of 23:45 on July 11, 2024, the HAL library for the 'features=["solo"]' section has been completed, but the multi camera features have not been implemented yet. i'll update it when i have more free time (๑˃ᴗ˂)ﻭ.
+
+As of 21:15 on September 8, 2024, 2.0 update! Mainly error handling and security, now all library functions are safe, and very standardized and robust error handling has been established. In addition, all examples have been updated and all Warnings have been resolved.
 
 # Overview
 You can get the sdk-dev-doc from the SDK of Daheng Imaging you have installed.
@@ -55,7 +62,7 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = {version="0.2.0", features=["solo"]}
+gxci = "0.2.0"}
 ```
 
 (because the 0.1.0 version has no images in Readme.md assets, it will be more lightwieght lol~)
@@ -68,7 +75,7 @@ use gxci::hal::base::*;
 use gxci::utils::debug::print_device_info;
 
 fn main()->Result<()> {
-    let dll_path = "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; // 假设这是一个测试用的 DLL 路径
+    let dll_path = "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; 
     gxci_init(dll_path)?;
 
     let device_num = gxi_count_devices( 1000);
