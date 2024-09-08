@@ -1,5 +1,5 @@
 <p align="center" dir="auto">
-    <img src="https://smms.app/image/uDKESYW7ks9eRyf" alt="Logo逃走啦~"/>
+    <img src="https://s2.loli.net/2024/09/08/uDKESYW7ks9eRyf.png" alt="Logo逃走啦~"/>
 </p>
 
 <h1 align="center" tabindex="-1" class="heading-element" dir="auto">GXCI</h1>
