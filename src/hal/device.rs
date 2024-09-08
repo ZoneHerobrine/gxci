@@ -1,4 +1,4 @@
-use crate::hal::basement::{gxi_check, GXI};
+use crate::hal::base::{gxi_check, GXI};
 use crate::raw::{gx_const::*, gx_enum::*, gx_handle::*, gx_interface::*, gx_struct::*};
 use crate::utils::builder::GXDeviceBaseInfoBuilder;
 use crate::utils::facade::convert_to_frame_data;
@@ -18,7 +18,7 @@ use std::time::Duration;
 //---------------Common Functions---------------------------
 //----------------------------------------------------------
 
-pub fn gxi_count_devices(timeout: u32) -> Result<u32, GxciError> {
+pub fn gxi_count_devices(timeout: u32) -> Result<u32> {
     let mut device_num = 0;
 
     unsafe {
@@ -34,7 +34,7 @@ pub fn gxi_count_devices(timeout: u32) -> Result<u32, GxciError> {
     Ok(device_num)
 }
 
-pub fn gxi_list_devices() -> Result<Vec<GX_DEVICE_BASE_INFO>, GxciError> {
+pub fn gxi_list_devices() -> Result<Vec<GX_DEVICE_BASE_INFO>> {
     let mut device_num = 0;
     unsafe {
         GXI.as_ref()
@@ -64,7 +64,7 @@ pub fn gxi_list_devices() -> Result<Vec<GX_DEVICE_BASE_INFO>, GxciError> {
     if status == 0 {
         Ok(base_info)
     } else {
-        Err(GxciError::GalaxyError(status))
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
     }
 }
 
@@ -124,7 +124,7 @@ extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM
 
 
 #[cfg(feature = "solo")]
-pub fn gxi_open_device() -> Result<(), GxciError> {
+pub fn gxi_open_device() -> Result<()> {
     let mut device_num = 0;
     unsafe {
         GXI.as_ref()
@@ -156,12 +156,12 @@ pub fn gxi_open_device() -> Result<(), GxciError> {
         println!("Successfully opened device index 1");
         Ok(())
     } else {
-        Err(GxciError::GalaxyError(status))
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
     }
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_close_device() -> Result<(), GxciError> {
+pub fn gxi_close_device() -> Result<()> {
     let status = unsafe {
         GXI.as_ref()
             .ok_or_else(|| {
@@ -180,12 +180,12 @@ pub fn gxi_close_device() -> Result<(), GxciError> {
         println!("Successfully closed device");
         Ok(())
     } else {
-        Err(GxciError::GalaxyError(status))
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
     }
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_send_command(command: GX_FEATURE_ID) -> Result<(), GxciError> {
+pub fn gxi_send_command(command: GX_FEATURE_ID) -> Result<()> {
     let status = unsafe {
         GXI.as_ref()
             .ok_or_else(|| {
@@ -200,12 +200,12 @@ pub fn gxi_send_command(command: GX_FEATURE_ID) -> Result<(), GxciError> {
         println!("Successfully sent command");
         Ok(())
     } else {
-        Err(GxciError::GalaxyError(status))
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
     }
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_get_image() -> Result<(), GxciError> {
+pub fn gxi_get_image() -> Result<()> {
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START);
 
@@ -237,7 +237,7 @@ pub fn gxi_get_image() -> Result<(), GxciError> {
             println!("Successfully got image");
             Ok(())
         } else {
-            Err(GxciError::GalaxyError(status))
+            Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
         }
 
     }
@@ -246,7 +246,7 @@ pub fn gxi_get_image() -> Result<(), GxciError> {
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_save_image_as_png(filename:&str) -> Result<(), GxciError> {
+pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
     // 最开始一直报错这个
     // [ERROR:0@3.466] global loadsave.cpp:775 cv::imwrite_ imwrite_('filename.png'): can't write data: unknown exception
     // 最后想起来是和自己之前遇到的同一个问题——指针还还活着，但是image_buffer已经死了，所以存不进去
@@ -271,7 +271,7 @@ pub fn gxi_save_image_as_png(filename:&str) -> Result<(), GxciError> {
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_open_stream() -> Result<(), GxciError> {
+pub fn gxi_open_stream() -> Result<()> {
 
 
     let status = unsafe {
@@ -297,12 +297,12 @@ pub fn gxi_open_stream() -> Result<(), GxciError> {
         println!("Successfully opened stream");
         Ok(())
     } else {
-        Err(GxciError::GalaxyError(status))
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
     }
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_close_stream() -> Result<(), GxciError> {
+pub fn gxi_close_stream() -> Result<()> {
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP);
 
@@ -320,13 +320,13 @@ pub fn gxi_close_stream() -> Result<(), GxciError> {
         println!("Successfully closed stream");
         Ok(())
     } else {
-        Err(GxciError::GalaxyError(status))
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
     }
 
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<(), GxciError> {
+pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<()> {
 
     let status = unsafe {
         GXI.as_ref()
@@ -362,7 +362,7 @@ pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<(), GxciError> {
         println!("Successfully opened stream");
         Ok(())
     } else {
-        Err(GxciError::GalaxyError(status))
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
     }
 }
 

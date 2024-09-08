@@ -79,13 +79,13 @@ impl From<libloading::Error> for CameraError {
     }
 }
 pub trait GXInterface {
-    unsafe fn new(library_path: &str) -> Result<Self>
+    fn new(library_path: &str) -> Result<Self>
     where
         Self: Sized;
 
     // Lib
-    unsafe fn gx_init_lib(&self) -> Result<i32>;
-    unsafe fn gx_close_lib(&self) -> Result<()>;
+    fn gx_init_lib(&self) -> Result<i32>;
+    fn gx_close_lib(&self) -> Result<()>;
 
     // Device
     unsafe fn gx_update_device_list(
@@ -395,9 +395,11 @@ impl GXInterface for GXInstance {
     ///
     /// }
     /// ```
-    unsafe fn new(library_path: &str) -> Result<Self> {
+    fn new(library_path: &str) -> Result<Self> {
+        unsafe{
         let lib = Library::new(library_path).map_err(|e| GxciError::LibLoadingError(e))?;
         Ok(GXInstance { lib })
+    }
     }
 
     /// Initialize the library
@@ -419,10 +421,12 @@ impl GXInterface for GXInstance {
     ///
     /// }
     /// ```
-    unsafe fn gx_init_lib(&self) -> Result<i32> {
+    fn gx_init_lib(&self) -> Result<i32> {
+        unsafe{
         let gx_init_lib: Symbol<unsafe extern "C" fn() -> i32> = self.lib.get(b"GXInitLib")
             .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXInitLib function: {}", e)))?;
         Ok(gx_init_lib())
+    }
     }
 
     /// Close library
@@ -446,11 +450,12 @@ impl GXInterface for GXInstance {
     ///
     /// }
     /// ```
-    unsafe fn gx_close_lib(&self) -> Result<()> {
-        let gx_close_lib: Symbol<unsafe extern "C" fn() -> i32> = self.lib.get(b"GXCloseLib")
+     fn gx_close_lib(&self) -> Result<()> {
+        unsafe{    let gx_close_lib: Symbol<unsafe extern "C" fn() -> i32> = self.lib.get(b"GXCloseLib")
             .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e)))?;
         gx_close_lib();
         Ok(())
+    }
     }
 
     /// Update the device list
