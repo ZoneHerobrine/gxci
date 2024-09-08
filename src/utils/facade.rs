@@ -1,3 +1,5 @@
+#![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
 use crate::raw::{
     gx_interface::*,
     gx_handle::GX_DEV_HANDLE,
@@ -5,7 +7,7 @@ use crate::raw::{
     gx_struct::*,
 };
 
-use std::ffi::{CString,c_char,c_int,c_void};
+use std::ffi::{c_int,c_void};
 
 
 pub struct GXFrameDataFacade {
@@ -20,7 +22,6 @@ pub struct GXFrameDataFacade {
     pub reserved: [i32; 1],     // Reserved, array of 1 i32 to match C definition
 }
 
-// 函数用于转换 GXFrameDataFacade 到 GX_FRAME_DATA
 pub fn convert_to_frame_data(facade: &GXFrameDataFacade) -> GX_FRAME_DATA {
     GX_FRAME_DATA {
         nStatus: facade.nStatus,
@@ -35,7 +36,7 @@ pub fn convert_to_frame_data(facade: &GXFrameDataFacade) -> GX_FRAME_DATA {
     }
 }
 
-pub unsafe fn fetch_frame_data(gx: &GXInstance, device_handle: GX_DEV_HANDLE) ->Result<(GXFrameDataFacade,Vec<u8>),GxciError> {
+pub unsafe fn fetch_frame_data(gx: &GXInstance, device_handle: GX_DEV_HANDLE) ->Result<(GXFrameDataFacade,Vec<u8>)> {
 
     let mut width_value: i64 = 0;
     let mut height_value: i64 = 0;

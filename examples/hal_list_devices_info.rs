@@ -1,5 +1,5 @@
 use gxci::hal::device::*;
-use gxci::hal::basement::*;
+use gxci::hal::base::*;
 use gxci::utils::debug::print_device_info;
 
 fn main() {

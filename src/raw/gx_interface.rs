@@ -2,7 +2,34 @@
 #![allow(dead_code)]
 
 use libloading::{Library, Symbol};
-use std::ffi::{c_void,c_char,CStr};
+use std::ffi::{c_char, c_void, CStr};
+
+pub type Result<T> = core::result::Result<T, Error>;
+
+pub struct Error{
+    pub inner: Box<ErrorKind>
+}
+
+impl Error{
+    pub fn new(inner: ErrorKind) -> Self{
+        Error{
+            inner: Box::new(inner)
+        }
+    }
+}
+
+pub enum ErrorKind{
+    GxciError(GxciError),
+    CameraError(CameraError),
+}
+
+impl From<GxciError> for Error {
+    fn from(err: GxciError) -> Self {
+        Error {
+            inner: Box::new(ErrorKind::GxciError(err))
+        }
+    }
+}
 
 #[derive(Debug)]
 pub enum GxciError {
@@ -52,42 +79,42 @@ impl From<libloading::Error> for CameraError {
     }
 }
 pub trait GXInterface {
-    unsafe fn new(library_path: &str) -> Result<Self, GxciError>
+    unsafe fn new(library_path: &str) -> Result<Self>
     where
         Self: Sized;
 
     // Lib
-    unsafe fn gx_init_lib(&self) -> Result<i32, GxciError>;
-    unsafe fn gx_close_lib(&self) -> Result<(), GxciError>;
+    unsafe fn gx_init_lib(&self) -> Result<i32>;
+    unsafe fn gx_close_lib(&self) -> Result<()>;
 
     // Device
     unsafe fn gx_update_device_list(
         &self,
         device_num: *mut u32,
         timeout: u32,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_update_all_device_list(
         &self,
         num_devices: *mut u32,
         timeout: u32,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_get_all_device_base_info(
         &self,
         p_device_info: *mut GX_DEVICE_BASE_INFO,
         p_buffer_size: *mut usize,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_open_device_by_index(
         &self,
         index: u32,
         device: *mut GX_DEV_HANDLE,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_open_device(
         &self,
         open_param: *const GX_OPEN_PARAM,
         device_handle: *mut GX_DEV_HANDLE,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
 
-    unsafe fn gx_close_device(&self, device: GX_DEV_HANDLE) -> Result<i32, GxciError>;
+    unsafe fn gx_close_device(&self, device: GX_DEV_HANDLE) -> Result<i32>;
     
     // Config
 
@@ -95,20 +122,20 @@ pub trait GXInterface {
         &self,
         device: GX_DEV_HANDLE,
         file_path: *const c_char,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
 
     unsafe fn gx_import_config_file(
         &self,
         device: GX_DEV_HANDLE,
         file_path: *const c_char,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
 
     // Command
     unsafe fn gx_send_command(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
 
     // Image
     unsafe fn gx_get_image(
@@ -116,18 +143,18 @@ pub trait GXInterface {
         device: GX_DEV_HANDLE,
         p_frame_data: *mut GX_FRAME_DATA,
         timeout: i32,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
 
     // Flush
 
     unsafe fn gx_flush_queue(
         &self,
         device: GX_DEV_HANDLE,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_flush_event(
         &self,
         device: GX_DEV_HANDLE,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     // Feature Status
     
@@ -137,28 +164,28 @@ pub trait GXInterface {
         feature_id: GX_FEATURE_ID,
         name: *mut c_char,
         size: *mut usize, 
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_is_implemented(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         is_implemented: *mut bool,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_is_readable(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         is_readable: *mut bool,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_is_writable(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         is_writable: *mut bool,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     
     // Getter and Setter
@@ -167,13 +194,13 @@ pub trait GXInterface {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         int_value: *mut i64,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_set_int(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         int_value: i64,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     
     unsafe fn gx_get_float(
@@ -181,13 +208,13 @@ pub trait GXInterface {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         float_value: *mut f64,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_set_float(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         float_value: f64,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     
     unsafe fn gx_get_enum_entry_nums(
@@ -195,54 +222,54 @@ pub trait GXInterface {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         entry_nums: *mut u32,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_get_enum_description(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         enum_description: *mut GX_ENUM_DESCRIPTION,
         buffer_size: *mut usize,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_get_enum(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         enum_value: *mut i64,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_set_enum(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         enum_value: i64,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_get_bool(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         value: *mut bool,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_set_bool(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         value: bool,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_get_string_length(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         size: *mut usize, 
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_get_string_max_length(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         size: *mut usize, 
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_get_string(
         &self,
@@ -250,86 +277,86 @@ pub trait GXInterface {
         feature_id: GX_FEATURE_ID,
         content: *mut c_char,
         size: *mut usize,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_set_string(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         content: *const c_char,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_get_buffer_length(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         size: *mut usize, 
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_get_buffer(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         buffer: *mut u8,
         size: *mut usize, 
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_set_buffer(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         buffer: *const u8,
         size: usize, 
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_get_int_range(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         int_range: *mut GX_INT_RANGE, 
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_get_float_range(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         float_range: *mut GX_FLOAT_RANGE, 
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     unsafe fn gx_get_event_num_in_queue(
         &self,
         device: GX_DEV_HANDLE,
         event_num: *mut u32,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_get_last_error(
         &self,
         error_code: *mut GX_STATUS_LIST, // !!!这里文档里面没有_List，暂未检验可行性
         err_text: *mut c_char,
         size: *mut usize,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_set_acquisition_buffer_number(
         &self,
         device: GX_DEV_HANDLE,
         buffer_num: u64,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     
     // Callback
     unsafe fn gx_register_capture_callback(
         &self,
         device: *mut c_void,
         callback: GXCaptureCallBack,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_unregister_capture_callback(&self, device: *mut c_void)
-        -> Result<i32, GxciError>;
+        -> Result<i32>;
     unsafe fn gx_register_device_offline_callback(
         &self,
         device: GX_DEV_HANDLE,
         user_param: *mut std::os::raw::c_void,
         callback_fun: GXDeviceOfflineCallBack,
         callback_handle: *mut GX_EVENT_CALLBACK_HANDLE,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_unregister_device_offline_callback(
         &self,
         device: GX_DEV_HANDLE,
         callback_handle: GX_EVENT_CALLBACK_HANDLE,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_register_feature_callback(
         &self,
         device: GX_DEV_HANDLE,
@@ -337,13 +364,13 @@ pub trait GXInterface {
         callback_fun: GXFeatureCallBack,
         feature_id: GX_FEATURE_ID,
         callback_handle: *mut GX_FEATURE_CALLBACK_HANDLE,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
     unsafe fn gx_unregister_feature_callback(
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         callback_handle: GX_FEATURE_CALLBACK_HANDLE,
-    ) -> Result<i32, GxciError>;
+    ) -> Result<i32>;
 }
 
 pub struct GXInstance {
@@ -368,7 +395,7 @@ impl GXInterface for GXInstance {
     ///
     /// }
     /// ```
-    unsafe fn new(library_path: &str) -> Result<Self, GxciError> {
+    unsafe fn new(library_path: &str) -> Result<Self> {
         let lib = Library::new(library_path).map_err(|e| GxciError::LibLoadingError(e))?;
         Ok(GXInstance { lib })
     }
@@ -392,7 +419,7 @@ impl GXInterface for GXInstance {
     ///
     /// }
     /// ```
-    unsafe fn gx_init_lib(&self) -> Result<i32, GxciError> {
+    unsafe fn gx_init_lib(&self) -> Result<i32> {
         let gx_init_lib: Symbol<unsafe extern "C" fn() -> i32> = self.lib.get(b"GXInitLib")
             .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXInitLib function: {}", e)))?;
         Ok(gx_init_lib())
@@ -419,7 +446,7 @@ impl GXInterface for GXInstance {
     ///
     /// }
     /// ```
-    unsafe fn gx_close_lib(&self) -> Result<(), GxciError> {
+    unsafe fn gx_close_lib(&self) -> Result<()> {
         let gx_close_lib: Symbol<unsafe extern "C" fn() -> i32> = self.lib.get(b"GXCloseLib")
             .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e)))?;
         gx_close_lib();
@@ -456,7 +483,7 @@ impl GXInterface for GXInstance {
         &self,
         device_num: *mut u32,
         timeout: u32,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_update_device_list: Symbol<unsafe extern "C" fn(device_num: *mut u32, timeout: u32) -> i32> =
             self.lib.get(b"GXUpdateDeviceList")
                 .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
@@ -493,7 +520,7 @@ impl GXInterface for GXInstance {
         &self,
         num_devices: *mut u32,
         timeout: u32,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_update_all_device_list: Symbol<
             unsafe extern "C" fn(
                 num_devices: *mut u32,
@@ -557,14 +584,14 @@ impl GXInterface for GXInstance {
         &self,
         p_device_info: *mut GX_DEVICE_BASE_INFO,
         p_buffer_size: *mut usize,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_all_device_base_info: Symbol<
             unsafe extern "C" fn(
                 p_device_info: *mut GX_DEVICE_BASE_INFO,
                 p_buffer_size: *mut usize,
             ) -> i32,
         > = self.lib.get(b"GXGetAllDeviceBaseInfo")
-                    .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;;
+                    .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
         println!(
             "p_device_info: {:?}, p_buffer_size: {:?}",
             p_device_info, p_buffer_size
@@ -586,7 +613,7 @@ impl GXInterface for GXInstance {
         &self,
         index: u32,
         device: *mut GX_DEV_HANDLE,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_open_device_by_index: Symbol<
             unsafe extern "C" fn(index: u32, device: *mut GX_DEV_HANDLE) -> i32,
         > = self.lib.get(b"GXOpenDeviceByIndex")
@@ -606,7 +633,7 @@ impl GXInterface for GXInstance {
         &self,
         open_param: *const GX_OPEN_PARAM,
         device_handle: *mut GX_DEV_HANDLE,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_open_device: Symbol<
             unsafe extern "C" fn(
                 open_param: *const GX_OPEN_PARAM,
@@ -629,7 +656,7 @@ impl GXInterface for GXInstance {
     /// use crate::gx::gx_interface::GXInterface;
     ///
     /// ```
-    unsafe fn gx_close_device(&self, device: GX_DEV_HANDLE) -> Result<i32, GxciError> {
+    unsafe fn gx_close_device(&self, device: GX_DEV_HANDLE) -> Result<i32> {
         let gx_close_device: Symbol<unsafe extern "C" fn(device: GX_DEV_HANDLE) -> i32> =
             self.lib.get(b"GXCloseDevice")
                     .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
@@ -647,7 +674,7 @@ impl GXInterface for GXInstance {
         &self,
         device: GX_DEV_HANDLE,
         file_path: *const c_char,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_export_config_file: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -670,7 +697,7 @@ impl GXInterface for GXInstance {
         &self,
         device: GX_DEV_HANDLE,
         file_path: *const c_char,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_import_config_file: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -697,7 +724,7 @@ impl GXInterface for GXInstance {
         &self,
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_send_command: Symbol<unsafe extern "C" fn(GX_DEV_HANDLE, GX_FEATURE_ID) -> i32> =
             self.lib.get(b"GXSendCommand")
                     .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
@@ -706,10 +733,15 @@ impl GXInterface for GXInstance {
         let status = convert_to_gx_status(status_code);
         match status {
             GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(0),
-            _ => Err(GxciError::CommandError(format!(
+            _ => Err(Error::new(ErrorKind::GxciError(GxciError::CommandError(format!(
                 "GXSendCommand failed with status: {:?}",
                 status
-            ))),
+            ))))),
+            // Err(
+            //     GxciError::CommandError(format!(
+            //     "GXSendCommand failed with status: {:?}",
+            //     status
+            // ))),
         }
     }
 
@@ -727,7 +759,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         p_frame_data: *mut GX_FRAME_DATA,
         timeout: i32,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_image: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -742,10 +774,10 @@ impl GXInterface for GXInstance {
         let status = convert_to_gx_status(status_code);
         match status {
             GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(0),
-            _ => Err(GxciError::CommandError(format!(
+            _ => Err(Error::new(ErrorKind::GxciError(GxciError::CommandError(format!(
                 "Failed to get image with status: {:?}",
                 status
-            ))),
+            ))))),
         }
     }
 
@@ -759,7 +791,7 @@ impl GXInterface for GXInstance {
     unsafe fn gx_flush_queue(
         &self,
         device: GX_DEV_HANDLE,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_flush_queue: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -782,7 +814,7 @@ impl GXInterface for GXInstance {
     unsafe fn gx_flush_event(
         &self,
         device: GX_DEV_HANDLE,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_flush_event: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -811,7 +843,7 @@ impl GXInterface for GXInstance {
         feature_id: GX_FEATURE_ID,
         name: *mut c_char,
         size: *mut usize,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_feature_name: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -839,7 +871,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         is_implemented: *mut bool,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_is_implemented: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -865,7 +897,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         is_readable: *mut bool,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_is_readable: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -891,7 +923,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         is_writable: *mut bool,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_is_writable: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -919,7 +951,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         int_value: *mut i64,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_int: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -946,7 +978,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         int_value:  i64,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_set_int: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -973,7 +1005,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         float_value: *mut f64,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_float: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -999,7 +1031,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         float_value: f64,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_set_float: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1023,7 +1055,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         entry_nums: *mut u32,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_enum_entry_nums: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1051,7 +1083,7 @@ impl GXInterface for GXInstance {
         feature_id: GX_FEATURE_ID,
         enum_description: *mut GX_ENUM_DESCRIPTION,
         buffer_size: *mut usize,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_enum_description: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1082,7 +1114,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         enum_value: *mut i64,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_enum: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1109,7 +1141,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         enum_value: i64,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_set_enum: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1136,7 +1168,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         bool_value: *mut bool,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_bool: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1162,7 +1194,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         bool_value: bool,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_set_bool: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1187,7 +1219,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         size: *mut usize, // Using usize to represent size_t
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_string_length: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1211,7 +1243,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         size: *mut usize, // Using usize to represent size_t
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_string_max_length: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1236,7 +1268,7 @@ impl GXInterface for GXInstance {
         feature_id: GX_FEATURE_ID,
         content: *mut c_char,
         size: *mut usize,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_string: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1262,7 +1294,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         content: *const c_char,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_set_string: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1287,7 +1319,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         size: *mut usize,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_buffer_length: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1312,7 +1344,7 @@ impl GXInterface for GXInstance {
         feature_id: GX_FEATURE_ID,
         buffer: *mut u8,
         size: *mut usize,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_buffer: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1339,7 +1371,7 @@ impl GXInterface for GXInstance {
         feature_id: GX_FEATURE_ID,
         buffer: *const u8,
         size: usize,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_set_buffer: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1364,7 +1396,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         int_range: *mut GX_INT_RANGE,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_int_range: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1388,7 +1420,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         float_range: *mut GX_FLOAT_RANGE,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_float_range: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1412,7 +1444,7 @@ impl GXInterface for GXInstance {
         &self,
         device: GX_DEV_HANDLE,
         event_num: *mut u32,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_event_num_in_queue: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1439,7 +1471,7 @@ impl GXInterface for GXInstance {
         error_code: *mut GX_STATUS_LIST,
         err_text: *mut c_char,
         size: *mut usize,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_get_last_error: Symbol<
             unsafe extern "C" fn(
                 error_code: *mut GX_STATUS_LIST,
@@ -1467,7 +1499,7 @@ impl GXInterface for GXInstance {
         &self,
         device: GX_DEV_HANDLE,
         buffer_num: u64,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_set_acquisition_buffer_number: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1496,7 +1528,7 @@ impl GXInterface for GXInstance {
         &self,
         device: *mut c_void,
         callback: GXCaptureCallBack,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_register_capture_callback: Symbol<
             unsafe extern "C" fn(
                 device: *mut c_void,
@@ -1509,10 +1541,10 @@ impl GXInterface for GXInstance {
         let status = convert_to_gx_status(status_code);
         match status {
             GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(0),
-            _ => Err(GxciError::CommandError(format!(
+            _ => Err(Error::new(ErrorKind::GxciError(GxciError::CommandError(format!(
                 "Failed to register_callback with status: {:?}",
                 status
-            ))),
+            ))))),
         }
     }
 
@@ -1528,7 +1560,7 @@ impl GXInterface for GXInstance {
     unsafe fn gx_unregister_capture_callback(
         &self,
         device: *mut c_void,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_unregister_capture_callback: Symbol<
             unsafe extern "C" fn(device: *mut c_void) -> i32,
         > = self.lib.get(b"GXUnregisterCaptureCallback")
@@ -1537,10 +1569,10 @@ impl GXInterface for GXInstance {
         let status = convert_to_gx_status(status_code);
         match status {
             GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(0),
-            _ => Err(GxciError::CommandError(format!(
+            _ => Err(Error::new(ErrorKind::GxciError(GxciError::CommandError(format!(
                 "Failed to unregister_callback with status: {:?}",
                 status
-            ))),
+            ))))),
         }
     }
     /// Register a callback function for device offline notification events
@@ -1556,7 +1588,7 @@ impl GXInterface for GXInstance {
         user_param: *mut std::os::raw::c_void,
         callback_fun: GXDeviceOfflineCallBack,
         callback_handle: *mut GX_EVENT_CALLBACK_HANDLE,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_register_device_offline_callback: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1581,7 +1613,7 @@ impl GXInterface for GXInstance {
         &self,
         device: GX_DEV_HANDLE,
         callback_handle: GX_EVENT_CALLBACK_HANDLE,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_unregister_device_offline_callback: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1609,7 +1641,7 @@ impl GXInterface for GXInstance {
         callback_fun: GXFeatureCallBack,
         feature_id: GX_FEATURE_ID,
         callback_handle: *mut GX_FEATURE_CALLBACK_HANDLE,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_register_feature_callback: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
@@ -1636,7 +1668,7 @@ impl GXInterface for GXInstance {
         device: GX_DEV_HANDLE,
         feature_id: GX_FEATURE_ID,
         callback_handle: GX_FEATURE_CALLBACK_HANDLE,
-    ) -> Result<i32, GxciError> {
+    ) -> Result<i32> {
         let gx_unregister_feature_callback: Symbol<
             unsafe extern "C" fn(
                 device: GX_DEV_HANDLE,
