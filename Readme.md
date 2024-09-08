@@ -1,5 +1,5 @@
 <p align="center" dir="auto">
-    <img src="assets/GXCI1024.png" alt="logo"/>
+    <img src="https://img.picui.cn/free/2024/09/08/66dda74f7b88d.png" alt="Logo逃走啦~"/>
 </p>
 
 <h1 align="center" tabindex="-1" class="heading-element" dir="auto">GXCI</h1>
@@ -135,11 +135,11 @@ Successfully closed device
 
 if your camera is as the following:
 
-![alt text](assets/image.png)
+![图片逃走啦~](https://img.picui.cn/free/2024/09/08/66dda74eaced3.png)
 
 then you will get a test.png as
 
-![test.png](assets/test.png)
+![图片逃走啦~](https://img.picui.cn/free/2024/09/08/66dda74f9e26b.png)
 
 more codes just see the examples.
 
