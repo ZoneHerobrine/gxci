@@ -46,8 +46,7 @@ extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM
     }
 }
 
-fn main() {
-    unsafe {
+fn main()->Result<()> {
         // You can change the library path as you need
         let gx = GXInstance::new("C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll").expect("Failed to load library");
         gx.gx_init_lib().expect("Failed to initialize library");
@@ -92,7 +91,7 @@ fn main() {
                         first_device_sn.trim_end_matches(char::from(0))
                     );
 
-                    gx.gx_set_float(device_handle, GX_FEATURE_ID::GX_FLOAT_GAIN, 20.0);
+                    gx.gx_set_float(device_handle, GX_FEATURE_ID::GX_FLOAT_GAIN, 20.0)?;
 
                     let reg_result = gx.gx_register_capture_callback(device_handle, frame_callback);
                     match reg_result {
@@ -136,6 +135,7 @@ fn main() {
         }
 
         gx.gx_close_lib().expect("Failed to close library");
-        println!("Library closed.")
+        println!("Library closed.");
+        Ok(())
     }
-}
+

@@ -176,6 +176,88 @@ pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
     Ok(())
 }
 
+extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM) {
+    // For Debug if needed
+    // println!("Frame callback triggered.");
+    // println!("Frame status: {:?}", unsafe { (*p_frame_callback_data).status });
+    // println!("Frame All: {:?}", unsafe { *p_frame_callback_data });
+
+    unsafe {
+        let frame_callback_data = &*p_frame_callback_data;
+        if frame_callback_data.status == 0 {
+            let data = slice::from_raw_parts(frame_callback_data.pImgBuf as *const u8, (frame_callback_data.nWidth * frame_callback_data.nHeight) as usize);
+            let mat = core::Mat::new_rows_cols_with_data(
+                frame_callback_data.nHeight, 
+                frame_callback_data.nWidth, 
+                data
+            ).unwrap();
+            highgui::imshow("Camera Frame", &mat).unwrap();
+            if highgui::wait_key(10).unwrap() > 0 {
+                highgui::destroy_window("Camera Frame").unwrap();
+            }
+        }
+    }
+}
+
+pub fn gxi_open_stream() -> Result<()> {
+
+    let status = gxi_check(|gxi| gxi.gx_register_capture_callback(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device,frame_callback))?;
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
+
+    highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
+    loop {
+        sleep(Duration::from_secs(10));
+        break;
+    }
+
+    if status == 0 {
+        println!("Successfully opened stream");
+        Ok(())
+    } else {
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
+    }
+}
+
+pub fn gxi_close_stream() -> Result<()> {
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
+
+    let status = gxi_check(|gxi| gxi.gx_unregister_capture_callback(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device))?;
+
+    if status == 0 {
+        println!("Successfully closed stream");
+        Ok(())
+    } else {
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
+    }
+
+}
+
+pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<()> {
+
+    let status = gxi_check(|gxi| gxi.gx_register_capture_callback(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device,frame_callback))?;
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
+
+    highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
+    loop {
+        sleep(Duration::from_secs(interval_secs));
+        break;
+    }
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
+
+    let status = gxi_check(|gxi| gxi.gx_unregister_capture_callback(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device))?;
+
+    if status == 0 {
+        println!("Successfully opened stream");
+        Ok(())
+    } else {
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
+    }
+}
+
 // #[cfg(feature = "solo")]
 // pub static mut GXI_DEVICE: Option<GX_DEV_HANDLE> = Some(std::ptr::null_mut());
 // #[cfg(feature = "solo")]

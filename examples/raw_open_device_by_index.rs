@@ -16,7 +16,6 @@ use gxci::{
 };
 
 fn main() {
-    unsafe {
         // You can change the library path as you need
         let gx = GXInstance::new("C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll").expect("Failed to load library");
         gx.gx_init_lib().expect("Failed to initialize library");
@@ -83,5 +82,4 @@ fn main() {
 
         gx.gx_close_lib().expect("Failed to close library");
         println!("Library closed.")
-    }
 }
