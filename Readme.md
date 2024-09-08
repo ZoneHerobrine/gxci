@@ -1,5 +1,5 @@
 <p align="center" dir="auto">
-    <img src="https://smms.app/image/uDKESYW7ks9eRyf.png" alt="Logo逃走啦~"/>
+    <img src="https://smms.app/image/uDKESYW7ks9eRyf" alt="Logo逃走啦~"/>
 </p>
 
 <h1 align="center" tabindex="-1" class="heading-element" dir="auto">GXCI</h1>
@@ -135,11 +135,11 @@ Successfully closed device
 
 if your camera is as the following:
 
-![图片逃走啦~](https://smms.app/image/zxBCpr59XD74UIq.png)
+![图片逃走啦~](https://s2.loli.net/2024/09/08/QHiIKXd4c7MSegR.png)
 
 then you will get a test.png as
 
-![图片逃走啦~](https://smms.app/image/QHiIKXd4c7MSegR.png)
+![图片逃走啦~](https://s2.loli.net/2024/09/08/zxBCpr59XD74UIq.png)
 
 more codes just see the examples.
 
