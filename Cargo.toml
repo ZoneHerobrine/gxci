@@ -16,11 +16,11 @@ repository = "https://github.com/zoneherobrine/gxci"
 [dependencies]
 libloading = "0.8.5"
 image = "0.25.2"
-opencv = "0.92.0"
-
+imageproc = { version = "0.25.0", optional = true }
+opencv = { version = "0.92.3", optional = true }
 
 [features]
-default = ["solo"]
-solo = []   # 单个相机特性
-multi = []  # 多个相机特性
-no-opencv = []  # 不使用opencv特性
+default = ["solo", "opencv"]
+solo = []
+multi = []
+no-opencv = ["imageproc"]

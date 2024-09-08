@@ -1,10 +1,13 @@
 //! Rust packed GxAPI interface
 #![allow(dead_code)]
 
+use crate::device::{GxiDevice, GxiFrameData};
+
 use libloading::{Library, Symbol};
 use std::ffi::{c_char, c_void, CStr};
 use std::sync::MutexGuard;
 use std::sync::PoisonError;
+
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -61,6 +64,8 @@ pub enum ErrorKind {
     GxciError(GxciError),
     MutexPoisonError(PoisonError<MutexGuard<'static, GXInstance>>),
     MutexPoisonOptionError(PoisonError<MutexGuard<'static, Option<GXInstance>>>),
+    MutexPoisonOptionHandleError(PoisonError<MutexGuard<'static, Option<GxiDevice>>>),
+    MutexPoisonOptionFrameDataError(PoisonError<MutexGuard<'static, Option<GxiFrameData>>>),
 }
 
 impl std::fmt::Display for ErrorKind {
@@ -69,6 +74,12 @@ impl std::fmt::Display for ErrorKind {
             ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
             ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
             ErrorKind::MutexPoisonOptionError(e) => write!(f, "MutexPoisonOptionError: {:?}", e),
+            ErrorKind::MutexPoisonOptionHandleError(e) => {
+                write!(f, "MutexPoisonOptionHandleError: {:?}", e)
+            }
+            ErrorKind::MutexPoisonOptionFrameDataError(e)=>{
+                write!(f, "MutexPoisonOptionFrameDataError: {:?}", e)
+            }
         }
     }
 }
@@ -79,6 +90,12 @@ impl std::fmt::Debug for ErrorKind {
             ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
             ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
             ErrorKind::MutexPoisonOptionError(e) => write!(f, "MutexPoisonOptionError: {:?}", e),
+            ErrorKind::MutexPoisonOptionHandleError(e) => {
+                write!(f, "MutexPoisonOptionHandleError: {:?}", e)
+            }
+            ErrorKind::MutexPoisonOptionFrameDataError(e)=>{
+                write!(f, "MutexPoisonOptionFrameDataError: {:?}", e)
+            }
         }
     }
 }

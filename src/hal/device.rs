@@ -9,10 +9,10 @@ use opencv::{
     core,
 };
 use std::ffi::c_void;
-use std::sync::LazyLock;
 use std::slice;
 use std::thread::sleep;
 use std::time::Duration;
+use std::sync::{LazyLock,Arc,Mutex};
 
 //----------------------------------------------------------
 //---------------Common Functions---------------------------
@@ -25,7 +25,6 @@ pub fn gxi_count_devices(timeout: u32) -> Result<u32> {
         gxi.gx_update_device_list(&mut device_num, timeout)?;
         Ok(())
     })?;
-
     Ok(device_num)
 }
 
@@ -63,62 +62,119 @@ pub fn gxi_list_devices() -> Result<Vec<GX_DEVICE_BASE_INFO>> {
 }
 
 
-// pub fn gxi_count_devices(timeout: u32) -> Result<u32> {
-//     let mut device_num = 0;
-
-//     unsafe {
-//         GXI.as_ref()
-//             .ok_or_else(|| {
-//                 GxciError::InitializationError(
-//                     "GXI is None. Please check your gxci_init situation.".to_string(),
-//                 )
-//             })?
-//             .gx_update_device_list(&mut device_num, timeout)?;
-//     }
-
-//     Ok(device_num)
-// }
-
-// pub fn gxi_list_devices() -> Result<Vec<GX_DEVICE_BASE_INFO>> {
-//     let mut device_num = 0;
-//     unsafe {
-//         GXI.as_ref()
-//             .ok_or_else(|| {
-//                 GxciError::InitializationError(
-//                     "GXI is None. Please check your gxci_init situation.".to_string(),
-//                 )
-//             })?
-//             .gx_update_device_list(&mut device_num, 1000)?;
-//     }
-
-//     let mut base_info: Vec<GX_DEVICE_BASE_INFO> = (0..device_num)
-//         .map(|_| GXDeviceBaseInfoBuilder::new().build())
-//         .collect();
-
-//     let mut size = (device_num as usize) * size_of::<GX_DEVICE_BASE_INFO>();
-//     let status = unsafe {
-//         GXI.as_ref()
-//             .ok_or_else(|| {
-//                 GxciError::InitializationError(
-//                     "GXI is None. Please check your gxci_init situation.".to_string(),
-//                 )
-//             })?
-//             .gx_get_all_device_base_info(base_info.as_mut_ptr(), &mut size)?
-//     };
-
-//     if status == 0 {
-//         Ok(base_info)
-//     } else {
-//         Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
-//     }
-// }
-
-
 // //----------------------------------------------------------
 // //---------------Solo Camera--------------------------------
 // //----------------------------------------------------------
 
 // //---------------Static Mut V-------------------------------
+
+pub struct GxiDevice {
+    pub device: GX_DEV_HANDLE,
+}
+
+unsafe impl Send for GxiDevice {}
+
+pub static GXI_DEVICE: LazyLock<Arc<Mutex<Option<GxiDevice>>>> = LazyLock::new(|| {
+    Arc::new(Mutex::new(None))
+});
+
+pub struct GxiFrameData {
+    pub frame_data: GX_FRAME_DATA,
+    pub image_buffer: Vec<u8>,
+}
+
+unsafe impl Send for GxiFrameData {}
+
+pub static GXI_FRAME_DATA: LazyLock<Arc<Mutex<Option<GxiFrameData>>>> = LazyLock::new(|| {
+    Arc::new(Mutex::new(None))
+});
+
+pub static GXI_IMAGE_BUFFER: LazyLock<Arc<Mutex<Option<Vec<u8>>>>> = LazyLock::new(|| {
+    Arc::new(Mutex::new(None))
+});
+
+pub fn gxi_open_device() -> Result<()> {
+    let mut device_num = 0;
+    gxi_check(|gxi| {
+        gxi.gx_update_device_list(&mut device_num, 1000)?;
+        Ok(())
+    })?;
+
+    let mut device = std::ptr::null_mut();
+    let status = gxi_check(|gxi| gxi.gx_open_device_by_index(1, &mut device))?;
+
+    if status == 0 {
+        println!("Successfully opened device index 1");
+        *GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))? = Some(GxiDevice { device });
+        Ok(())
+    } else {
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
+    }
+}
+
+pub fn gxi_close_device() -> Result<()> {
+    let status = gxi_check(|gxi| gxi.gx_close_device(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device))?;
+
+    if status == 0 {
+        *GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))? = None;
+        println!("Successfully closed device");
+        Ok(())
+    } else {
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
+    }
+}
+
+pub fn gxi_send_command(command: GX_FEATURE_ID) -> Result<()> {
+    let status = gxi_check(|gxi| gxi.gx_send_command(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device, command))?;
+
+    if status == 0 {
+        println!("Successfully sent command");
+        Ok(())
+    } else {
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
+    }
+}
+
+pub fn gxi_get_image() -> Result<()> {
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
+
+    let (frame_data_facade, image_buffer) = fetch_frame_data(&GXI.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionError(e)))?.as_ref().unwrap(), GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device).unwrap();
+    let mut frame_data = convert_to_frame_data(&frame_data_facade);
+
+    let status = gxi_check(|gxi| gxi.gx_get_image(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device, &mut frame_data, 1000))?;
+
+    *GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))? = Some(GxiFrameData { frame_data, image_buffer });
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
+
+    if status == 0 {
+        println!("Successfully got image");
+        Ok(())
+    } else {
+        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
+    }
+}
+
+pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
+    unsafe {
+        let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
+        if frame_data.nStatus == 0 {
+            let data = slice::from_raw_parts(frame_data.pImgBuf as *const u8, (frame_data.nWidth * frame_data.nHeight) as usize);
+            let mat = core::Mat::new_rows_cols_with_data(
+                frame_data.nHeight, 
+                frame_data.nWidth, 
+                data
+            ).unwrap();
+            if imgcodecs::imwrite(filename, &mat, &opencv::types::VectorOfi32::new()).unwrap() {
+                println!("Image saved successfully.");
+            } else {
+                println!("Failed to save the image.");
+            }
+        }
+    }
+    Ok(())
+}
 
 // #[cfg(feature = "solo")]
 // pub static mut GXI_DEVICE: Option<GX_DEV_HANDLE> = Some(std::ptr::null_mut());

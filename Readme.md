@@ -16,6 +16,11 @@
 
 <hr />
 
+# New Things in 2.0
+1. The safe GXI and GXCI interface
+2. The inner error handling
+3. no-opencv feature
+
 # Introduction
 gxci(Galaxy Camera Interface)是一款用Rust基于大恒工业相机GxIAPI的库进行的接口开发;
 
@@ -39,11 +44,6 @@ As of 23:45 on July 11, 2024, the HAL library for the 'features=["solo"]' sectio
 
 # Overview
 You can get the sdk-dev-doc from the SDK of Daheng Imaging you have installed.
-
-# New Things in 2.0
-1. The marco for impl
-2. The safe GXI
-3. The inner error handling
 
 # Quick Start
 1. Ensure you have OpenCV Rust Bindings installed, 
