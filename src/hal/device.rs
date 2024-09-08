@@ -1,5 +1,5 @@
 use crate::hal::base::{gxi_check, GXI};
-use crate::raw::{gx_const::*, gx_enum::*, gx_handle::*, gx_interface::*, gx_struct::*};
+use crate::raw::{gx_enum::*, gx_handle::*, gx_interface::*, gx_struct::*};
 use crate::utils::builder::GXDeviceBaseInfoBuilder;
 use crate::utils::facade::convert_to_frame_data;
 use crate::utils::facade::*;
@@ -8,7 +8,6 @@ use opencv::{
     imgcodecs,
     core,
 };
-use std::ffi::c_void;
 use std::slice;
 use std::thread::sleep;
 use std::time::Duration;
@@ -166,7 +165,8 @@ pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
                 frame_data.nWidth, 
                 data
             ).unwrap();
-            if imgcodecs::imwrite(filename, &mat, &opencv::types::VectorOfi32::new()).unwrap() {
+            let vec = core::Vector::<i32>::new();
+            if imgcodecs::imwrite(filename, &mat, &vec).unwrap() {
                 println!("Image saved successfully.");
             } else {
                 println!("Failed to save the image.");
@@ -236,7 +236,7 @@ pub fn gxi_close_stream() -> Result<()> {
 
 pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<()> {
 
-    let status = gxi_check(|gxi| gxi.gx_register_capture_callback(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device,frame_callback))?;
+    gxi_check(|gxi| gxi.gx_register_capture_callback(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device,frame_callback))?;
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 

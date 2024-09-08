@@ -55,7 +55,7 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = {version="0.1.0", features=["solo"]}
+gxci = {version="0.2.0", features=["solo"]}
 ```
 
 (because the 0.1.0 version has no images in Readme.md assets, it will be more lightwieght lol~)
@@ -64,14 +64,14 @@ then, you can use the following code to get a single image from the camera and s
 
 ```rust
 use gxci::hal::device::*;
-use gxci::hal::basement::*;
+use gxci::hal::base::*;
 use gxci::utils::debug::print_device_info;
 
-fn main() {
-    let dll_path = "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; // the default path of the GxIAPI.dll
-    gxci_init(dll_path);
+fn main()->Result<()> {
+    let dll_path = "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; // 假设这是一个测试用的 DLL 路径
+    gxci_init(dll_path)?;
 
-    let mut device_num = gxi_count_devices( 1000);
+    let device_num = gxi_count_devices( 1000);
     println!("Device number: {}", device_num.unwrap());
 
     let base_info = gxi_list_devices().unwrap();
@@ -79,15 +79,16 @@ fn main() {
         print_device_info(&device);
     }
     
-    gxi_open_device();
+    gxi_open_device()?;
 
-    gxi_get_image();
+    gxi_get_image()?;
     
-    gxi_save_image_as_png("test.png");
+    gxi_save_image_as_png("test.png")?;
 
-    gxi_close_device();
+    gxi_close_device()?;
 
-    gxci_close();
+    gxci_close()?;
+    Ok(())
 }
 ```
 
@@ -135,6 +136,7 @@ then you will get a test.png as
 
 more codes just see the examples.
 
+if you want to use raw functions, you can see [gxi_hako](https://crates.io/crates/gxi_hako) crate.
 
 # Example
 Here 5 raw-examples and 3 hal-example are provided, they are:
