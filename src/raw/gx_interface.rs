@@ -3,8 +3,12 @@
 
 use libloading::{Library, Symbol};
 use std::ffi::{c_char, c_void, CStr};
+use std::sync::PoisonError;
+use std::sync::MutexGuard;
 
 pub type Result<T> = core::result::Result<T, Error>;
+
+// Error
 
 pub struct Error{
     pub inner: Box<ErrorKind>
@@ -17,10 +21,24 @@ impl Error{
         }
     }
 }
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        self.inner.fmt(f)
+    }
+}
 
-pub enum ErrorKind{
-    GxciError(GxciError),
-    CameraError(CameraError),
+impl std::fmt::Debug for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        self.inner.fmt(f)
+    }
+}
+
+impl std::error::Error for Error {}
+
+impl From<ErrorKind> for Error {
+    fn from(kind: ErrorKind) -> Self {
+        Self::new(kind)
+    }
 }
 
 impl From<GxciError> for Error {
@@ -31,13 +49,72 @@ impl From<GxciError> for Error {
     }
 }
 
-#[derive(Debug)]
+impl From<PoisonError<MutexGuard<'static, GXInstance>>> for Error {
+    fn from(e: PoisonError<MutexGuard<'static, GXInstance>>) -> Self {
+        Error::new(ErrorKind::MutexPoisonError(e))
+    }
+}
+
+// ErrorKind
+
+pub enum ErrorKind{
+    GxciError(GxciError),
+    MutexPoisonError(PoisonError<MutexGuard<'static, GXInstance>>),
+    MutexPoisonOptionError(PoisonError<MutexGuard<'static, Option<GXInstance>>>)
+}
+
+impl std::fmt::Display for ErrorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
+            ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
+            ErrorKind::MutexPoisonOptionError(e) => write!(f, "MutexPoisonOptionError: {:?}", e),
+        }
+    }
+}
+
+impl std::fmt::Debug for ErrorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
+            ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
+            ErrorKind::MutexPoisonOptionError(e) => write!(f, "MutexPoisonOptionError: {:?}", e),
+        }
+    }
+}
+
+// Old GxciError
+
 pub enum GxciError {
     InitializationError(String),
     FunctionCallError(String),
     LibLoadingError(libloading::Error),
     GalaxyError(i32),
     CommandError(String),
+}
+
+impl std::fmt::Display for GxciError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            GxciError::InitializationError(e) => write!(f, "InitializationError: {}", e),
+            GxciError::FunctionCallError(e) => write!(f, "FunctionCallError: {}", e),
+            GxciError::LibLoadingError(e) => write!(f, "LibLoadingError: {}", e),
+            GxciError::GalaxyError(e) => write!(f, "GalaxyError: {}", e),
+            GxciError::CommandError(e) => write!(f, "CommandError: {}", e),
+        }
+    }
+}
+
+impl std::fmt::Debug for GxciError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            GxciError::InitializationError(e) => write!(f, "InitializationError: {}", e),
+            GxciError::FunctionCallError(e) => write!(f, "FunctionCallError: {}", e),
+            GxciError::LibLoadingError(e) => write!(f, "LibLoadingError: {}", e),
+            GxciError::GalaxyError(e) => write!(f, "GalaxyError: {}", e),
+            GxciError::CommandError(e) => write!(f, "CommandError: {}", e),
+        }
+    }
 }
 
 use crate::raw::{
@@ -88,7 +165,7 @@ pub trait GXInterface {
     fn gx_close_lib(&self) -> Result<()>;
 
     // Device
-    unsafe fn gx_update_device_list(
+    fn gx_update_device_list(
         &self,
         device_num: *mut u32,
         timeout: u32,
@@ -98,7 +175,7 @@ pub trait GXInterface {
         num_devices: *mut u32,
         timeout: u32,
     ) -> Result<i32>;
-    unsafe fn gx_get_all_device_base_info(
+    fn gx_get_all_device_base_info(
         &self,
         p_device_info: *mut GX_DEVICE_BASE_INFO,
         p_buffer_size: *mut usize,
@@ -484,15 +561,15 @@ impl GXInterface for GXInstance {
     ///
     /// }
     /// ```
-    unsafe fn gx_update_device_list(
+     fn gx_update_device_list(
         &self,
         device_num: *mut u32,
         timeout: u32,
     ) -> Result<i32> {
-        let gx_update_device_list: Symbol<unsafe extern "C" fn(device_num: *mut u32, timeout: u32) -> i32> =
+        unsafe{let gx_update_device_list: Symbol<unsafe extern "C" fn(device_num: *mut u32, timeout: u32) -> i32> =
             self.lib.get(b"GXUpdateDeviceList")
                 .map_err(|e| GxciError::FunctionCallError(format!("Failed to get GXUpdateDeviceList function: {}", e)))?;
-        Ok(gx_update_device_list(device_num, timeout))
+        Ok(gx_update_device_list(device_num, timeout))}
     }
 
     /// Enumerate all available devices on the network and retrieve the number of devices
@@ -585,12 +662,12 @@ impl GXInterface for GXInstance {
     /// }
     /// ```
 
-    unsafe fn gx_get_all_device_base_info(
+    fn gx_get_all_device_base_info(
         &self,
         p_device_info: *mut GX_DEVICE_BASE_INFO,
         p_buffer_size: *mut usize,
     ) -> Result<i32> {
-        let gx_get_all_device_base_info: Symbol<
+        unsafe{let gx_get_all_device_base_info: Symbol<
             unsafe extern "C" fn(
                 p_device_info: *mut GX_DEVICE_BASE_INFO,
                 p_buffer_size: *mut usize,
@@ -602,7 +679,7 @@ impl GXInterface for GXInstance {
             p_device_info, p_buffer_size
         );
         Ok(gx_get_all_device_base_info(p_device_info, p_buffer_size))
-    }
+    }}
 
     /// Open device by index
     ///
