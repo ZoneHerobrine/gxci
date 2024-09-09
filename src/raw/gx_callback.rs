@@ -1,3 +1,4 @@
+//! Callback function for frame data acquisition, type declaration.
 #![allow(dead_code)]
 
 use crate::raw::{gx_struct::*,gx_enum::*};

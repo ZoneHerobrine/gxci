@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/gxci" target="_blank"><img src="https://img.shields.io/crates/v/gxci"/></a>
-  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.2.1"/></a>
+  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.2.2"/></a>
 </p>
 
 <p align="center">
@@ -16,13 +16,15 @@
 
 <hr />
 
-# New Things in 2.0
+# New Things in 0.2
 1. [x] All the lib functions are safe now
 2. [x] The inner error handling
 3. [x] The readme images are on cloud now 
 
-# Plan in 3.0
-1. [ ] no-opencv feature
+# Plan in 0.3
+1. [ ] HAL config module
+2. [ ] Streaming-out support
+3. [ ] no-opencv feature
 
 # Introduction
 gxci(Galaxy Camera Interface)是一款用Rust基于大恒工业相机GxIAPI的库进行的接口开发;

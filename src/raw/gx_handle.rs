@@ -1,3 +1,4 @@
+//! Raw GX handle
 #![allow(dead_code)]
 #![allow(non_camel_case_types)]
 use std::ffi::c_void;

@@ -1,3 +1,4 @@
+//! Constants for the GX API.
 #![allow(dead_code)]
 
 pub const GX_INFO_LENGTH_8_BYTE: usize = 8;

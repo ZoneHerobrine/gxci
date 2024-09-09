@@ -1,3 +1,4 @@
+//! Pixel format definitions for GenICam.
 #![allow(dead_code)]
 
 // Use simple enums to represent the size and color filter entries.

@@ -1,4 +1,4 @@
-// Place holder for the configuration of the HAL,JUST MORE HUMAN READABLE
+//! Placeholder for the configuration of the HAL,JUST MORE HUMAN READABLE, in ^0.3.0.
 
 // use crate::hal::basement::{GXI,gxi_check};
 // use crate::raw::{gx_interface::*, gx_const::*, gx_struct::*, gx_enum::*,gx_handle::*};

@@ -1,5 +1,6 @@
-use crate::raw::gx_interface::*;
+//! Base functions for the HAL. Such as lib checking, initialization and closing.
 pub use crate::raw::gx_interface::Result;
+use crate::raw::gx_interface::*;
 use std::sync::{LazyLock,Arc,Mutex};
 
 pub static GXI: LazyLock<Arc<Mutex<Option<GXInstance>>>> = LazyLock::new(|| {

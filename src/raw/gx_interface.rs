@@ -1,4 +1,4 @@
-//! Rust packed GxAPI interface
+//! Rust packed GxAPI interface. The most base part of this lib.
 #![allow(dead_code)]
 
 use crate::device::{GxiDevice, GxiFrameData};

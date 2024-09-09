@@ -1,3 +1,4 @@
+//! Device module for handling device operations.
 use crate::hal::base::{gxi_check, GXI};
 use crate::raw::{gx_enum::*, gx_handle::*, gx_interface::*, gx_struct::*};
 use crate::utils::builder::GXDeviceBaseInfoBuilder;
