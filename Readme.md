@@ -6,11 +6,11 @@
 
 <p align="center">
   <a href="https://crates.io/crates/gxci" target="_blank"><img src="https://img.shields.io/crates/v/gxci"/></a>
-  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.1.0"/></a>
+  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.2.1"/></a>
 </p>
 
 <p align="center">
-    Rust-based interface development for Daheng Industrial Camera GxIAPI
+    Rust-based safe interface development for Daheng Industrial Camera GxIAPI
 </p>
 
 
@@ -19,10 +19,10 @@
 # New Things in 2.0
 1. [x] All the lib functions are safe now
 2. [x] The inner error handling
+3. [x] The readme images are on cloud now 
 
 # Plan in 3.0
 1. [ ] no-opencv feature
-2. [ ] multi feature
 
 # Introduction
 gxci(Galaxy Camera Interface)是一款用Rust基于大恒工业相机GxIAPI的库进行的接口开发;
@@ -62,10 +62,8 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = "0.2.0"}
+gxci = "0.2.1"
 ```
-
-(because the 0.1.0 version has no images in Readme.md assets, it will be more lightwieght lol~)
 
 then, you can use the following code to get a single image from the camera and save it as png.
 
@@ -263,20 +261,19 @@ or by Tencent QQ: 2212540603 (with related information in the friend request)
 # Acknowledgments
 GXCI(GalaXy Camera Interface)的命名要感谢[MoonWX](https://github.com/MoonWX)同学的建议，这是一个简洁明确并且很帅的名字ヽ(・∀・)ﾉ；
 
-同时也感谢同专业李同学的帮助，在gx_enum的冗长的类型转换中，他与我协力在十分钟之内完成了C枚举到Rust枚举的转换(￣ω￣)；
+同时也感谢同专业李同学的帮助，在gx_enum的冗长的类型转换中，他与我协力在十分钟之内完成了C枚举到Rust枚举的转换；
+
+也感谢[西西](https://github.com/Ben-Phantom)帮忙找的免费图床网站，进一步压缩了包的大小( - ω - )
 
 同时也感谢OpenAI的GPT模型DELTA·E绘制的炫酷LOGO :D
 
 he naming of GXCI (GalaXy Camera Interface) is thanks to [MoonWX](https://github.com/MoonWX)'s suggestion, which is a concise, clear, and handsome nameヽ(・∀・)ﾉ; 
 
-Also, I would like to express my gratitude to fellow student Li for his assistance in the lengthy type conversion process at gx-enum. Together with me, we were able to complete the conversion from the C enum to the Rust enum within ten minutes(￣ω￣);
+Also, I would like to express my gratitude to fellow student Li for his assistance in the lengthy type conversion process at gx-enum. Together with me, we were able to complete the conversion from the C enum to the Rust enum within ten minutes;
 
-Also again, I would like to thank OpenAI's GPT model DELTA · E for creating a cool logo :D
+Thanks to [Sisyphus](https://github.com/Ben-Phantom) for helping me find a free image hosting website, which further compressed the package size ( - ω - )
 
-# Todolist
-- [ ] The feature of multi camera
-- [ ] The feature of no-opencv
-- [ ] 补全网络相机(Gige)相关的函数
+Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
 
 
 # HAL Functions implemented status
@@ -288,13 +285,13 @@ Also again, I would like to thank OpenAI's GPT model DELTA · E for creating a c
 - device
   - [x] gxi_count_devices()
   - [x] gxi_list_devices()
-  - [x] gxci_open_device()   // solo feature
-  - [x] gxci_close_device()  // solo feature
-  - [x] gxi_send_command()   // solo feature
-  - [x] gxi_get_image()  // solo feature
-  - [x] gxi_open_stream()  // solo feature
-  - [x] gxi_open_stream_interval()  // solo feature
-  - [x] gxi_close_stream()  // solo feature
+  - [x] gxci_open_device()   
+  - [x] gxci_close_device()  
+  - [x] gxi_send_command()   
+  - [x] gxi_get_image()  
+  - [x] gxi_open_stream()  
+  - [x] gxi_open_stream_interval()  
+  - [x] gxi_close_stream()  
 - config
   - todo!()
 - event
