@@ -64,7 +64,7 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = "0.2.1"
+gxci = "0.2.2"
 ```
 
 then, you can use the following code to get a single image from the camera and save it as png.
@@ -78,7 +78,7 @@ fn main()->Result<()> {
     let dll_path = "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; 
     gxci_init(dll_path)?;
 
-    let device_num = gxi_count_devices( 1000);
+    let device_num = gxi_count_devices(1000);
     println!("Device number: {}", device_num.unwrap());
 
     let base_info = gxi_list_devices().unwrap();

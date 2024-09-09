@@ -1,7 +1,8 @@
 //! Rust packed GxAPI interface. The most base part of this lib.
 #![allow(dead_code)]
 
-use crate::device::{GxiDevice, GxiFrameData};
+// The HAL use here is only for error handling.
+use crate::hal::device::{GxiDevice, GxiFrameData};
 
 use libloading::{Library, Symbol};
 use std::ffi::{c_char, c_void, CStr};
