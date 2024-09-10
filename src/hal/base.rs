@@ -36,6 +36,20 @@ pub fn gxci_init(dll_path: &str) -> Result<()> {
     Ok(())
 }
 
+pub fn gxci_init_default() -> Result<()> {
+    let dll_path_default = "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll";
+    
+    let mut gxi = GXI.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionError(e)))?;
+    if gxi.is_some() {
+        println!("Warning: GXI is already initialized. Reinitializing.");
+    }
+
+    *gxi = Some(GXInstance::new(dll_path_default)?);
+    gxi.as_ref().unwrap().gx_init_lib()?;
+
+    Ok(())
+}
+
 pub fn gxci_close() -> Result<()> {
     gxi_check(|gxi| gxi.gx_close_lib())?;
 

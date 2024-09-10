@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/gxci" target="_blank"><img src="https://img.shields.io/crates/v/gxci"/></a>
-  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.2.2"/></a>
+  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.2.3"/></a>
 </p>
 
 <p align="center">
@@ -20,11 +20,10 @@
 1. [x] All the lib functions are safe now
 2. [x] The inner error handling
 3. [x] The readme images are on cloud now 
+4. [x] (in 0.2.3)Re-added solo feature tags
+5. [x] (in 0.2.3)Added gxci_init_dufault() and gxci_check_device_handle()
 
-# Plan in 0.3
-1. [ ] HAL config module
-2. [ ] Streaming-out support
-3. [ ] no-opencv feature
+The plan of 0.3 and 0.4 can see the [Future Plan](#future-plan) in the bottom of README.
 
 # Introduction
 gxci(Galaxy Camera Interface)是一款用Rust基于大恒工业相机GxIAPI的库进行的接口开发;
@@ -64,8 +63,9 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = "0.2.2"
+gxci = {version="0.2.3", features=["solo"]}
 ```
+The solo feature can simplify some operation if you only have one camera, because it will default to the first camera in all functions.
 
 then, you can use the following code to get a single image from the camera and save it as png.
 
@@ -77,6 +77,11 @@ use gxci::utils::debug::print_device_info;
 fn main()->Result<()> {
     let dll_path = "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; 
     gxci_init(dll_path)?;
+
+    // or you can use the default  as the following:
+    // the default path is "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"
+
+    // gxci_init_default()?;
 
     let device_num = gxi_count_devices(1000);
     println!("Device number: {}", device_num.unwrap());
@@ -101,35 +106,34 @@ fn main()->Result<()> {
 
 The terminal output should be like this:
 
-```shell
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.84s
+```powershell
+PS C:\Users\Chest\Documents\GitHub\crate_zone\gxci> cargo run --example hal_get_image
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.13s
      Running `target\debug\examples\hal_get_image.exe`
+Initializing GXI with DLL path: C:\Program Files\Daheng Imaging\GalaxySDK\APIDll\Win64\GxIAPI.dll
 Device number: 1
-p_device_info: 0x1ad375f3cd0, p_buffer_size: 0xaa9f0ff8d8
+p_device_info: 0x1d10264e0b0, p_buffer_size: 0x69120ff590
 Vendor Name: Daheng Imaging
-Model Name: MER-132-43U3M
-Serial Number: FS0170060031
-Display Name: MER-132-43U3M(FS0170060031)
-Device ID: MER-132-43U3M(FS0170060031)
+Model Name: MER-050-560U3C
+Serial Number: KJ0180110048
+Display Name: MER-050-560U3C(KJ0180110048)
+Device ID: MER-050-560U3C(KJ0180110048)
 User ID:
 Access Status: GX_ACCESS_STATUS_UNKNOWN
 Device Class: GX_DEVICE_CLASS_U3V
 -----------------------
-Device handle: Some(0x1ad3738f3e0)
 Successfully opened device index 1
 Successfully sent command
-int_value: 0xaa9f0ff250
-int_value: 0xaa9f0ff258
-enum_value: 0xaa9f0ff270
-enum_value: 0xaa9f0ff260
-int_value: 0xaa9f0ff268
-p_frame_data: 0xaa9f0ff6f8
-frame_data: GX_FRAME_DATA { nStatus: 0, pImgBuf: 0x1ad39635040, nWidth: 1292, nHeight: 964, nPixelFormat: 17301505, nImgSize: 9963904, nFrameID: 0, nTimestamp: 0, reserved: [17301505] }
-Frame data: GX_FRAME_DATA { nStatus: 0, pImgBuf: 0x1ad39635040, nWidth: 1292, nHeight: 964, nPixelFormat: 17301505, nImgSize: 1245488, nFrameID: 0, nTimestamp: 61947717921575, reserved: [17301505] }
+int_value: 0x69120fefd8
+int_value: 0x69120fefe0
+enum_value: 0x69120feff8
+enum_value: 0x69120fefe8
+int_value: 0x69120feff0
+p_frame_data: 0x69120ff448
+frame_data: GX_FRAME_DATA { nStatus: 0, pImgBuf: 0x1d1042c6040, nWidth: 640, nHeight: 480, nPixelFormat: 17301513, nImgSize: 2457600, nFrameID: 0, nTimestamp: 0, reserved: [17301513] }
 Successfully sent command
 Successfully got image
 Image saved successfully.
-Device handle: Some(0x0)
 Successfully closed device
 ```
 
@@ -161,11 +165,18 @@ Here 5 raw-examples and 3 hal-example are provided, they are:
 you can run them like:
 
 ```shell
-cargo run --example hal_list_device_info
+cargo run --example hal_capture_callback
 ```
 
-# Dependencies
+if you get a error as 
 
+```powershell
+error: process didn't exit successfully: `target\debug\examples\hal_capture_callback.exe` (exit code: 0xc0000135, STATUS_DLL_NOT_FOUND)
+```
+
+you might need to copy a opencv_world490.dll to /target/debug/examples
+
+# Dependencies
 
 ## OpenCV Environment
 The OpenCV lib here is used to easily matlization the image and provide a GUI to show the image. 
@@ -283,23 +294,74 @@ Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
 - basement
   - [x] gxi_check()
   - [x] gxci_init()
+  - [x] gxci_init_default()
   - [x] gxci_close()
 - device
   - [x] gxi_count_devices()
   - [x] gxi_list_devices()
-  - [x] gxci_open_device()   
-  - [x] gxci_close_device()  
-  - [x] gxi_send_command()   
-  - [x] gxi_get_image()  
-  - [x] gxi_open_stream()  
-  - [x] gxi_open_stream_interval()  
-  - [x] gxi_close_stream()  
-- config
-  - todo!()
+  - [x] gxci_open_device()          // solo feature
+  - [x] gxci_close_device()         // solo feature
+  - [x] gxci_check_device_handle()  // solo feature
+  - [x] gxi_send_command()          // solo feature
+  - [x] gxi_get_image()             // solo feature
+  - [x] gxi_open_stream()           // solo feature
+  - [x] gxi_open_stream_interval()  // solo feature
+  - [x] gxi_close_stream()          // solo feature
+- control
+  - device
+    - todo!()
+  - image_format
+    - todo!()
+  - acquisition
+    - todo!()
+  - digital_io
+    - todo!()
+  - analog
+    - [ ] gxi_set_gain()
+    - 
+    - [ ] gxi_gain_auto()
+    - [ ] gxi_gain_auto_off()
+    - [ ] gxi_gain_auto_continuous()
+    - [ ] gxi_gain_auto_once()
+    - 
+    - [ ] gxi_set_auto_gain_min()
+    - [ ] gxi_set_auto_gain_max()
+    - 
+    - [ ] gxi_set_balance_ratio()
+    - 
+    - [ ] gxi_balance_ratio_select()
+    - [ ] gxi_balance_ratio_select_r()
+    - [ ] gxi_balance_ratio_select_g()
+    - [ ] gxi_balance_ratio_select_b()
+    - 
+    - [ ] gxi_balance_white_auto()
+    - [ ] gxi_balance_white_auto_off()
+    - [ ] gxi_balance_white_auto_continuous()
+    - [ ] gxi_balance_white_auto_once()
+    - todo!()
+  - transport_layer
+    - todo!()
+  - user_set
+    - todo!()
+  - chunk_data
+    - todo!()
 - event
   - todo!()
 - network
   - todo!()
+
+# Future Plan
+
+## 0.3
+1. [ ] More HAL functions in solo
+   1. [ ] some no solo feature functions
+
+
+# 0.4
+1. [ ] Streaming-out support
+2. [ ] no-opencv feature
+
+
 
 # DLL RAW implemented status
 - [x] 302    0 0001C020 GXCloseDevice

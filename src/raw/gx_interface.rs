@@ -9,7 +9,6 @@ use std::ffi::{c_char, c_void, CStr};
 use std::sync::MutexGuard;
 use std::sync::PoisonError;
 
-
 pub type Result<T> = core::result::Result<T, Error>;
 
 // Error
@@ -63,6 +62,7 @@ impl From<PoisonError<MutexGuard<'static, GXInstance>>> for Error {
 
 pub enum ErrorKind {
     GxciError(GxciError),
+    DeviceHandleError(String),
     MutexPoisonError(PoisonError<MutexGuard<'static, GXInstance>>),
     MutexPoisonOptionError(PoisonError<MutexGuard<'static, Option<GXInstance>>>),
     MutexPoisonOptionHandleError(PoisonError<MutexGuard<'static, Option<GxiDevice>>>),
@@ -73,6 +73,7 @@ impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
+            ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
             ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
             ErrorKind::MutexPoisonOptionError(e) => write!(f, "MutexPoisonOptionError: {:?}", e),
             ErrorKind::MutexPoisonOptionHandleError(e) => {
@@ -89,6 +90,7 @@ impl std::fmt::Debug for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
+            ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
             ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
             ErrorKind::MutexPoisonOptionError(e) => write!(f, "MutexPoisonOptionError: {:?}", e),
             ErrorKind::MutexPoisonOptionHandleError(e) => {

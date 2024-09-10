@@ -18,6 +18,14 @@ use std::sync::{LazyLock,Arc,Mutex};
 //---------------Common Functions---------------------------
 //----------------------------------------------------------
 
+pub fn gxi_check_device_handle() -> Result<()> {
+    if GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.is_none() {
+        Err(Error::new(ErrorKind::DeviceHandleError("Device handle is None. Please check your device open situation.".to_string())))
+    } else {
+        Ok(())
+    }
+}
+
 pub fn gxi_count_devices(timeout: u32) -> Result<u32> {
     // Use `gxi_check` to ensure GXI is initialized and accessible
     let mut device_num = 0;
@@ -89,6 +97,7 @@ pub static GXI_IMAGE_BUFFER: LazyLock<Arc<Mutex<Option<Vec<u8>>>>> = LazyLock::n
     Arc::new(Mutex::new(None))
 });
 
+#[cfg(feature = "solo")]
 pub fn gxi_open_device() -> Result<()> {
     let mut device_num = 0;
     gxi_check(|gxi| {
@@ -108,6 +117,7 @@ pub fn gxi_open_device() -> Result<()> {
     }
 }
 
+#[cfg(feature = "solo")]
 pub fn gxi_close_device() -> Result<()> {
     let status = gxi_check(|gxi| gxi.gx_close_device(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device))?;
 
@@ -120,7 +130,9 @@ pub fn gxi_close_device() -> Result<()> {
     }
 }
 
+#[cfg(feature = "solo")]
 pub fn gxi_send_command(command: GX_FEATURE_ID) -> Result<()> {
+    gxi_check_device_handle()?;
     let status = gxi_check(|gxi| gxi.gx_send_command(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device, command))?;
 
     if status == 0 {
@@ -131,7 +143,9 @@ pub fn gxi_send_command(command: GX_FEATURE_ID) -> Result<()> {
     }
 }
 
+#[cfg(feature = "solo")]
 pub fn gxi_get_image() -> Result<()> {
+    gxi_check_device_handle()?;
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
@@ -152,9 +166,11 @@ pub fn gxi_get_image() -> Result<()> {
     }
 }
 
+#[cfg(feature = "solo")]
 pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
+    let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
+    
     unsafe {
-        let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
         if frame_data.nStatus == 0 {
             let data = slice::from_raw_parts(frame_data.pImgBuf as *const u8, (frame_data.nWidth * frame_data.nHeight) as usize);
             let mat = core::Mat::new_rows_cols_with_data(
@@ -198,7 +214,9 @@ extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM
     }
 }
 
+#[cfg(feature = "solo")]
 pub fn gxi_open_stream() -> Result<()> {
+    gxi_check_device_handle()?;
 
     let status = gxi_check(|gxi| gxi.gx_register_capture_callback(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device,frame_callback))?;
 
@@ -218,7 +236,9 @@ pub fn gxi_open_stream() -> Result<()> {
     }
 }
 
+#[cfg(feature = "solo")]
 pub fn gxi_close_stream() -> Result<()> {
+    gxi_check_device_handle()?;
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
 
@@ -233,7 +253,9 @@ pub fn gxi_close_stream() -> Result<()> {
 
 }
 
+#[cfg(feature = "solo")]
 pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<()> {
+    gxi_check_device_handle()?;
 
     gxi_check(|gxi| gxi.gx_register_capture_callback(GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device,frame_callback))?;
 

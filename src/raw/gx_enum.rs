@@ -227,7 +227,7 @@ pub enum GX_FEATURE_ID{
 
 
     //----------------AnalogControls Section----------------------------
-    GX_ENUM_GAIN_AUTO                 = (5000 | GX_FEATURE_TYPE::GX_FEATURE_ENUM as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32)as isize ,   //< Sets the automatic gain control (AGC) mode.
+    GX_ENUM_GAIN_AUTO                 = (5000 | GX_FEATURE_TYPE::GX_FEATURE_ENUM as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32)as isize,   //< Sets the automatic gain control (AGC) mode.
     GX_ENUM_GAIN_SELECTOR             = (5001 | GX_FEATURE_TYPE::GX_FEATURE_ENUM as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32)as isize,   //< Selects which Gain is controlled by the various Gain features.
     GX_ENUM_BLACKLEVEL_AUTO           = (5003 | GX_FEATURE_TYPE::GX_FEATURE_ENUM as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32)as isize,   //< Controls the mode for automatic black level adjustment.
     GX_ENUM_BLACKLEVEL_SELECTOR       = (5004 | GX_FEATURE_TYPE::GX_FEATURE_ENUM as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32)as isize,   //< Selects which Black Level is controlled by the various Black Level features.
