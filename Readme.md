@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/gxci" target="_blank"><img src="https://img.shields.io/crates/v/gxci"/></a>
-  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.2.4"/></a>
+  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.3.0"/></a>
 </p>
 
 <p align="center">
@@ -302,8 +302,9 @@ Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
 
 
 # HAL Functions implemented status
+Here total 7 modules in HAL, they are:
 
-- basement
+- base
   - [x] gxi_check()
   - [x] gxci_init()
   - [x] gxci_init_default()
@@ -319,33 +320,38 @@ Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
   - [x] gxi_open_stream()           // solo feature
   - [x] gxi_open_stream_interval()  // solo feature
   - [x] gxi_close_stream()          // solo feature
+- check
+  - [x] check_status()
+  - [x] check_status_with_ok_fn()
+  - [x] check_gx_status()
+  - [x] check_gx_status_with_ok_fn()
 - config  
-  - [ ] gxi_get_feature_name()
+  - [x] gxi_get_feature_name()
   - 
-  - [ ] gxi_get_int_range()
-  - [ ] gxi_get_int()
-  - [ ] gxi_set_int()
+  - [x] gxi_get_int_range()
+  - [x] gxi_get_int()
+  - [x] gxi_set_int()
   - 
-  - [ ] gxi_get_float_range()
-  - [ ] gxi_get_float()
-  - [ ] gxi_set_float()
+  - [x] gxi_get_float_range()
+  - [x] gxi_get_float()
+  - [x] gxi_set_float()
   - 
-  - [ ] gxi_get_enum_entry_nums()
-  - [ ] gxi_get_enum_description()
-  - [ ] gxi_get_enum()
-  - [ ] gxi_set_enum()
+  - [x] gxi_get_enum_entry_nums()
+  - [x] gxi_get_enum_description()
+  - [x] gxi_get_enum()
+  - [x] gxi_set_enum()
   -  
-  - [ ] gxi_get_bool()
-  - [ ] gxi_set_bool()
+  - [x] gxi_get_bool()
+  - [x] gxi_set_bool()
   - 
-  - [ ] gxi_get_string_length()
-  - [ ] gxi_get_string_max_length()
-  - [ ] gxi_get_string()
-  - [ ] gxi_set_string()
+  - [x] gxi_get_string_length()
+  - [x] gxi_get_string_max_length()
+  - [x] gxi_get_string()
+  - [x] gxi_set_string()
   - 
-  - [ ] gxi_get_buffer_length()
-  - [ ] gxi_get_buffer()
-  - [ ] gxi_set_buffer()
+  - [x] gxi_get_buffer_length()
+  - [x] gxi_get_buffer()
+  - [x] gxi_set_buffer()
 - control
   - device
     - todo!()

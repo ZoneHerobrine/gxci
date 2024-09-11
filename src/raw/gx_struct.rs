@@ -103,6 +103,17 @@ pub struct GX_INT_RANGE {
     pub reserved: [i32; 8],
 }
 
+impl GX_INT_RANGE {
+    pub fn new() -> Self {
+        Self {
+            nMin: 0,
+            nMax: 0,
+            nInc: 0,
+            reserved: [0; 8],
+        }
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct GX_FLOAT_RANGE {
@@ -114,12 +125,35 @@ pub struct GX_FLOAT_RANGE {
     pub reserved: [i8; 31],
 }
 
+impl GX_FLOAT_RANGE {
+    pub fn new() -> Self {
+        Self {
+            dMin: 0.0,
+            dMax: 0.0,
+            dInc: 0.0,
+            szUnit: [0; GX_INFO_LENGTH_8_BYTE],
+            bIncIsValid: false,
+            reserved: [0; 31],
+        }
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct GX_ENUM_DESCRIPTION {
     pub nValue: i64,
     pub szSymbolic: [c_char; GX_INFO_LENGTH_64_BYTE],
     pub reserved: [i32; 8],
+}
+
+impl GX_ENUM_DESCRIPTION {
+    pub fn new() -> Self {
+        Self {
+            nValue: 0,
+            szSymbolic: [0; GX_INFO_LENGTH_64_BYTE],
+            reserved: [0; 8],
+        }
+    }
 }
 
 #[repr(C)]

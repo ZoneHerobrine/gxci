@@ -1,19 +1,240 @@
 //! Set of Get some values
 
 use crate::hal::base::gxi_check;
+use crate::hal::check::check_gx_status;
 use crate::hal::device::gxi_get_device_handle;
 use crate::raw::gx_enum::GX_FEATURE_ID;
-use crate::raw::gx_interface::{Result,Error,ErrorKind,GxciError,GXInterface};
+use crate::raw::gx_interface::{Result, GXInterface};
+use crate::raw::gx_struct::{GX_ENUM_DESCRIPTION, GX_INT_RANGE, GX_FLOAT_RANGE};
+use std::ffi::CString;
+#[cfg(feature = "solo")]
+pub fn gxi_get_feature_name(feature_id: GX_FEATURE_ID) -> Result<String> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut buffer_size:usize = 8;
+    let mut feature_name = vec![0u8; buffer_size];
+    let status = gxi_check(|gxi| gxi.gx_get_feature_name(gxi_device, feature_id, feature_name.as_mut_ptr() as *mut i8, &mut buffer_size))?; 
+    // 这里的feature_name.as_mut_ptr() as *mut i8是将feature_name的地址转换成i8类型的指钋
+
+    check_gx_status(status)?;
+    println!("Successfully get feature name.");
+    Ok(String::from_utf8(feature_name).unwrap())
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_int_range(feature_id: GX_FEATURE_ID) -> Result<GX_INT_RANGE> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut int_range = GX_INT_RANGE::new();
+    let status = gxi_check(|gxi| gxi.gx_get_int_range(gxi_device, feature_id, &mut int_range))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get int range.");
+    Ok(int_range)
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_int(feature_id: GX_FEATURE_ID) -> Result<i64> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut int_value = 0;
+    let status = gxi_check(|gxi| gxi.gx_get_int(gxi_device, feature_id, &mut int_value))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get int value.");
+    Ok(int_value)
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_set_int(feature_id: GX_FEATURE_ID, int_value:i64) -> Result<()> {
+    let gxi_device = gxi_get_device_handle()?;
+    let status = gxi_check(|gxi| gxi.gx_set_int(gxi_device, feature_id, int_value))?;
+
+    check_gx_status(status)?;
+    println!("Successfully set int value.");
+    Ok(())
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_float_range(feature_id: GX_FEATURE_ID) -> Result<GX_FLOAT_RANGE> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut float_range = GX_FLOAT_RANGE::new();
+    let status = gxi_check(|gxi| gxi.gx_get_float_range(gxi_device, feature_id, &mut float_range))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get float range.");
+    Ok(float_range)
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_float(feature_id: GX_FEATURE_ID) -> Result<f64> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut float_value = 0.0;
+    let status = gxi_check(|gxi| gxi.gx_get_float(gxi_device, feature_id, &mut float_value))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get float value.");
+    Ok(float_value)
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_set_float(feature_id: GX_FEATURE_ID, float_value:f64) -> Result<()> {
+    let gxi_device = gxi_get_device_handle()?;
+    let status = gxi_check(|gxi| gxi.gx_set_float(gxi_device, feature_id, float_value))?;
+
+    check_gx_status(status)?;
+    println!("Successfully set float value.");
+    Ok(())
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_enum_entry_nums(feature_id: GX_FEATURE_ID) -> Result<u32> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut enum_entry_nums = 0;
+    let status = gxi_check(|gxi| gxi.gx_get_enum_entry_nums(gxi_device, feature_id, &mut enum_entry_nums))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get enum entry number.");
+    Ok(enum_entry_nums)
+}
+
+// TODO 这里的返回值最佳要处理成String，但是目前我还没太看懂这个结构体的内容，先放着，反正平时用的不多
+#[cfg(feature = "solo")]
+pub fn gxi_get_enum_description(feature_id: GX_FEATURE_ID) -> Result<GX_ENUM_DESCRIPTION> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut enum_description = GX_ENUM_DESCRIPTION::new();
+    let mut buffer_size:usize = 8;
+    let status = gxi_check(|gxi| gxi.gx_get_enum_description(gxi_device, feature_id, &mut enum_description, &mut buffer_size))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get enum description.");
+    Ok(enum_description)
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_enum(feature_id: GX_FEATURE_ID) -> Result<i64> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut enum_value = 0;
+    let status = gxi_check(|gxi| gxi.gx_get_enum(gxi_device, feature_id, &mut enum_value))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get enum value.");
+    Ok(enum_value)
+}
+
+
+#[cfg(feature = "solo")]
+pub fn gxi_set_enum(feature_id: GX_FEATURE_ID, enum_value:i64) -> Result<()> {
+    let gxi_device = gxi_get_device_handle()?;
+    let status = gxi_check(|gxi| gxi.gx_set_enum(gxi_device, feature_id, enum_value))?;
+
+    check_gx_status(status)?;
+    println!("Successfully set enum value.");
+    Ok(())
+}
+
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_bool(feature_id: GX_FEATURE_ID) -> Result<bool> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut bool_value = false;
+    let status = gxi_check(|gxi| gxi.gx_get_bool(gxi_device, feature_id, &mut bool_value))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get bool value.");
+    Ok(bool_value)
+}
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_bool(feature_id: GX_FEATURE_ID, bool_value:bool) -> Result<()> {
     let gxi_device = gxi_get_device_handle()?;
     let status = gxi_check(|gxi| gxi.gx_set_bool(gxi_device, feature_id, bool_value))?;
 
-    if status == 0 {
-        println!("Successfully set bool value.");
-        Ok(())
-    } else {
-        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
-    }
+    check_gx_status(status)?;
+    println!("Successfully set bool value.");
+    Ok(())
+}
+
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_string_length(feature_id: GX_FEATURE_ID) -> Result<usize> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut string_length = 0;
+    let status = gxi_check(|gxi| gxi.gx_get_string_length(gxi_device, feature_id, &mut string_length))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get string length.");
+    Ok(string_length)
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_string_max_length(feature_id: GX_FEATURE_ID) -> Result<usize> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut string_max_length = 0;
+    let status = gxi_check(|gxi| gxi.gx_get_string_max_length(gxi_device, feature_id, &mut string_max_length))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get string max length.");
+    Ok(string_max_length)
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_string(feature_id: GX_FEATURE_ID) -> Result<String> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut buffer_size:usize = 8;
+    let mut string = vec![0u8; buffer_size];
+    let status = gxi_check(|gxi| gxi.gx_get_string(gxi_device, feature_id, string.as_mut_ptr() as *mut i8, &mut buffer_size))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get string.");
+    Ok(String::from_utf8(string).unwrap())
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_set_string(feature_id: GX_FEATURE_ID, string_value:&str) -> Result<()> {
+    let gxi_device = gxi_get_device_handle()?;
+
+    // &str -> CString -> *mut i8
+    let c_string = CString::new(string_value)?;
+    let c_ptr: *mut i8 = c_string.as_ptr() as *mut i8;
+
+    let status = gxi_check(|gxi| gxi.gx_set_string(gxi_device, feature_id, c_ptr))?;
+
+    check_gx_status(status)?;
+    println!("Successfully set string.");
+    Ok(())
+}
+
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_buffer_length(feature_id: GX_FEATURE_ID) -> Result<usize> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut buffer_length = 0;
+    let status = gxi_check(|gxi| gxi.gx_get_buffer_length(gxi_device, feature_id, &mut buffer_length))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get buffer length.");
+    Ok(buffer_length)
+}
+
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_buffer(feature_id: GX_FEATURE_ID) -> Result<Vec<u8>> {
+    let gxi_device = gxi_get_device_handle()?;
+    let mut buffer_size = gxi_get_buffer_length(feature_id)?;
+    let mut buffer = vec![0u8; buffer_size];
+    let status = gxi_check(|gxi| gxi.gx_get_buffer(gxi_device, feature_id, buffer.as_mut_ptr(), &mut buffer_size))?;
+
+    check_gx_status(status)?;
+    println!("Successfully get buffer.");
+    Ok(buffer)
+}
+
+
+#[cfg(feature = "solo")]
+pub fn gxi_set_buffer(feature_id: GX_FEATURE_ID, buffer:&[u8]) -> Result<()> {
+    let gxi_device = gxi_get_device_handle()?;
+    let buffer_size = buffer.len();
+    let status = gxi_check(|gxi| gxi.gx_set_buffer(gxi_device, feature_id, buffer.as_ptr(), buffer_size))?;
+
+    check_gx_status(status)?;
+    println!("Successfully set buffer.");
+    Ok(())
 }

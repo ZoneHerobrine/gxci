@@ -57,12 +57,19 @@ impl From<PoisonError<MutexGuard<'static, GXInstance>>> for Error {
         Error::new(ErrorKind::MutexPoisonError(e))
     }
 }
+impl From<std::ffi::NulError> for Error {
+    fn from(err: std::ffi::NulError) -> Self {
+        Error::new(ErrorKind::NulError(err))
+    }
+}
+
 
 // ErrorKind
 
 pub enum ErrorKind {
     GxciError(GxciError),
     DeviceHandleError(String),
+    NulError(std::ffi::NulError),
     MutexPoisonError(PoisonError<MutexGuard<'static, GXInstance>>),
     MutexPoisonOptionError(PoisonError<MutexGuard<'static, Option<GXInstance>>>),
     MutexPoisonOptionHandleError(PoisonError<MutexGuard<'static, Option<GxiDevice>>>),
@@ -73,6 +80,7 @@ impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
+            ErrorKind::NulError(e) => write!(f, "NulError: {:?}", e),
             ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
             ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
             ErrorKind::MutexPoisonOptionError(e) => write!(f, "MutexPoisonOptionError: {:?}", e),
@@ -90,6 +98,7 @@ impl std::fmt::Debug for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
+            ErrorKind::NulError(e) => write!(f, "NulError: {:?}", e),
             ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
             ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
             ErrorKind::MutexPoisonOptionError(e) => write!(f, "MutexPoisonOptionError: {:?}", e),
