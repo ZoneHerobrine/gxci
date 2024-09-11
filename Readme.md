@@ -16,6 +16,17 @@
 
 <hr />
 
+# New Things in 0.3
+1. [x] Check module for COMMON error handling
+   1. [x] check_status()
+   2. [x] check_status_with_ok_fn()
+   3. [x] check_gx_status()
+   4. [x] check_gx_status_with_ok_fn()
+2. [x] 
+3. [x] 
+4. [x] 
+5. [x] 
+
 # New Things in 0.2
 1. [x] All the lib functions are safe now
 2. [x] The inner error handling
@@ -55,7 +66,7 @@ As of 21:15 on September 8, 2024, 2.0 update! Mainly error handling and security
 You can get the sdk-dev-doc from the SDK of Daheng Imaging you have installed.
 
 # Quick Start
-1. Ensure you have OpenCV Rust Bindings installed, 
+1. Ensure you have OpenCV Rust Bindings installed, if not, you can see the [OpenCV Environment](#opencv-environment) part.
 2. Ensure your camera version is supported by the GxIAPI SDK,and ensure you have installed the GxIAPI SDK.
 
 the document of the environment config is follow the quick start part.

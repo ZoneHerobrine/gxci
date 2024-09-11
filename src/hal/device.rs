@@ -1,5 +1,6 @@
 //! Device module for handling device operations.
 use crate::hal::base::{gxi_check, GXI};
+use crate::hal::check::{check_gx_status, check_gx_status_with_ok_fn};
 use crate::raw::{gx_enum::*, gx_handle::*, gx_interface::*, gx_struct::*};
 use crate::utils::builder::GXDeviceBaseInfoBuilder;
 use crate::utils::facade::convert_to_frame_data;
@@ -56,7 +57,7 @@ pub fn gxi_list_devices() -> Result<Vec<GX_DEVICE_BASE_INFO>> {
             .map(|_| GXDeviceBaseInfoBuilder::new().build())
             .collect();
     
-        let mut size = (device_num as usize) * size_of::<GX_DEVICE_BASE_INFO>();
+    let mut size = (device_num as usize) * size_of::<GX_DEVICE_BASE_INFO>();
         
     // Populate the vector with device base information
     let status = GXI.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionError(e)))?
@@ -67,13 +68,9 @@ pub fn gxi_list_devices() -> Result<Vec<GX_DEVICE_BASE_INFO>> {
                 )
             })?
             .gx_get_all_device_base_info(base_info.as_mut_ptr(), &mut size)?;
-    
 
-    if status == 0 {
-        Ok(base_info)
-    } else {
-        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
-    }
+    check_gx_status(status)?;
+    Ok(base_info)
 }
 
 
@@ -115,13 +112,15 @@ pub fn gxi_open_device() -> Result<()> {
     let mut device = std::ptr::null_mut();
     let status = gxi_check(|gxi| gxi.gx_open_device_by_index(1, &mut device))?;
 
-    if status == 0 {
-        println!("Successfully opened device index 1");
-        *GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))? = Some(GxiDevice { device });
-        Ok(())
-    } else {
-        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
-    }
+    check_gx_status_with_ok_fn(
+        status,
+        || {
+            *GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))? = Some(GxiDevice { device });
+            Ok(())
+        }
+    )?;
+    println!("Successfully opened device");
+    Ok(())
 }
 
 #[cfg(feature = "solo")]
@@ -129,13 +128,15 @@ pub fn gxi_close_device() -> Result<()> {
     let gxi_device = gxi_get_device_handle()?;
     let status = gxi_check(|gxi| gxi.gx_close_device(gxi_device))?;
 
-    if status == 0 {
-        *GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))? = None;
-        println!("Successfully closed device");
-        Ok(())
-    } else {
-        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
-    }
+    check_gx_status_with_ok_fn(
+        status,
+        || {
+            *GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))? = None;
+           Ok(())
+        }
+    )?;
+    println!("Successfully closed device");
+    Ok(())
 }
 
 #[cfg(feature = "solo")]
@@ -143,17 +144,16 @@ pub fn gxi_send_command(command: GX_FEATURE_ID) -> Result<()> {
     let gxi_device = gxi_get_device_handle()?;
     let status = gxi_check(|gxi| gxi.gx_send_command(gxi_device, command))?;
 
-    if status == 0 {
-        println!("Successfully sent command");
-        Ok(())
-    } else {
-        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
-    }
+    
+    check_gx_status(status)?;
+    println!("Successfully sent command");
+    Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_get_image() -> Result<()> {
     let gxi_device = gxi_get_device_handle()?;
+    println!("gxi_device: {:?}", gxi_device);
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
@@ -166,12 +166,9 @@ pub fn gxi_get_image() -> Result<()> {
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
 
-    if status == 0 {
-        println!("Successfully got image");
-        Ok(())
-    } else {
-        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
-    }
+    check_gx_status(status)?;
+    println!("Successfully got image");
+    Ok(())
 }
 
 #[cfg(feature = "solo")]
@@ -225,48 +222,35 @@ extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM
 #[cfg(feature = "solo")]
 pub fn gxi_open_stream() -> Result<()> {
     let gxi_device = gxi_get_device_handle()?;
-
     let status = gxi_check(|gxi| gxi.gx_register_capture_callback(gxi_device,frame_callback))?;
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
-
     highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
     loop {
         sleep(Duration::from_secs(10));
         break;
     }
 
-    if status == 0 {
-        println!("Successfully opened stream");
-        Ok(())
-    } else {
-        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
-    }
+    check_gx_status(status)?;
+    println!("Successfully opened stream");
+    Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_close_stream() -> Result<()> {
     let gxi_device = gxi_get_device_handle()?;
-
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
-
     let status = gxi_check(|gxi| gxi.gx_unregister_capture_callback(gxi_device))?;
 
-    if status == 0 {
-        println!("Successfully closed stream");
-        Ok(())
-    } else {
-        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
-    }
-
+    check_gx_status(status)?;
+    println!("Successfully closed stream");
+    Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<()> {
     let gxi_device = gxi_get_device_handle()?;
-
     gxi_check(|gxi| gxi.gx_register_capture_callback(gxi_device,frame_callback))?;
-
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
     highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
@@ -276,18 +260,14 @@ pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<()> {
     }
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
-
     let status = gxi_check(|gxi| gxi.gx_unregister_capture_callback(gxi_device))?;
 
-    if status == 0 {
-        println!("Successfully opened stream");
-        Ok(())
-    } else {
-        Err(Error::new(ErrorKind::GxciError(GxciError::GalaxyError(status))))
-    }
+    check_gx_status(status)?;
+    println!("Successfully opened stream");
+    Ok(())
 }
 
 
-// //----------------------------------------------------------
-// //---------------Multi Camera-------------------------------
-// //----------------------------------------------------------
+//----------------------------------------------------------
+//---------------Multi Camera-------------------------------
+//----------------------------------------------------------
