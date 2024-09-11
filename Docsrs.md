@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/gxci" target="_blank"><img src="https://img.shields.io/crates/v/gxci"/></a>
-  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.2.2"/></a>
+  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.2.4"/></a>
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 2. Ensure your camera version is supported by the GxIAPI SDK,and ensure you have installed the GxIAPI SDK.
 
 # HAL Part
-There five main modules in the HAL: base, device, config, event and network. But until 0.2 version, only the base module and device module are implemented. The config module is planned in 0.3 version.
+There five main modules in the HAL: base, device, config, event and network. But until 0.2 version, only the base module and device module are implemented. The config module and control are planned in 0.3 version.
 
 
 # RAW Part

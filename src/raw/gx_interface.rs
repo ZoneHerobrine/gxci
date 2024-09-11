@@ -5,9 +5,9 @@
 use crate::hal::device::{GxiDevice, GxiFrameData};
 
 use libloading::{Library, Symbol};
+
 use std::ffi::{c_char, c_void, CStr};
-use std::sync::MutexGuard;
-use std::sync::PoisonError;
+use std::sync::{MutexGuard, PoisonError};
 
 pub type Result<T> = core::result::Result<T, Error>;
 

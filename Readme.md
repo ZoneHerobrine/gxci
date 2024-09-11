@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/gxci" target="_blank"><img src="https://img.shields.io/crates/v/gxci"/></a>
-  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.2.3"/></a>
+  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.2.4"/></a>
 </p>
 
 <p align="center">
@@ -21,7 +21,8 @@
 2. [x] The inner error handling
 3. [x] The readme images are on cloud now 
 4. [x] (in 0.2.3)Re-added solo feature tags
-5. [x] (in 0.2.3)Added gxci_init_dufault() and gxci_check_device_handle()
+5. [x] (in 0.2.3)Added gxci_init_dufault() and gxi_check_device_handle()
+6. [x] (in 0.2.4)Added gxi_get_device_handle() and config module placeholder
 
 The plan of 0.3 and 0.4 can see the [Future Plan](#future-plan) in the bottom of README.
 
@@ -42,7 +43,7 @@ Gxci (Galaxy Camera Interface) is an interface developed using Rust based on the
 
 At present, HAL library encapsulation for USB single camera has been implemented, and raw contains a direct Rust implementation of all contents (handles, constants, structures, enumerations, callback functions, etc.) of the C language interface except for the network camera; HAL has encapsulated the hardware abstraction layer (currently including connections, image capture, and streaming), which is suitable for practical development and use; Inside the utilities are some utility class functions (encapsulated with commonly used Builder and Facade pattern functions); 
 
-The old version was a crate library called [gxi_hako](https://crates.io/crates/gxi_hako), which had incomplete implementations of the raw and utilities parts and has now been temporarily abandoned; 
+The old version was a crate library called [gxi_hako](https://crates.io/crates/gxi_hako), which had unsafe raw-binding implementations of the raw and utilities parts and has now been temporarily abandoned; 
 
 The new version, also known as gxci, includes the implementation of three parts: raw, HAL, and utilities;
 
@@ -63,7 +64,7 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = {version="0.2.3", features=["solo"]}
+gxci = {version="0.2.4", features=["solo"]}
 ```
 The solo feature can simplify some operation if you only have one camera, because it will default to the first camera in all functions.
 
@@ -147,7 +148,7 @@ then you will get a test.png as
 
 more codes just see the examples.
 
-if you want to use raw functions, you can see [gxi_hako](https://crates.io/crates/gxi_hako) crate.
+if you want to use raw functions, you can see [gxi_hako](https://crates.io/crates/gxi_hako) crate. The only difference is that gxi_hako's functions need unsafe block.
 
 # Example
 Here 5 raw-examples and 3 hal-example are provided, they are:
@@ -299,14 +300,41 @@ Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
 - device
   - [x] gxi_count_devices()
   - [x] gxi_list_devices()
-  - [x] gxci_open_device()          // solo feature
-  - [x] gxci_close_device()         // solo feature
-  - [x] gxci_check_device_handle()  // solo feature
+  - [x] gxi_open_device()          // solo feature
+  - [x] gxi_close_device()         // solo feature
+  - [x] gxi_check_device_handle()  // solo feature
   - [x] gxi_send_command()          // solo feature
   - [x] gxi_get_image()             // solo feature
   - [x] gxi_open_stream()           // solo feature
   - [x] gxi_open_stream_interval()  // solo feature
   - [x] gxi_close_stream()          // solo feature
+- config  
+  - [ ] gxi_get_feature_name()
+  - 
+  - [ ] gxi_get_int_range()
+  - [ ] gxi_get_int()
+  - [ ] gxi_set_int()
+  - 
+  - [ ] gxi_get_float_range()
+  - [ ] gxi_get_float()
+  - [ ] gxi_set_float()
+  - 
+  - [ ] gxi_get_enum_entry_nums()
+  - [ ] gxi_get_enum_description()
+  - [ ] gxi_get_enum()
+  - [ ] gxi_set_enum()
+  -  
+  - [ ] gxi_get_bool()
+  - [ ] gxi_set_bool()
+  - 
+  - [ ] gxi_get_string_length()
+  - [ ] gxi_get_string_max_length()
+  - [ ] gxi_get_string()
+  - [ ] gxi_set_string()
+  - 
+  - [ ] gxi_get_buffer_length()
+  - [ ] gxi_get_buffer()
+  - [ ] gxi_set_buffer()
 - control
   - device
     - todo!()
