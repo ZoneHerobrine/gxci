@@ -1,6 +1,7 @@
 //! Some convert function about status
 use crate::raw::gx_enum::*;
 
+
 pub fn convert_to_gx_status(status_code: i32) -> GX_STATUS_LIST {
     match status_code {
         0 => GX_STATUS_LIST::GX_STATUS_SUCCESS,

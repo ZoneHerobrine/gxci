@@ -68,6 +68,7 @@ impl From<std::ffi::NulError> for Error {
 
 pub enum ErrorKind {
     GxciError(GxciError),
+    InvalidFeatureType(String),
     DeviceHandleError(String),
     NulError(std::ffi::NulError),
     MutexPoisonError(PoisonError<MutexGuard<'static, GXInstance>>),
@@ -80,6 +81,7 @@ impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
+            ErrorKind::InvalidFeatureType(e) => write!(f, "InvalidFeatureType: {:?}", e),
             ErrorKind::NulError(e) => write!(f, "NulError: {:?}", e),
             ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
             ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
@@ -98,6 +100,7 @@ impl std::fmt::Debug for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
+            ErrorKind::InvalidFeatureType(e) => write!(f, "InvalidFeatureType: {:?}", e),
             ErrorKind::NulError(e) => write!(f, "NulError: {:?}", e),
             ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
             ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
