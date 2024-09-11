@@ -22,3 +22,8 @@ pub fn convert_to_gx_status(status_code: i32) -> GX_STATUS_LIST {
         _ => GX_STATUS_LIST::GX_STATUS_ERROR, // Default error if unknown status code
     }
 }
+
+pub fn gx_status_describe(status: i32) {
+    let gx_status = format!("{:?}",convert_to_gx_status(status));
+    println!("GX Error: {:?}", gx_status);
+}

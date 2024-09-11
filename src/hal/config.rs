@@ -14,85 +14,260 @@ use std::ffi::CString;
 //---------------HAL Functions---------------------------
 //----------------------------------------------------------
 
-// 通过match_feature_type函数来根据feature id获取对应的feature type，来看决定value的类型，以及调用对应的函数
-// 大概会需要泛型和where,来限制传入与返回值的类型
+// #[cfg(feature = "solo")]
+// pub fn gxi_get_feature_value<T>(feature_id: GX_FEATURE_ID) -> Result<T> 
+// where 
+//     T: From<i64> 
+//     + From<f64> 
+//     + From<bool> 
+//     + From<String> 
+//     + From<Vec<u8>>
+// {
+//     let feature_type = match_feature_type(feature_id);
+//     match feature_type {
+//         GX_FEATURE_TYPE::GX_FEATURE_INT => {
+//             let int_value = gxi_get_int(feature_id)?;
+//             Ok(T::from(int_value))
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_FLOAT => {
+//             let float_value = gxi_get_float(feature_id)?;
+//             Ok(T::from(float_value)) 
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_ENUM => {
+//             let enum_value = gxi_get_enum(feature_id)?;
+//             Ok(T::from(enum_value)) 
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_BOOL => {
+//             let bool_value = gxi_get_bool(feature_id)?;
+//             Ok(T::from(bool_value)) 
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_STRING => {
+//             let string_value = gxi_get_string(feature_id)?;
+//             Ok(T::from(string_value))
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_BUFFER => {
+//             let buffer_value = gxi_get_buffer(feature_id)?;
+//             Ok(T::from(buffer_value))
+//         },
+//         _ => Err(Error::new(ErrorKind::InvalidFeatureType("Invalid feature type.".to_string()))),
+//     }
+// }
+
+// #[cfg(feature = "solo")]
+// pub fn gxi_get_feature_value<T>(feature_id: GX_FEATURE_ID) -> Result<T>
+// where
+//     T: std::convert::TryFrom<i64> 
+//     + std::convert::TryFrom<f64>
+//     + std::convert::TryFrom<bool>
+//     + std::convert::TryFrom<String>
+//     + std::convert::TryFrom<Vec<u8>>,
+//     <T as std::convert::TryFrom<i64>>::Error: std::fmt::Debug,
+//     <T as std::convert::TryFrom<f64>>::Error: std::fmt::Debug,
+//     <T as std::convert::TryFrom<bool>>::Error: std::fmt::Debug,
+//     <T as std::convert::TryFrom<String>>::Error: std::fmt::Debug,
+//     <T as std::convert::TryFrom<Vec<u8>>>::Error: std::fmt::Debug,
+// {
+//     let feature_type = match_feature_type(feature_id);
+
+//     match feature_type {
+//         GX_FEATURE_TYPE::GX_FEATURE_INT => {
+//             let int_value = gxi_get_int(feature_id)?;
+//             T::try_from(int_value).map_err(|e| Error::new(ErrorKind::ConversionError(format!("{:?}", e))))
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_FLOAT => {
+//             let float_value = gxi_get_float(feature_id)?;
+//             T::try_from(float_value).map_err(|e| Error::new(ErrorKind::ConversionError(format!("{:?}", e))))
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_ENUM => {
+//             let enum_value = gxi_get_enum(feature_id)?;
+//             T::try_from(enum_value).map_err(|e| Error::new(ErrorKind::ConversionError(format!("{:?}", e))))
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_BOOL => {
+//             let bool_value = gxi_get_bool(feature_id)?;
+//             T::try_from(bool_value).map_err(|e| Error::new(ErrorKind::ConversionError(format!("{:?}", e))))
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_STRING => {
+//             let string_value = gxi_get_string(feature_id)?;
+//             T::try_from(string_value).map_err(|e| Error::new(ErrorKind::ConversionError(format!("{:?}", e))))
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_BUFFER => {
+//             let buffer_value = gxi_get_buffer(feature_id)?;
+//             T::try_from(buffer_value).map_err(|e| Error::new(ErrorKind::ConversionError(format!("{:?}", e))))
+//         },
+//         _ => Err(Error::new(ErrorKind::InvalidFeatureType("Invalid feature type.".to_string()))),
+//     }
+// }
+
+// #[cfg(feature = "solo")]
+// pub fn gxi_get_feature_value<T>(feature_id: GX_FEATURE_ID) -> Result<T>
+// where
+//     T: std::any::Any + std::fmt::Debug,
+// {
+//     let feature_type = match_feature_type(feature_id);
+//     match feature_type {
+//         GX_FEATURE_TYPE::GX_FEATURE_INT => {
+//             if let Some(value) = gxi_get_int(feature_id)?.downcast_ref::<T>() {
+//                 Ok(*value)
+//             } else {
+//                 Err(Error::new(ErrorKind::InvalidFeatureType("Expected i64.".to_string())))
+//             }
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_FLOAT => {
+//             if let Some(value) = gxi_get_float(feature_id)?.downcast_ref::<T>() {
+//                 Ok(*value)
+//             } else {
+//                 Err(Error::new(ErrorKind::InvalidFeatureType("Expected f64.".to_string())))
+//             }
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_ENUM => {
+//             if let Some(value) = gxi_get_enum(feature_id)?.downcast_ref::<T>() {
+//                 Ok(*value)
+//             } else {
+//                 Err(Error::new(ErrorKind::InvalidFeatureType("Expected i64.".to_string())))
+//             }
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_BOOL => {
+//             if let Some(value) = gxi_get_bool(feature_id)?.downcast_ref::<T>() {
+//                 Ok(*value)
+//             } else {
+//                 Err(Error::new(ErrorKind::InvalidFeatureType("Expected bool.".to_string())))
+//             }
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_STRING => {
+//             if let Some(value) = gxi_get_string(feature_id)?.downcast_ref::<T>() {
+//                 Ok(value.clone())
+//             } else {
+//                 Err(Error::new(ErrorKind::InvalidFeatureType("Expected String.".to_string())))
+//             }
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_BUFFER => {
+//             if let Some(value) = gxi_get_buffer(feature_id)?.downcast_ref::<T>() {
+//                 Ok(value.clone())
+//             } else {
+//                 Err(Error::new(ErrorKind::InvalidFeatureType("Expected Vec<u8>.".to_string())))
+//             }
+//         },
+//         _ => Err(Error::new(ErrorKind::InvalidFeatureType("Invalid feature type.".to_string())))
+//     }
+// }
+
+// 用这种方法非常简洁的解决，我是没想到的，这个小版本先保留注释
 #[cfg(feature = "solo")]
-pub fn gxi_get_feature_value<T>(feature_id: GX_FEATURE_ID) -> Result<T> 
-where 
-    T: From<i64> 
-    + From<f64> 
-    + From<bool> 
-    + From<String> 
-    + From<Vec<u8>>
+pub fn gxi_get_feature_value<T>(feature_id: GX_FEATURE_ID) -> Result<T>
+where
+    T: std::any::Any + std::fmt::Debug + Clone,
 {
     let feature_type = match_feature_type(feature_id);
-    match feature_type {
-        GX_FEATURE_TYPE::GX_FEATURE_INT => {
-            let int_value = gxi_get_int(feature_id)?;
-            Ok(T::from(int_value))
-        },
-        GX_FEATURE_TYPE::GX_FEATURE_FLOAT => {
-            let float_value = gxi_get_float(feature_id)?;
-            Ok(T::from(float_value)) 
-        },
-        GX_FEATURE_TYPE::GX_FEATURE_ENUM => {
-            let enum_value = gxi_get_enum(feature_id)?;
-            Ok(T::from(enum_value)) 
-        },
-        GX_FEATURE_TYPE::GX_FEATURE_BOOL => {
-            let bool_value = gxi_get_bool(feature_id)?;
-            Ok(T::from(bool_value)) 
-        },
-        GX_FEATURE_TYPE::GX_FEATURE_STRING => {
-            let string_value = gxi_get_string(feature_id)?;
-            Ok(T::from(string_value))
-        },
-        GX_FEATURE_TYPE::GX_FEATURE_BUFFER => {
-            let buffer_value = gxi_get_buffer(feature_id)?;
-            Ok(T::from(buffer_value))
-        },
-        _ => Err(Error::new(ErrorKind::InvalidFeatureType("Invalid feature type.".to_string()))),
+    let value: Box<dyn std::any::Any> = match feature_type {
+        GX_FEATURE_TYPE::GX_FEATURE_INT => Box::new(gxi_get_int(feature_id)?),
+        GX_FEATURE_TYPE::GX_FEATURE_FLOAT => Box::new(gxi_get_float(feature_id)?),
+        GX_FEATURE_TYPE::GX_FEATURE_ENUM => Box::new(gxi_get_enum(feature_id)?),
+        GX_FEATURE_TYPE::GX_FEATURE_BOOL => Box::new(gxi_get_bool(feature_id)?),
+        GX_FEATURE_TYPE::GX_FEATURE_STRING => Box::new(gxi_get_string(feature_id)?),
+        GX_FEATURE_TYPE::GX_FEATURE_BUFFER => Box::new(gxi_get_buffer(feature_id)?),
+        _ => return Err(Error::new(ErrorKind::InvalidFeatureType("Invalid feature type.".to_string()))),
+    };
+
+    if let Some(result) = value.downcast_ref::<T>() {
+        Ok(result.clone())
+    } else {
+        Err(Error::new(ErrorKind::InvalidFeatureType(format!("Expected {}.", std::any::type_name::<T>()))))
     }
 }
 
+
 #[cfg(feature = "solo")]
-pub fn gxi_set_feature_value<T>(feature_id: GX_FEATURE_ID, value:T) -> Result<()> 
-where 
-    T: Into<i64> 
-    + Into<f64> 
-    + Into<bool> 
-    + Into<String> 
-    + Into<Vec<u8>>
-{
+pub fn gxi_set_feature_value(feature_id: GX_FEATURE_ID, value: &dyn std::any::Any) -> Result<()> {
     let feature_type = match_feature_type(feature_id);
     match feature_type {
         GX_FEATURE_TYPE::GX_FEATURE_INT => {
-            let int_value = value.into();
-            gxi_set_int(feature_id, int_value)
+            if let Some(int_value) = value.downcast_ref::<i64>() {
+                gxi_set_int(feature_id, *int_value)
+            } else {
+                Err(Error::new(ErrorKind::InvalidFeatureType("Expected i64.".to_string())))
+            }
         },
         GX_FEATURE_TYPE::GX_FEATURE_FLOAT => {
-            let float_value = value.into();
-            gxi_set_float(feature_id, float_value)
+            if let Some(float_value) = value.downcast_ref::<f64>() {
+                gxi_set_float(feature_id, *float_value)
+            } else {
+                Err(Error::new(ErrorKind::InvalidFeatureType("Expected f64.".to_string())))
+            }
         },
         GX_FEATURE_TYPE::GX_FEATURE_ENUM => {
-            let enum_value = value.into();
-            gxi_set_enum(feature_id, enum_value)
+            if let Some(enum_value) = value.downcast_ref::<i64>() {
+                gxi_set_enum(feature_id, *enum_value)
+            } else {
+                Err(Error::new(ErrorKind::InvalidFeatureType("Expected i32.".to_string())))
+            }
         },
         GX_FEATURE_TYPE::GX_FEATURE_BOOL => {
-            let bool_value = value.into();
-            gxi_set_bool(feature_id, bool_value)
+            if let Some(bool_value) = value.downcast_ref::<bool>() {
+                gxi_set_bool(feature_id, *bool_value)
+            } else {
+                Err(Error::new(ErrorKind::InvalidFeatureType("Expected bool.".to_string())))
+            }
         },
         GX_FEATURE_TYPE::GX_FEATURE_STRING => {
-            let string_value: String = value.into();
-            gxi_set_string(feature_id, &string_value)
+            if let Some(string_value) = value.downcast_ref::<String>() {
+                gxi_set_string(feature_id, string_value)
+            } else {
+                Err(Error::new(ErrorKind::InvalidFeatureType("Expected String.".to_string())))
+            }
         },
         GX_FEATURE_TYPE::GX_FEATURE_BUFFER => {
-            let buffer_value: Vec<u8> = value.into();
-            gxi_set_buffer(feature_id, &buffer_value)
+            if let Some(buffer_value) = value.downcast_ref::<Vec<u8>>() {
+                gxi_set_buffer(feature_id, buffer_value)
+            } else {
+                Err(Error::new(ErrorKind::InvalidFeatureType("Expected Vec<u8>.".to_string())))
+            }
         },
         _ => Err(Error::new(ErrorKind::InvalidFeatureType("Invalid feature type.".to_string())))
     }
 }
+
+
+// 看样子是被误解了，下面这个函数仅仅是传入了一个神数据，能被转化成任何类型，但是显然不是
+// 我们要实现的是，传入数据要根据Feature的类型来转化，所以这个函数是不对的
+// 正确的逻辑应当是，传入一个Feature ID，然后根据这个ID来判断Feature的类型，然后再根据类型来判断数据是否合规，不合规就报错，合规就相应的执行
+// #[cfg(feature = "solo")]
+// pub fn gxi_set_feature_value<T>(feature_id: GX_FEATURE_ID, value:T) -> Result<()> 
+// where 
+//     T: Into<i64> 
+//     + Into<f64> 
+//     + Into<bool> 
+//     + Into<String> 
+//     + Into<Vec<u8>>
+// {
+//     let feature_type = match_feature_type(feature_id);
+//     match feature_type {
+//         GX_FEATURE_TYPE::GX_FEATURE_INT => {
+//             let int_value = value.into();
+//             gxi_set_int(feature_id, int_value)
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_FLOAT => {
+//             let float_value = value.into();
+//             gxi_set_float(feature_id, float_value)
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_ENUM => {
+//             let enum_value = value.into();
+//             gxi_set_enum(feature_id, enum_value)
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_BOOL => {
+//             let bool_value = value.into();
+//             gxi_set_bool(feature_id, bool_value)
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_STRING => {
+//             let string_value: String = value.into();
+//             gxi_set_string(feature_id, &string_value)
+//         },
+//         GX_FEATURE_TYPE::GX_FEATURE_BUFFER => {
+//             let buffer_value: Vec<u8> = value.into();
+//             gxi_set_buffer(feature_id, &buffer_value)
+//         },
+//         _ => Err(Error::new(ErrorKind::InvalidFeatureType("Invalid feature type.".to_string())))
+//     }
+// }
 
 //----------------------------------------------------------
 //---------------Raw-Warpper Functions---------------------------

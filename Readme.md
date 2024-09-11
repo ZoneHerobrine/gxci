@@ -327,8 +327,8 @@ Here total 7 modules in HAL, they are:
   - [x] check_gx_status_with_ok_fn()
 - config  
   - Here are the HAL functions
-  - [ ] gxi_get_value()
-  - [ ] gxi_set_value()
+  - [x] gxi_get_feature_value()
+  - [x] gxi_set_feature_value()
   - 
   - Following are the raw-wapper functions
   - [x] gxi_get_feature_name()

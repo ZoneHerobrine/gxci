@@ -3,6 +3,7 @@
 
 // The HAL use here is only for error handling.
 use crate::hal::device::{GxiDevice, GxiFrameData};
+use crate::utils::status::gx_status_describe;
 
 use libloading::{Library, Symbol};
 
@@ -68,6 +69,7 @@ impl From<std::ffi::NulError> for Error {
 
 pub enum ErrorKind {
     GxciError(GxciError),
+    ConversionError(String),
     InvalidFeatureType(String),
     DeviceHandleError(String),
     NulError(std::ffi::NulError),
@@ -81,6 +83,7 @@ impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
+            ErrorKind::ConversionError(e) => write!(f, "ConversionError: {:?}", e),
             ErrorKind::InvalidFeatureType(e) => write!(f, "InvalidFeatureType: {:?}", e),
             ErrorKind::NulError(e) => write!(f, "NulError: {:?}", e),
             ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
@@ -100,6 +103,7 @@ impl std::fmt::Debug for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
+            ErrorKind::ConversionError(e) => write!(f, "ConversionError: {:?}", e),
             ErrorKind::InvalidFeatureType(e) => write!(f, "InvalidFeatureType: {:?}", e),
             ErrorKind::NulError(e) => write!(f, "NulError: {:?}", e),
             ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
@@ -131,7 +135,7 @@ impl std::fmt::Display for GxciError {
             GxciError::InitializationError(e) => write!(f, "InitializationError: {}", e),
             GxciError::FunctionCallError(e) => write!(f, "FunctionCallError: {}", e),
             GxciError::LibLoadingError(e) => write!(f, "LibLoadingError: {}", e),
-            GxciError::GalaxyError(e) => write!(f, "GalaxyError: {}", e),
+            GxciError::GalaxyError(e) => write!(f, "GalaxyError: {},{:?}", e,gx_status_describe(*e)),
             GxciError::CommandError(e) => write!(f, "CommandError: {}", e),
         }
     }
@@ -143,7 +147,7 @@ impl std::fmt::Debug for GxciError {
             GxciError::InitializationError(e) => write!(f, "InitializationError: {}", e),
             GxciError::FunctionCallError(e) => write!(f, "FunctionCallError: {}", e),
             GxciError::LibLoadingError(e) => write!(f, "LibLoadingError: {}", e),
-            GxciError::GalaxyError(e) => write!(f, "GalaxyError: {}", e),
+            GxciError::GalaxyError(e) => write!(f, "GalaxyError: {},{:?}", e,gx_status_describe(*e)),
             GxciError::CommandError(e) => write!(f, "CommandError: {}", e),
         }
     }
@@ -1145,7 +1149,7 @@ impl GXInterface for GXInstance {
             > = self.lib.get(b"GXGetFloat").map_err(|e| {
                 GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
             })?;
-            println!("int_value: {:?}", float_value);
+            println!("float_value: {:?}", float_value);
             Ok(gx_get_float(device, feature_id, float_value))
         }
     }
@@ -1175,7 +1179,7 @@ impl GXInterface for GXInstance {
             > = self.lib.get(b"GXSetFloat").map_err(|e| {
                 GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
             })?;
-            println!("int_value: {:?}", float_value);
+            println!("float_value: {:?}", float_value);
             Ok(gx_set_float(device, feature_id, float_value))
         }
     }
