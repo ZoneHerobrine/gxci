@@ -7,7 +7,7 @@ use crate::raw::gx_interface::Result;
 #[cfg(feature = "solo")]
 pub fn gxi_get_gain() -> Result<f64> {
     let gain:f64 = gxi_get_feature_value(GX_FEATURE_ID::GX_FLOAT_GAIN)?;
-    println!("Gain is {}",gain);
+    println!("Now, gain is {}",gain);
     Ok(gain)
 }
 

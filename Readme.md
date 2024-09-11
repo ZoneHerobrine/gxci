@@ -363,11 +363,26 @@ Here total 7 modules in HAL, they are:
   - image_format
     - todo!()
   - acquisition
-    - todo!()
+    - [ ] gxi_acquisition_mode()
+    - [ ] gxi_acquisition_start()
+    - [ ] gxi_acquisition_stop()
+    -
+    - [ ] gxi_exposure_time_mode()
+    - 
+    - [ ] gxi_get_exposure_time()
+    - [ ] gxi_set_exposure_time()
+    - 
+    - [ ] gxi_exposure_time_auto()
+    - [ ] gxi_exposure_time_auto_off()
+    - [ ] gxi_exposure_time_auto_continuous()
+    - [ ] gxi_exposure_time_auto_once()
+    - 
+    - [ ] 
   - digital_io
     - todo!()
   - analog
-    - [ ] gxi_set_gain()
+    - [x] gxi_get_gain()
+    - [x] gxi_set_gain()
     - 
     - [ ] gxi_gain_auto()
     - [ ] gxi_gain_auto_off()
