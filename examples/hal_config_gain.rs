@@ -6,9 +6,8 @@ use gxci::utils::debug::print_device_info;
 use gxci::raw::gx_enum::GX_FEATURE_ID;
 
 fn main()->Result<()> {
-    let dll_path = "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; // 假设这是一个测试用的 DLL 路径
-    gxci_init(dll_path)?;
-
+    gxci_init_default()?;
+    
     let device_num = gxi_count_devices( 1000);
     println!("Device number: {}", device_num.unwrap());
 

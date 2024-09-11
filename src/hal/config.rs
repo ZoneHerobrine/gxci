@@ -58,6 +58,7 @@ pub fn gxi_set_feature_value(feature_id: GX_FEATURE_ID, value: &dyn std::any::An
         },
         GX_FEATURE_TYPE::GX_FEATURE_ENUM => {
             if let Some(enum_value) = value.downcast_ref::<i64>() {
+
                 gxi_set_enum(feature_id, *enum_value)
             } else {
                 Err(Error::new(ErrorKind::InvalidFeatureType("Expected i32.".to_string())))
@@ -180,17 +181,28 @@ pub fn gxi_get_enum_entry_nums(feature_id: GX_FEATURE_ID) -> Result<u32> {
     Ok(enum_entry_nums)
 }
 
-// TODO 这里的返回值最佳要处理成String，但是目前我还没太看懂这个结构体的内容，先放着，反正平时用的不多
+// TODO 这里返回的DESC解析出来还有问题，有时间再修了
 #[cfg(feature = "solo")]
-pub fn gxi_get_enum_description(feature_id: GX_FEATURE_ID) -> Result<GX_ENUM_DESCRIPTION> {
+pub fn gxi_get_enum_description(feature_id: GX_FEATURE_ID) -> Result<Vec<GX_ENUM_DESCRIPTION>> {
     let gxi_device = gxi_get_device_handle()?;
-    let mut enum_description = GX_ENUM_DESCRIPTION::new();
-    let mut buffer_size:usize = 8;
-    let status = gxi_check(|gxi| gxi.gx_get_enum_description(gxi_device, feature_id, &mut enum_description, &mut buffer_size))?;
+    let enum_entry_nums = gxi_get_enum_entry_nums(feature_id)?;
+    // let mut enum_description = [GX_ENUM_DESCRIPTION::new();enum_entry_nums];
+    // let mut enum_description = Vec::with_capacity(enum_entry_nums as usize);
+    // for _ in 0..enum_entry_nums {
+    //     enum_description.push(GX_ENUM_DESCRIPTION::new());
+    // }
+
+    let mut enum_descriptions: Vec<GX_ENUM_DESCRIPTION> =
+        vec![GX_ENUM_DESCRIPTION::new(); enum_entry_nums as usize];
+    // Obtain a mutable pointer to the array's data
+    let enum_descriptions_ptr: *mut GX_ENUM_DESCRIPTION = enum_descriptions.as_mut_ptr();
+    let mut buffer_size :usize = enum_entry_nums as usize * core::mem::size_of::<GX_ENUM_DESCRIPTION>() as usize;
+
+    let status = gxi_check(|gxi| gxi.gx_get_enum_description(gxi_device, feature_id, enum_descriptions_ptr, &mut buffer_size))?;
 
     check_gx_status(status)?;
     println!("Successfully get enum description.");
-    Ok(enum_description)
+    Ok(enum_descriptions)
 }
 
 #[cfg(feature = "solo")]

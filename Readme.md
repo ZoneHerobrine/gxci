@@ -329,7 +329,6 @@ Here total 7 modules in HAL, they are:
   - Here are the HAL functions
   - [x] gxi_get_feature_value()
   - [x] gxi_set_feature_value()
-  - 
   - Following are the raw-wapper functions
   - [x] gxi_get_feature_name()
   - 
@@ -369,15 +368,17 @@ Here total 7 modules in HAL, they are:
     -
     - [ ] gxi_exposure_time_mode()
     - 
-    - [ ] gxi_get_exposure_time()
-    - [ ] gxi_set_exposure_time()
+    - [x] gxi_get_exposure_time()
+    - [x] gxi_set_exposure_time()
     - 
     - [ ] gxi_exposure_time_auto()
     - [ ] gxi_exposure_time_auto_off()
     - [ ] gxi_exposure_time_auto_continuous()
     - [ ] gxi_exposure_time_auto_once()
     - 
-    - [ ] 
+    - [x] gxi_set_auto_exposure_time_min()
+    - [x] gxi_set_auto_exposure_time_max() 
+    - todo!()
   - digital_io
     - todo!()
   - analog
@@ -389,10 +390,11 @@ Here total 7 modules in HAL, they are:
     - [ ] gxi_gain_auto_continuous()
     - [ ] gxi_gain_auto_once()
     - 
-    - [ ] gxi_set_auto_gain_min()
-    - [ ] gxi_set_auto_gain_max()
+    - [x] gxi_set_auto_gain_min()
+    - [x] gxi_set_auto_gain_max() 
     - 
-    - [ ] gxi_set_balance_ratio()
+    - [x] gxi_get_balance_ratio()
+    - [x] gxi_set_balance_ratio()
     - 
     - [ ] gxi_balance_ratio_select()
     - [ ] gxi_balance_ratio_select_r()
