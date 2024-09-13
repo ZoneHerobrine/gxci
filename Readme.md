@@ -7,6 +7,8 @@
 <p align="center">
   <a href="https://crates.io/crates/gxci" target="_blank"><img src="https://img.shields.io/crates/v/gxci"/></a>
   <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.3.0"/></a>
+  <a href="https://github.com/zoneherobrine/gxci" target="_blank"><img src="https://img.shields.io/badge/License-MIT-green.svg"/></a>
+
 </p>
 
 <p align="center">
@@ -17,23 +19,9 @@
 <hr />
 
 # New Things in 0.3
-1. [x] Check module for COMMON error handling
-   1. [x] check_status()
-   2. [x] check_status_with_ok_fn()
-   3. [x] check_gx_status()
-   4. [x] check_gx_status_with_ok_fn()
-2. [x] 
-3. [x] 
-4. [x] 
-5. [x] 
-
-# New Things in 0.2
-1. [x] All the lib functions are safe now
-2. [x] The inner error handling
-3. [x] The readme images are on cloud now 
-4. [x] (in 0.2.3)Re-added solo feature tags
-5. [x] (in 0.2.3)Added gxci_init_dufault() and gxi_check_device_handle()
-6. [x] (in 0.2.4)Added gxi_get_device_handle() and config module placeholder
+1. [x] CHECK:   Check module for COMMON error handling
+2. [x] CONFIG:  Full HAL and Raw-binding config module
+3. [x] CONTROL: Commonly used part of control module
 
 The plan of 0.3 and 0.4 can see the [Future Plan](#future-plan) in the bottom of README.
 
@@ -301,6 +289,21 @@ Thanks to [Sisyphus](https://github.com/Ben-Phantom) for helping me find a free 
 Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
 
 
+# Roadmap
+
+
+# 0.2
+1. [x] All the lib functions are safe now
+2. [x] The inner error handling
+3. [x] The readme images are on cloud now 
+4. [x] (in 0.2.3)Re-added solo feature tags
+5. [x] (in 0.2.3)Added gxci_init_dufault() and gxi_check_device_handle()
+6. [x] (in 0.2.4)Added gxi_get_device_handle() and config module placeholder
+
+# 0.4
+1. [ ] Streaming-out support
+2. [ ] no-opencv feature
+
 # HAL Functions implemented status
 Here total 7 modules in HAL, they are:
 
@@ -329,6 +332,7 @@ Here total 7 modules in HAL, they are:
   - Here are the HAL functions
   - [x] gxi_get_feature_value()
   - [x] gxi_set_feature_value()
+  - 
   - Following are the raw-wapper functions
   - [x] gxi_get_feature_name()
   - 
@@ -356,79 +360,20 @@ Here total 7 modules in HAL, they are:
   - [x] gxi_get_buffer_length()
   - [x] gxi_get_buffer()
   - [x] gxi_set_buffer()
-- control
-  - device
-    - todo!()
-  - image_format
-    - todo!()
-  - acquisition
-    - [ ] gxi_acquisition_mode()
-    - [ ] gxi_acquisition_start()
-    - [ ] gxi_acquisition_stop()
-    -
-    - [ ] gxi_exposure_time_mode()
-    - 
-    - [x] gxi_get_exposure_time()
-    - [x] gxi_set_exposure_time()
-    - 
-    - [ ] gxi_exposure_time_auto()
-    - [ ] gxi_exposure_time_auto_off()
-    - [ ] gxi_exposure_time_auto_continuous()
-    - [ ] gxi_exposure_time_auto_once()
-    - 
-    - [x] gxi_set_auto_exposure_time_min()
-    - [x] gxi_set_auto_exposure_time_max() 
-    - todo!()
-  - digital_io
-    - todo!()
-  - analog
-    - [x] gxi_get_gain()
-    - [x] gxi_set_gain()
-    - 
-    - [ ] gxi_gain_auto()
-    - [ ] gxi_gain_auto_off()
-    - [ ] gxi_gain_auto_continuous()
-    - [ ] gxi_gain_auto_once()
-    - 
-    - [x] gxi_set_auto_gain_min()
-    - [x] gxi_set_auto_gain_max() 
-    - 
-    - [x] gxi_get_balance_ratio()
-    - [x] gxi_set_balance_ratio()
-    - 
-    - [ ] gxi_balance_ratio_select()
-    - [ ] gxi_balance_ratio_select_r()
-    - [ ] gxi_balance_ratio_select_g()
-    - [ ] gxi_balance_ratio_select_b()
-    - 
-    - [ ] gxi_balance_white_auto()
-    - [ ] gxi_balance_white_auto_off()
-    - [ ] gxi_balance_white_auto_continuous()
-    - [ ] gxi_balance_white_auto_once()
-    - todo!()
-  - transport_layer
-    - todo!()
-  - user_set
-    - todo!()
-  - chunk_data
-    - todo!()
+- control (This part's list is too long, so just see [ControlList](./ControlList.md) markdown)
+  - module          impl-status
+  - device            0/n
+  - image_format      0/n
+  - acquisition       4/n
+  - digital_io        0/21      (But MISSING this module's FEATURE_ID)
+  - analog            8/40+ 
+  - transport_layer   1/1 
+  - user_set          0/6 
+  - chunk_data        2/8 
 - event
   - todo!()
 - network
   - todo!()
-
-# Future Plan
-
-## 0.3
-1. [ ] More HAL functions in solo
-   1. [ ] some no solo feature functions
-
-
-# 0.4
-1. [ ] Streaming-out support
-2. [ ] no-opencv feature
-
-
 
 # DLL RAW implemented status
 - [x] 302    0 0001C020 GXCloseDevice

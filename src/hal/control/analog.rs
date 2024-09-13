@@ -45,10 +45,24 @@ pub fn gxi_set_gain(gain:f64) -> Result<()> {
 }
 
 #[cfg(feature = "solo")]
+pub fn gxi_get_auto_gain_min() -> Result<f64> {
+    let min:f64 = gxi_get_feature_value(GX_FEATURE_ID::GX_FLOAT_AUTO_GAIN_MIN)?;
+    println!("Now, auto gain min is {}",min);
+    Ok(min)
+}
+
+#[cfg(feature = "solo")]
 pub fn gxi_set_auto_gain_min(min:f64) -> Result<()> {
     gxi_set_feature_value(GX_FEATURE_ID::GX_FLOAT_AUTO_GAIN_MIN, &min)?;    
     println!("Successfully set auto gain min to {}",min);
     Ok(())
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_auto_gain_max() -> Result<f64> {
+    let max:f64 = gxi_get_feature_value(GX_FEATURE_ID::GX_FLOAT_AUTO_GAIN_MAX)?;
+    println!("Now, auto gain max is {}",max);
+    Ok(max)
 }
 
 #[cfg(feature = "solo")]

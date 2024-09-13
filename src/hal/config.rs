@@ -181,7 +181,7 @@ pub fn gxi_get_enum_entry_nums(feature_id: GX_FEATURE_ID) -> Result<u32> {
     Ok(enum_entry_nums)
 }
 
-// TODO 这里返回的DESC解析出来还有问题，有时间再修了
+// TODO 这里返回的DESC解析出来还有问题，有时间再修了，但是确实也懒得修了，躺
 #[cfg(feature = "solo")]
 pub fn gxi_get_enum_description(feature_id: GX_FEATURE_ID) -> Result<Vec<GX_ENUM_DESCRIPTION>> {
     let gxi_device = gxi_get_device_handle()?;

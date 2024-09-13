@@ -1,0 +1,171 @@
+- control (This part's list is too long, so just see [ControlList](#control) markdown)
+  - device
+    - [ ] gxi_get_device_vendor_name()
+    - [ ] gxi_get_device_model_name()
+    - [ ] gxi_get_device_version()
+    - [ ] gxi_get_device_firmware_version()
+    - [ ] gxi_get_device_serial_number()
+    - [ ] gxi_get_factory_setting_version()
+    - 
+    - [ ] gxi_get_device_user_id()
+    - [ ] gxi_set_device_user_id()
+    - 
+    - [ ] gxi_get_link_selector()
+    - [ ] gxi_set_link_selector()
+    - 
+    - todo!()
+  - image_format
+    - [ ] gxi_get_sensor_width()
+    - [ ] gxi_get_sensor_height()
+    - [ ] gxi_get_max_width()
+    - [ ] gxi_get_max_height()
+    - 
+    - [ ] gxi_get_width()
+    - [ ] gxi_set_width()
+    - [ ] gxi_get_height()
+    - [ ] gxi_set_height()
+    - [ ] gxi_get_offset_x()
+    - [ ] gxi_set_offset_x()
+    - [ ] gxi_get_offset_y()
+    - [ ] gxi_set_offset_y()
+    - 
+    - [ ] gxi_get_region_selector()
+    - [ ] gxi_set_region_selector()
+    - [ ] gxi_get_pixel_format()
+    - [ ] gxi_set_pixel_format()
+    - 
+    - [ ] gxi_get_pixel_size()
+    - [ ] gxi_get_pixel_color_filter()
+    - 
+    - [ ] gxi_get_test_pattern_generator_selector()
+    - [ ] gxi_set_test_pattern_generator_selector()
+    - 
+    - [ ] gxi_get_test_pattern()
+    - [ ] gxi_set_test_pattern()
+    - todo!()
+  - acquisition
+    - [ ] gxi_acquisition_mode()
+    - [ ] gxi_acquisition_start()
+    - [ ] gxi_acquisition_stop()
+    -
+    - [ ] gxi_exposure_time_mode()
+    - 
+    - [x] gxi_get_exposure_time()
+    - [x] gxi_set_exposure_time()
+    - 
+    - [ ] gxi_exposure_time_auto()
+    - [ ] gxi_exposure_time_auto_off()
+    - [ ] gxi_exposure_time_auto_continuous()
+    - [ ] gxi_exposure_time_auto_once()
+    - 
+    - [x] gxi_set_auto_exposure_time_min()
+    - [x] gxi_set_auto_exposure_time_max() 
+    - todo!()
+  - digital_io (But MISSING this module's FEATURE_ID)
+    - [ ] gxi_get_line_selector()
+    - [ ] gxi_set_line_selector()
+    - [ ] gxi_set_line_selector_line0()
+    - [ ] gxi_set_line_selector_line1()
+    - [ ] gxi_set_line_selector_line2()
+    - [ ] gxi_set_line_selector_line3()
+    - 
+    - [ ] gxi_get_line_mode()
+    - [ ] gxi_set_line_mode()
+    - [ ] gxi_set_line_mode_input()
+    - 
+    - [ ] gxi_get_line_inverter()
+    - [ ] gxi_set_line_inverter()
+    - 
+    - [ ] gxi_get_line_source()
+    - 
+    - [ ] gxi_get_line_status()
+    - 
+    - [ ] gxi_get_line_status_all()
+    - 
+    - [ ] gxi_get_user_output_selector()
+    - [ ] gxi_set_user_output_selector()
+    - [ ] gxi_set_user_output_selector_user_output0()
+    - [ ] gxi_set_user_output_selector_user_output1()
+    - [ ] gxi_set_user_output_selector_user_output2()
+    - 
+    - [ ] gxi_get_user_output_value()
+    - [ ] gxi_set_user_output_value()
+    - todo!()
+  - analog
+    - [ ] gxi_get_gain_selector()
+    - [ ] gxi_set_gain_selector()
+    - [ ] gxi_set_gain_selector_analog_all()
+    - 
+    - [x] gxi_get_gain()
+    - [x] gxi_set_gain()
+    - 
+    - [ ] gxi_get_gain_auto()
+    - [ ] gxi_set_gain_auto()
+    - [ ] gxi_set_gain_auto_off()
+    - [ ] gxi_set_gain_auto_continuous()
+    - [ ] gxi_set_gain_auto_once()
+    - 
+    - [x] gxi_get_auto_gain_min()
+    - [x] gxi_set_auto_gain_min()
+    - 
+    - [x] gxi_get_auto_gain_max()
+    - [x] gxi_set_auto_gain_max()
+    - 
+    - [ ] gxi_get_balance_ratio_selector()
+    - [ ] gxi_set_balance_ratio_selector()
+    - [ ] gxi_set_balance_ratio_selector_r()
+    - [ ] gxi_set_balance_ratio_selector_g()
+    - [ ] gxi_set_balance_ratio_selector_b() 
+    - 
+    - [x] gxi_get_balance_ratio()
+    - [x] gxi_set_balance_ratio()
+    - 
+    - [ ] gxi_get_balance_white_auto()
+    - [ ] gxi_set_balance_white_auto()
+    - [ ] gxi_set_balance_white_auto_off()
+    - [ ] gxi_set_balance_white_auto_continuous()
+    - [ ] gxi_set_balance_white_auto_once()
+    - 
+    - [ ] gxi_get_awbroi_lamp_house()
+    - [ ] gxi_set_awbroi_lamp_house()
+    - [ ] gxi_set_awbroi_lamp_house_adaptive()
+    - [ ] todo!("more variants")
+    - 
+    - [ ] gxi_get_awbroi_width()
+    - [ ] gxi_set_awbroi_width()
+    - 
+    - [ ] gxi_get_awbroi_height()
+    - [ ] gxi_set_awbroi_height()
+    - 
+    - [ ] gxi_get_awbroi_offset_x()
+    - [ ] gxi_set_awbroi_offset_x()
+    - 
+    - [ ] gxi_get_awbroi_offset_y()
+    - [ ] gxi_set_awbroi_offset_y()
+    - todo!()
+  - transport_layer
+    - [ ] gxi_get_payload_size()
+    - todo!()
+  - user_set
+    - [ ] gxi_get_user_set_selector()
+    - [ ] gxi_set_user_set_selector()
+    - 
+    - [ ] gxi_user_set_load()
+    - [ ] gxi_user_set_save()
+    - 
+    - [ ] gxi_get_user_set_default()
+    - [ ] gxi_set_user_set_default()
+    - todo!()
+  - chunk_data
+    - [x] gxi_get_chunk_mode_active()
+    - [x] gxi_set_chunk_mode_active()
+    - 
+    - [ ] gxi_get_chunk_selector()
+    - [ ] gxi_set_chunk_selector()
+    - 
+    - [ ] gxi_get_chunk_enable()
+    - [ ] gxi_set_chunk_enable()
+    - 
+    - [ ] gxi_get_chunk_timestamp()
+    - [ ] gxi_set_chunk_timestamp()
+    - todo!()
