@@ -54,7 +54,7 @@ As of 21:15 on September 8, 2024, 2.0 update! Mainly error handling and security
 You can get the sdk-dev-doc from the SDK of Daheng Imaging you have installed.
 
 # Quick Start
-1. Ensure you have OpenCV Rust Bindings installed, if not, you can see the [OpenCV Environment](#opencv-environment) part.
+1. Ensure you have OpenCV Rust Bindings installed, if not, you can see the [OpenCV Environment](#opencv-environment) part.(If you don't want to use OpenCV, In the future version like ^0.4.0, you can use the `use-imageproc` feature to avoid using OpenCV by using the `imageproc` lib. But I got a endless compilation during my 0.3.0 deving time,and it's now unfinished, so the `use-opencv` feature is recommanded.)
 2. Ensure your camera version is supported by the GxIAPI SDK,and ensure you have installed the GxIAPI SDK.
 
 the document of the environment config is follow the quick start part.
