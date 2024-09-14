@@ -20,7 +20,10 @@ imageproc = { version = "0.25.0", optional = true }
 opencv = { version = "0.92.3", optional = true }
 
 [features]
-default = ["solo", "opencv"]
+# default = ["solo", "use-opencv", "use-imageproc"]
+default = ["solo", "use-opencv"]
+# default = ["solo", "use-imageproc"]
 solo = []
 multi = []
-no-opencv = ["imageproc"]
+use-opencv = ["opencv"]
+use-imageproc = ["imageproc"]

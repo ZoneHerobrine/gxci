@@ -23,7 +23,7 @@
 2. [x] CONFIG:  Full HAL and Raw-binding config module
 3. [x] CONTROL: Commonly used part of control module
 
-The plan of 0.3 and 0.4 can see the [Future Plan](#future-plan) in the bottom of README.
+The plan of 0.4 can see the [Future Plan](#future-plan) in the bottom of README.
 
 # Introduction
 gxci(Galaxy Camera Interface)是一款用Rust基于大恒工业相机GxIAPI的库进行的接口开发;
@@ -63,7 +63,7 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = {version="0.2.4", features=["solo"]}
+gxci = {version="0.2.4", features=["solo","use-opencv"]}
 ```
 The solo feature can simplify some operation if you only have one camera, because it will default to the first camera in all functions.
 
@@ -183,7 +183,9 @@ The OpenCV lib here is used to easily matlization the image and provide a GUI to
 
 Anyway I think OpenCV is exactly a necessary lib in image processing region. 
 
-But the shortcoming is that the OpenCV is a little bit heavy, I'm trying to find a lighter lib to replace it in a feature like `no-opencv`. But it's also need time.
+But the shortcoming is that the OpenCV is a little bit heavy to config and build, so there also provide a feature `use-imageproc` to avoid using OpenCV by using the `imageproc` lib.
+
+But the `imageproc`'s compile time is also very long, especially at the nalgebra part. One day I complie the `imageproc`'s nalgebra for 3 hours and it's still not finished. So I think the OpenCV is still a good choice.
 
 (Now the newest OpenCV is 4.10.0, but I haven't try it yet. So here is a 4.9.0 tutorial)
 

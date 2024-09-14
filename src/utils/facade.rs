@@ -36,6 +36,8 @@ pub fn convert_to_frame_data(facade: &GXFrameDataFacade) -> GX_FRAME_DATA {
     }
 }
 
+
+
 pub fn fetch_frame_data(gx: &GXInstance, device_handle: GX_DEV_HANDLE) ->Result<(GXFrameDataFacade,Vec<u8>)> {
 
     let mut width_value: i64 = 0;

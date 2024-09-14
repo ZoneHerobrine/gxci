@@ -3,18 +3,22 @@ use crate::hal::base::{gxi_check, GXI};
 use crate::hal::check::{check_gx_status, check_gx_status_with_ok_fn};
 use crate::raw::{gx_enum::*, gx_handle::*, gx_interface::*, gx_struct::*};
 use crate::utils::builder::GXDeviceBaseInfoBuilder;
-use crate::utils::facade::convert_to_frame_data;
+use crate::utils::imgproc::*;
 use crate::utils::facade::*;
-use opencv::{
-    highgui,
-    imgcodecs,
-    core,
-};
+
 use std::slice;
 use std::ffi::c_void;
 use std::thread::sleep;
 use std::time::Duration;
 use std::sync::{LazyLock,Arc,Mutex};
+#[cfg(feature = "use-opencv")]
+use opencv::{
+    highgui,
+    imgcodecs,
+    core,
+};
+#[cfg(feature = "use-imageproc")]
+use imageproc::image::{ImageBuffer, Luma};
 
 //----------------------------------------------------------
 //---------------Common Functions---------------------------
@@ -46,8 +50,6 @@ pub fn gxi_count_devices(timeout: u32) -> Result<u32> {
 
 pub fn gxi_list_devices() -> Result<Vec<GX_DEVICE_BASE_INFO>> {
     let mut device_num = 0;
-
-    // Ensure GXI is initialized and accessible, and update device list
     gxi_check(|gxi| {
         gxi.gx_update_device_list(&mut device_num, 1000)?;
         Ok(())
@@ -144,7 +146,6 @@ pub fn gxi_send_command(command: GX_FEATURE_ID) -> Result<()> {
     let gxi_device = gxi_get_device_handle()?;
     let status = gxi_check(|gxi| gxi.gx_send_command(gxi_device, command))?;
 
-    
     check_gx_status(status)?;
     println!("Successfully sent command");
     Ok(())
@@ -171,26 +172,68 @@ pub fn gxi_get_image() -> Result<()> {
     Ok(())
 }
 
-#[cfg(feature = "solo")]
+#[cfg(all(feature = "solo", feature = "use-opencv"))]
 pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
     let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
-    
-    unsafe {
-        if frame_data.nStatus == 0 {
-            let data = slice::from_raw_parts(frame_data.pImgBuf as *const u8, (frame_data.nWidth * frame_data.nHeight) as usize);
+
+    if frame_data.nStatus == 0 {
+        if let Some(data) = extract_image_data(&frame_data) {
+
             let mat = core::Mat::new_rows_cols_with_data(
-                frame_data.nHeight, 
-                frame_data.nWidth, 
-                data
-            ).unwrap();
-            let vec = core::Vector::<i32>::new();
-            if imgcodecs::imwrite(filename, &mat, &vec).unwrap() {
+                            frame_data.nHeight, 
+                            frame_data.nWidth, 
+                            &data
+                        ).unwrap();
+                        let vec = core::Vector::<i32>::new();
+                        if imgcodecs::imwrite(filename, &mat, &vec).unwrap() {
+                            println!("Image saved successfully.");
+                        } else {
+                            println!("Failed to save the image.");
+                        }
+        } else {
+            println!("Failed to extract image data.");
+        }
+    }
+    Ok(())
+}
+
+#[cfg(all(feature = "solo", feature = "use-imageproc"))]
+pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
+    let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
+
+    if frame_data.nStatus == 0 {
+        if let Some(data) = extract_image_data(&frame_data) {
+            let img = ImageBuffer::<Luma<u8>, _>::from_raw(
+                frame_data.nWidth as u32,
+                frame_data.nHeight as u32,
+                data,
+            ).expect("Failed to create image buffer");
+
+            if img.save(filename).is_ok() {
                 println!("Image saved successfully.");
             } else {
                 println!("Failed to save the image.");
             }
+        } else {
+            println!("Failed to extract image data.");
         }
     }
+    // unsafe {
+    //     if frame_data.nStatus == 0 {
+    //         let data = slice::from_raw_parts(frame_data.pImgBuf as *const u8, (frame_data.nWidth * frame_data.nHeight) as usize);
+    //         let mat = core::Mat::new_rows_cols_with_data(
+    //             frame_data.nHeight, 
+    //             frame_data.nWidth, 
+    //             data
+    //         ).unwrap();
+    //         let vec = core::Vector::<i32>::new();
+    //         if imgcodecs::imwrite(filename, &mat, &vec).unwrap() {
+    //             println!("Image saved successfully.");
+    //         } else {
+    //             println!("Failed to save the image.");
+    //         }
+    //     }
+    // }
     Ok(())
 }
 
@@ -202,21 +245,21 @@ extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM
     // println!("Frame status: {:?}", unsafe { (*p_frame_callback_data).status });
     // println!("Frame All: {:?}", unsafe { *p_frame_callback_data });
 
-    unsafe {
-        let frame_callback_data = &*p_frame_callback_data;
-        if frame_callback_data.status == 0 {
-            let data = slice::from_raw_parts(frame_callback_data.pImgBuf as *const u8, (frame_callback_data.nWidth * frame_callback_data.nHeight) as usize);
-            let mat = core::Mat::new_rows_cols_with_data(
-                frame_callback_data.nHeight, 
-                frame_callback_data.nWidth, 
-                data
-            ).unwrap();
-            highgui::imshow("Camera Frame", &mat).unwrap();
-            if highgui::wait_key(10).unwrap() > 0 {
-                highgui::destroy_window("Camera Frame").unwrap();
-            }
-        }
-    }
+    // unsafe {
+    //     let frame_callback_data = &*p_frame_callback_data;
+    //     if frame_callback_data.status == 0 {
+    //         let data = slice::from_raw_parts(frame_callback_data.pImgBuf as *const u8, (frame_callback_data.nWidth * frame_callback_data.nHeight) as usize);
+    //         let mat = core::Mat::new_rows_cols_with_data(
+    //             frame_callback_data.nHeight, 
+    //             frame_callback_data.nWidth, 
+    //             data
+    //         ).unwrap();
+    //         highgui::imshow("Camera Frame", &mat).unwrap();
+    //         if highgui::wait_key(10).unwrap() > 0 {
+    //             highgui::destroy_window("Camera Frame").unwrap();
+    //         }
+    //     }
+    // }
 }
 
 #[cfg(feature = "solo")]
@@ -225,11 +268,11 @@ pub fn gxi_open_stream() -> Result<()> {
     let status = gxi_check(|gxi| gxi.gx_register_capture_callback(gxi_device,frame_callback))?;
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
-    highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
-    loop {
-        sleep(Duration::from_secs(10));
-        break;
-    }
+    // highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
+    // loop {
+    //     sleep(Duration::from_secs(10));
+    //     break;
+    // }
 
     check_gx_status(status)?;
     println!("Successfully opened stream");
@@ -253,11 +296,11 @@ pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<()> {
     gxi_check(|gxi| gxi.gx_register_capture_callback(gxi_device,frame_callback))?;
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
-    highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
-    loop {
-        sleep(Duration::from_secs(interval_secs));
-        break;
-    }
+    // highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
+    // loop {
+    //     sleep(Duration::from_secs(interval_secs));
+    //     break;
+    // }
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
     let status = gxi_check(|gxi| gxi.gx_unregister_capture_callback(gxi_device))?;
