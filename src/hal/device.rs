@@ -218,22 +218,6 @@ pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
             println!("Failed to extract image data.");
         }
     }
-    // unsafe {
-    //     if frame_data.nStatus == 0 {
-    //         let data = slice::from_raw_parts(frame_data.pImgBuf as *const u8, (frame_data.nWidth * frame_data.nHeight) as usize);
-    //         let mat = core::Mat::new_rows_cols_with_data(
-    //             frame_data.nHeight, 
-    //             frame_data.nWidth, 
-    //             data
-    //         ).unwrap();
-    //         let vec = core::Vector::<i32>::new();
-    //         if imgcodecs::imwrite(filename, &mat, &vec).unwrap() {
-    //             println!("Image saved successfully.");
-    //         } else {
-    //             println!("Failed to save the image.");
-    //         }
-    //     }
-    // }
     Ok(())
 }
 

@@ -9,10 +9,10 @@ use gxci::raw::gx_struct::GX_ENUM_DESCRIPTION;
 fn main()->Result<()> {
     gxci_init_default()?;
 
-    let device_num = gxi_count_devices( 1000);
-    println!("Device number: {}", device_num.unwrap());
+    let device_num = gxi_count_devices( 1000)?;
+    println!("Device number: {}", device_num);
 
-    let base_info = gxi_list_devices().unwrap();
+    let base_info = gxi_list_devices()?;
     for device in &base_info {
         print_device_info(&device);
     }

@@ -23,6 +23,7 @@
 2. [x] CONFIG:  Full HAL and Raw-binding config module
 3. [x] CONTROL: Commonly used part of control module
 
+
 The plan of 0.4 can see the [Future Plan](#future-plan) in the bottom of README.
 
 # Introduction
@@ -78,15 +79,15 @@ fn main()->Result<()> {
     let dll_path = "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; 
     gxci_init(dll_path)?;
 
-    // or you can use the default  as the following:
+    // or you can use the default path as the following:
     // the default path is "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"
 
     // gxci_init_default()?;
 
-    let device_num = gxi_count_devices(1000);
-    println!("Device number: {}", device_num.unwrap());
+    let device_num = gxi_count_devices(1000)?;
+    println!("Device number: {}", device_num);
 
-    let base_info = gxi_list_devices().unwrap();
+    let base_info = gxi_list_devices()?;
     for device in &base_info {
         print_device_info(&device);
     }
