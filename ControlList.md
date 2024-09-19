@@ -68,22 +68,76 @@ The special enum selection functions will be implemented in the future, but not 
     - 
     - todo!()
   - acquisition
-    - [ ] gxi_acquisition_mode()
-    - [ ] gxi_acquisition_start()
-    - [ ] gxi_acquisition_stop()
-    -
-    - [ ] gxi_exposure_time_mode()
+    - [x] gxi_get_acquisition_mode()
+    - [x] gxi_set_acquisition_mode()
+    - [x] gxi_set_acquisition_mode_continuous()
+    - 
+    - [x] gxi_acquisition_start()
+    - [x] gxi_acquisition_stop()
+    - 
+    - [x] gxi_get_trigger_selector()
+    - [x] gxi_set_trigger_selector()
+    - [x] gxi_set_trigger_selector_frame_start()
+    - 
+    - [x] gxi_get_trigger_mode()
+    - [x] gxi_set_trigger_mode()
+    - [x] gxi_set_trigger_mode_off()
+    - 
+    - [x] gxi_get_trigger_source()
+    - [x] gxi_set_trigger_source()
+    - [x] gxi_set_trigger_source_software()
+    - [ ] gxi_set_trigger_source_line0()
+    - [ ] gxi_set_trigger_source_line2()
+    - [ ] gxi_set_trigger_source_line3()
+    - 
+    - [x] gxi_get_trigger_activation()
+    - [x] gxi_set_trigger_activation()
+    - [x] gxi_set_trigger_activation_falling_edge()
+    - [x] gxi_set_trigger_activation_rising_edge()
+    - 
+    - [x] gxi_get_trigger_delay()
+    - [x] gxi_set_trigger_delay()
+    - 
+    - [x] gxi_get_trigger_filter_rasing_edge()
+    - [x] gxi_set_trigger_filter_rasing_edge()
+    - 
+    - [x] gxi_get_trigger_filter_falling_edge()
+    - [x] gxi_set_trigger_filter_falling_edge()
+    - 
+    - [x] gxi_get_exposure_mode()
+    - [x] gxi_set_exposure_mode()
+    - [x] gxi_set_exposure_mode_timed()
     - 
     - [x] gxi_get_exposure_time()
     - [x] gxi_set_exposure_time()
     - 
-    - [ ] gxi_exposure_time_auto()
-    - [ ] gxi_exposure_time_auto_off()
-    - [ ] gxi_exposure_time_auto_continuous()
-    - [ ] gxi_exposure_time_auto_once()
+    - [x] gxi_get_exposure_auto()
+    - [x] gxi_set_exposure_auto()
+    - [x] gxi_set_exposure_auto_off()
+    - [x] gxi_set_exposure_auto_continuous()
+    - [x] gxi_set_exposure_auto_once()
     - 
+    - [x] gxi_get_auto_exposure_time_min()
     - [x] gxi_set_auto_exposure_time_min()
-    - [x] gxi_set_auto_exposure_time_max() 
+    - 
+    - [x] gxi_get_auto_exposure_time_max()
+    - [x] gxi_set_auto_exposure_time_min() 
+    - 
+    - [x] gxi_get_aaroi_width()
+    - [x] gxi_set_aaroi_width()
+    - 
+    - [x] gxi_get_aaroi_height()
+    - [x] gxi_set_aaroi_height()
+    - 
+    - [x] gxi_get_aaroi_offset_x()
+    - [x] gxi_set_aaroi_offset_x()
+    - 
+    - [x] gxi_get_aaroi_offset_y()
+    - [x] gxi_set_aaroi_offset_y()
+    - 
+    - [ ] gxi_get_expected_gray_value()
+    - [ ] gxi_set_expected_gray_value()
+    - 
     - todo!()
   - digital_io (But MISSING this module's FEATURE_ID)
     - [ ] gxi_get_line_selector()
