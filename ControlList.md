@@ -1,4 +1,8 @@
-- control (This part's list is too long, so just see [ControlList](#control) markdown)
+This part's list is too long, so I devided it into this document.
+
+The special enum selection functions will be implemented in the future, but not 0.3.
+
+- control 
   - device
     - [x] gxi_get_device_vendor_name()
     - [x] gxi_get_device_model_name()
@@ -25,33 +29,43 @@
     - 
     - todo!()
   - image_format
-    - [ ] gxi_get_sensor_width()
-    - [ ] gxi_get_sensor_height()
-    - [ ] gxi_get_max_width()
-    - [ ] gxi_get_max_height()
+    - [x] gxi_get_sensor_width()
+    - [x] gxi_get_sensor_height()
+    - [x] gxi_get_max_width()
+    - [x] gxi_get_max_height()
     - 
-    - [ ] gxi_get_width()
-    - [ ] gxi_set_width()
-    - [ ] gxi_get_height()
-    - [ ] gxi_set_height()
-    - [ ] gxi_get_offset_x()
-    - [ ] gxi_set_offset_x()
-    - [ ] gxi_get_offset_y()
-    - [ ] gxi_set_offset_y()
+    - [x] gxi_get_width()
+    - [x] gxi_set_width()
+    - [x] gxi_get_height()
+    - [x] gxi_set_height()
+    - [x] gxi_get_offset_x()
+    - [x] gxi_set_offset_x()
+    - [x] gxi_get_offset_y()
+    - [x] gxi_set_offset_y()
     - 
-    - [ ] gxi_get_region_selector()
-    - [ ] gxi_set_region_selector()
-    - [ ] gxi_get_pixel_format()
-    - [ ] gxi_set_pixel_format()
+    - [x] gxi_get_region_selector()
+    - [x] gxi_set_region_selector()
+    - [x] gxi_set_region_selector_region0()
     - 
-    - [ ] gxi_get_pixel_size()
-    - [ ] gxi_get_pixel_color_filter()
+    - [x] gxi_get_pixel_format()
+    - [x] gxi_set_pixel_format()
+    - [x] gxi_set_pixel_format_bayer_rgb()
+    - [x] gxi_set_pixel_format_bayer_rg10()
     - 
-    - [ ] gxi_get_test_pattern_generator_selector()
-    - [ ] gxi_set_test_pattern_generator_selector()
+    - [x] gxi_get_pixel_size()
+    - [x] gxi_get_pixel_color_filter()
     - 
-    - [ ] gxi_get_test_pattern()
-    - [ ] gxi_set_test_pattern()
+    - [x] gxi_get_test_pattern_generator_selector()
+    - [x] gxi_set_test_pattern_generator_selector()
+    - [x] gxi_set_test_pattern_generator_selector_region0()
+    - 
+    - [x] gxi_get_test_pattern()
+    - [x] gxi_set_test_pattern()
+    - [x] gxi_set_test_pattern_off()
+    - [ ] gxi_set_test_pattern_gray_frame_ramp_moving()
+    - [ ] gxi_set_test_pattern_slant_line_moving()
+    - [ ] gxi_set_test_pattern_slant_line()
+    - 
     - todo!()
   - acquisition
     - [ ] gxi_acquisition_mode()

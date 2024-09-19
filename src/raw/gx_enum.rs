@@ -156,7 +156,7 @@ pub enum GX_FEATURE_ID{
     GX_ENUM_TEST_PATTERN_GENERATOR_SELECTOR = (1018 | GX_FEATURE_TYPE::GX_FEATURE_ENUM as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32) as isize,   //< Selects which test pattern generator is controlled by the TestPattern feature.
     GX_ENUM_REGION_SEND_MODE          = (1019 | GX_FEATURE_TYPE::GX_FEATURE_ENUM as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32) as isize,    //< ROI output mode, see also GX_REGION_SEND_MODE_ENTRY
     GX_ENUM_REGION_MODE               = (1020 | GX_FEATURE_TYPE::GX_FEATURE_ENUM as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32) as isize,    //< zone switch, see also GX_REGION_MODE_ENTRY
-    GX_ENUM_RREGION_SELECTOR          = (1021 | GX_FEATURE_TYPE::GX_FEATURE_ENUM  as u32| GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32) as isize,    //< Selects the Region of interest to control.
+    GX_ENUM_REGION_SELECTOR          = (1021 | GX_FEATURE_TYPE::GX_FEATURE_ENUM  as u32| GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32) as isize,    //< Selects the Region of interest to control.
     GX_INT_CENTER_WIDTH               = (1022 |GX_FEATURE_TYPE::GX_FEATURE_INT  as u32| GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32) as isize,      //< width of window
     GX_INT_CENTER_HEIGHT              = (1023 |GX_FEATURE_TYPE::GX_FEATURE_INT as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32) as isize,      //< height of window
     GX_ENUM_BINNING_HORIZONTAL_MODE   = (1024 | GX_FEATURE_TYPE::GX_FEATURE_ENUM as u32 | GX_FEATURE_LEVEL::GX_FEATURE_LEVEL_REMOTE_DEV as u32) as isize,    //< Binning Horizontal mode, see also GX_BINNING_HORIZONTAL_MODE_ENTRY
