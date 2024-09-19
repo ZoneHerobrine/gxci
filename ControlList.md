@@ -1,17 +1,19 @@
 - control (This part's list is too long, so just see [ControlList](#control) markdown)
   - device
-    - [ ] gxi_get_device_vendor_name()
-    - [ ] gxi_get_device_model_name()
-    - [ ] gxi_get_device_version()
-    - [ ] gxi_get_device_firmware_version()
-    - [ ] gxi_get_device_serial_number()
-    - [ ] gxi_get_factory_setting_version()
+    - [x] gxi_get_device_vendor_name()
+    - [x] gxi_get_device_model_name()
+    - [x] gxi_get_device_version()
+    - [x] gxi_get_device_firmware_version()
+    - [x] gxi_get_device_serial_number()
+    - [x] gxi_get_factory_setting_version()
     - 
-    - [ ] gxi_get_device_user_id()
-    - [ ] gxi_set_device_user_id()
+    - [x] gxi_get_device_user_id()
+    - [x] gxi_set_device_user_id()
     - 
-    - [ ] gxi_get_link_selector()
-    - [ ] gxi_set_link_selector()
+    - [x] gxi_get_link_selector()
+    - [x] gxi_set_link_selector()
+    - [x] gxi_set_link_selector_on()
+    - [x] gxi_set_link_selector_off()
     - 
     - todo!()
   - image_format

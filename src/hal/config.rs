@@ -289,7 +289,7 @@ pub fn gxi_get_string_max_length(feature_id: GX_FEATURE_ID) -> Result<usize> {
 #[cfg(feature = "solo")]
 pub fn gxi_get_string(feature_id: GX_FEATURE_ID) -> Result<String> {
     let gxi_device = gxi_get_device_handle()?;
-    let mut buffer_size:usize = 8;
+    let mut buffer_size:usize = gxi_get_string_length(feature_id)?;
     let mut string = vec![0u8; buffer_size];
     let status = gxi_check(|gxi| gxi.gx_get_string(gxi_device, feature_id, string.as_mut_ptr() as *mut i8, &mut buffer_size))?;
 
