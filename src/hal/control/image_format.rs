@@ -104,7 +104,7 @@ pub fn gxi_set_region_selector(region_selector:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_region_selector_region0() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_REGION_SELECTOR,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_REGION_SELECTOR,&0i64)?;
     println!("Now, region selector is 0");
     Ok(())
 }
@@ -125,14 +125,14 @@ pub fn gxi_set_pixel_format(pixel_format:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_pixel_format_bayer_rgb() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_PIXEL_FORMAT,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_PIXEL_FORMAT,&0i64)?;
     println!("Now, pixel format is 0");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_pixel_format_bayer_rg10() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_PIXEL_FORMAT,&1)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_PIXEL_FORMAT,&1i64)?;
     println!("Now, pixel format is 1");
     Ok(())
 }
@@ -167,7 +167,7 @@ pub fn gxi_set_test_pattern_generator_selector(test_pattern_generator_selector:i
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_test_pattern_generator_selector_region0() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TEST_PATTERN_GENERATOR_SELECTOR,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TEST_PATTERN_GENERATOR_SELECTOR,&0i64)?;
     println!("Now, test pattern generator selector is 0");
     Ok(())
 }
@@ -188,7 +188,7 @@ pub fn gxi_set_test_pattern(test_pattern:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_test_pattern_off() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TEST_PATTERN,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TEST_PATTERN,&0i64)?;
     println!("Now, test pattern is 0");
     Ok(())
 }

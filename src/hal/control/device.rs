@@ -89,16 +89,16 @@ pub fn gxi_set_device_link_throughput_limit_mode(link_selector:i64) -> Result<()
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_set_device_link_throughput_limit_mode_on() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_DEVICE_LINK_THROUGHPUT_LIMIT_MODE,&1)?;
-    println!("Now, link selector is on");
+pub fn gxi_set_device_link_throughput_limit_mode_off() -> Result<()> {
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_DEVICE_LINK_THROUGHPUT_LIMIT_MODE,&0i64)?;
+    println!("Now, link selector is off");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_set_device_link_throughput_limit_mode_off() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_DEVICE_LINK_THROUGHPUT_LIMIT_MODE,&0)?;
-    println!("Now, link selector is off");
+pub fn gxi_set_device_link_throughput_limit_mode_on() -> Result<()> {
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_DEVICE_LINK_THROUGHPUT_LIMIT_MODE,&1i64)?;
+    println!("Now, link selector is on");
     Ok(())
 }
 

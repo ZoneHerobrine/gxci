@@ -21,14 +21,14 @@ pub fn gxi_set_user_set_selector(user_set_selector:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_user_set_selector_default() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_USER_SET_SELECTOR,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_USER_SET_SELECTOR,&0i64)?;
     println!("Now, user set selector is default");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_user_set_selector_user_set0() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_USER_SET_SELECTOR,&1)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_USER_SET_SELECTOR,&1i64)?;
     println!("Now, user set selector is user set 0");
     Ok(())
 }
@@ -63,14 +63,14 @@ pub fn gxi_set_user_set_default(user_set_default:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_user_set_default_default() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_USER_SET_DEFAULT,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_USER_SET_DEFAULT,&0i64)?;
     println!("Now, user set default is default");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_user_set_default_user_set0() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_USER_SET_DEFAULT,&1)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_USER_SET_DEFAULT,&1i64)?;
     println!("Now, user set default is user set 0");
     Ok(())
 }

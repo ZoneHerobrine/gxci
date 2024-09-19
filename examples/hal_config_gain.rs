@@ -1,4 +1,4 @@
-use gxci::hal::config::gxi_get_float_range;
+use gxci::hal::config::{gxi_get_float_range,gxi_get_enum_description};
 use gxci::hal::control::analog::*;
 use gxci::hal::base::*;
 use gxci::hal::device::*;
@@ -22,17 +22,25 @@ fn main()->Result<()> {
     println!("{:?}",gain_range);
     // 10 - 16
     
-
     let gain = 10.0;
     gxi_set_gain(gain)?;
     gxi_get_image()?;
-    gxi_save_image_as_png("gain1.png")?;
+    gxi_save_image_as_png("gain10.png")?;
 
     gxi_get_gain()?;
     let gain = 16.0;
     gxi_set_gain(gain)?;
     gxi_get_image()?;
-    gxi_save_image_as_png("gain2.png")?;
+    gxi_save_image_as_png("gain16.png")?;
+
+    let gain_autos = gxi_get_enum_description(GX_FEATURE_ID::GX_ENUM_GAIN_AUTO)?;
+    for gain_auto in gain_autos {
+        println!("{:?}",gain_auto);
+    }
+
+    gxi_set_gain_auto_continuous()?;
+    gxi_get_image()?;
+    gxi_save_image_as_png("gain_auto.png")?;
 
     gxi_close_device()?;
 

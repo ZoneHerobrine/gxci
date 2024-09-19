@@ -15,15 +15,13 @@
     Rust-based safe interface development for Daheng Industrial Camera GxIAPI
 </p>
 
-
 <hr />
 
 # New Things in 0.3
 1. [x] CHECK:   Check module for COMMON error handling
 2. [x] CONFIG:  Full HAL and Raw-binding config module
-   1. Some FeatureID are missing, so the config module has a few functions are not implemented now.
-3. [x] CONTROL: Commonly used part of control module
-
+   - Some FeatureID are missing, so the config module has a few functions are not implemented now.
+3. [x] CONTROL: Commonly used part of control module (Based on the Galaxy Viewer's sidebar)
 
 The plan of 0.4 can see the [Future Plan](#future-plan) in the bottom of README.
 
@@ -152,7 +150,7 @@ more codes just see the examples.
 if you want to use raw functions, you can see [gxi_hako](https://crates.io/crates/gxi_hako) crate. The only difference is that gxi_hako's functions need unsafe block.
 
 # Example
-Here mainly 5 raw-examples and 3 hal-example are provided, they are:
+Here mainly 5 raw-examples and 5 hal-example are provided, they are:
 - raw-examples
   - [x] raw_open_device_by_index
   - [x] raw_open_device_by_sn
@@ -163,6 +161,8 @@ Here mainly 5 raw-examples and 3 hal-example are provided, they are:
   - [x] hal_list_device_info
   - [x] hal_get_image
   - [x] hal_capture_callback
+  - [x] hal_get_string
+  - [x] hal_config_gain
 
 you can run them like:
 

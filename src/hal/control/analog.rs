@@ -19,7 +19,7 @@ pub fn gxi_set_gain_selector(gain_selector:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_gain_selector_analog_all() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_GAIN_SELECTOR,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_GAIN_SELECTOR,&0i64)?;
     println!("Now, gain selector is analog all");
     Ok(())
 }
@@ -55,21 +55,21 @@ pub fn gxi_set_gain_auto(gain_auto:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_gain_auto_off() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_GAIN_AUTO,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_GAIN_AUTO,&0i64)?;
     println!("Now, gain auto is off");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_gain_auto_continuous() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_GAIN_AUTO,&1)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_GAIN_AUTO,&1i64)?;
     println!("Now, gain auto is continuous");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_gain_auto_once() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_GAIN_AUTO,&2)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_GAIN_AUTO,&2i64)?;
     println!("Now, gain auto is once");
     Ok(())
 }
@@ -118,21 +118,21 @@ pub fn gxi_set_balance_ratio_selector(balance_ratio_selector:i64) -> Result<()> 
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_balance_ratio_selector_red() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_RATIO_SELECTOR,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_RATIO_SELECTOR,&0i64)?;
     println!("Now, balance ratio selector is red");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_balance_ratio_selector_green() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_RATIO_SELECTOR,&1)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_RATIO_SELECTOR,&1i64)?;
     println!("Now, balance ratio selector is green");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_balance_ratio_selector_blue() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_RATIO_SELECTOR,&2)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_RATIO_SELECTOR,&2i64)?;
     println!("Now, balance ratio selector is blue");
     Ok(())
 }
@@ -160,21 +160,21 @@ pub fn gxi_set_balance_white_auto(balance_white_auto:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_balance_white_auto_off() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_WHITE_AUTO,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_WHITE_AUTO,&0i64)?;
     println!("Now, balance white auto is off");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_balance_white_auto_continuous() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_WHITE_AUTO,&1)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_WHITE_AUTO,&1i64)?;
     println!("Now, balance white auto is continuous");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_balance_white_auto_once() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_WHITE_AUTO,&2)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_BALANCE_WHITE_AUTO,&2i64)?;
     println!("Now, balance white auto is once");
     Ok(())
 }
@@ -195,7 +195,7 @@ pub fn gxi_set_awb_lamp_house(awb_lamp_house:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_awb_lamp_house_adaptive() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_AWB_LAMP_HOUSE,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_AWB_LAMP_HOUSE,&0i64)?;
     println!("Now, awbroi lamp house is adaptive");
     Ok(())
 }

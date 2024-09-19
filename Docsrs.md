@@ -19,8 +19,8 @@
 # New Things in 0.3
 1. [x] CHECK:   Check module for COMMON error handling
 2. [x] CONFIG:  Full HAL and Raw-binding config module
-   1. Some FeatureID are missing, so the config module has a few functions are not implemented now.
-3. [x] CONTROL: Commonly used part of control module
+   - Some FeatureID are missing, so the config module has a few functions are not implemented now.
+3. [x] CONTROL: Commonly used part of control module (Based on the Galaxy Viewer's sidebar)
 
 # Quick Start
 1. Ensure you have OpenCV Rust Bindings installed, if not, you can see the [crates page's README](https://crates.io/crates/gxci)
@@ -30,7 +30,6 @@
 There five main modules in the HAL: base, device, config, event and network. 
 
 But until 0.3, the event and network module are not implemented.
-
 
 # RAW Part
 The RAW part in GXCI is all-safety, with LazyLock-Arc-Mutex-Option. And you can find the unsafe static mut implementation in the precious lib called [gxi_hako](https://crates.io/crates/gxi_hako), which is a deprecated RAW-only version of GXCI.

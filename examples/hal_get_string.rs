@@ -1,9 +1,7 @@
-use gxci::hal::config::gxi_get_float_range;
 use gxci::hal::control::device::*;
 use gxci::hal::base::*;
 use gxci::hal::device::*;
 use gxci::utils::debug::print_device_info;
-use gxci::raw::gx_enum::GX_FEATURE_ID;
 
 fn main()->Result<()> {
     gxci_init_default()?;
@@ -18,13 +16,16 @@ fn main()->Result<()> {
     
     gxi_open_device()?;
 
-    let gain_range = gxi_get_float_range(GX_FEATURE_ID::GX_FLOAT_GAIN)?;
-    println!("{:?}",gain_range);
-    // 10 - 16
-
     let name = gxi_get_device_vendor_name()?;
+    let model = gxi_get_device_model_name()?;
+    let version = gxi_get_device_version()?;
+    let firmware_version = gxi_get_device_firmware_version()?;
+    let serial_number = gxi_get_device_serial_number()?;
     println!("Vendor name: {}", name);
-
+    println!("Model name: {}", model);
+    println!("Version: {}", version);
+    println!("Firmware version: {}", firmware_version);
+    println!("Serial number: {}", serial_number);
 
     gxi_close_device()?;
 

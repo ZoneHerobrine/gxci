@@ -21,7 +21,7 @@ pub fn gxi_set_acquisition_mode(acquisition_mode:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_acquisition_mode_continuous() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_ACQUISITION_MODE,&1)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_ACQUISITION_MODE,&1i64)?;
     println!("Now, acquisition mode is continuous");
     Ok(())
 }
@@ -56,7 +56,7 @@ pub fn gxi_set_trigger_selector(trigger_selector:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_trigger_selector_frame_start() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TRIGGER_SELECTOR,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TRIGGER_SELECTOR,&0i64)?;
     println!("Now, trigger selector is 0");
     Ok(())
 }
@@ -77,7 +77,7 @@ pub fn gxi_set_trigger_mode(trigger_mode:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_trigger_mode_off() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TRIGGER_MODE,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TRIGGER_MODE,&0i64)?;
     println!("Now, trigger mode is 0");
     Ok(())
 }
@@ -98,7 +98,7 @@ pub fn gxi_set_trigger_source(trigger_source:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_trigger_source_software() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TRIGGER_SOURCE,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TRIGGER_SOURCE,&0i64)?;
     println!("Now, trigger source is 0");
     Ok(())
 }
@@ -119,14 +119,14 @@ pub fn gxi_set_trigger_activation(trigger_activation:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_trigger_activation_falling_edge() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TRIGGER_ACTIVATION,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TRIGGER_ACTIVATION,&0i64)?;
     println!("Now, trigger activation is 0");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_trigger_activation_rising_edge() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TRIGGER_ACTIVATION,&1)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_TRIGGER_ACTIVATION,&1i64)?;
     println!("Now, trigger activation is 1");
     Ok(())
 }
@@ -189,7 +189,7 @@ pub fn gxi_set_exposure_mode(exposure_mode:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_exposure_mode_timed() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_EXPOSURE_MODE,&1)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_EXPOSURE_MODE,&1i64)?;
     println!("Now, exposure mode is 1");
     Ok(())
 }
@@ -226,21 +226,21 @@ pub fn gxi_set_exposure_auto(exposure_time_auto:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_exposure_auto_off() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_EXPOSURE_AUTO,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_EXPOSURE_AUTO,&0i64)?;
     println!("Now, exposure time auto is 0");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_exposure_auto_continuous() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_EXPOSURE_AUTO,&1)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_EXPOSURE_AUTO,&1i64)?;
     println!("Now, exposure time auto is 1");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_exposure_auto_once() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_EXPOSURE_AUTO,&2)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_EXPOSURE_AUTO,&2i64)?;
     println!("Now, exposure time auto is 2");
     Ok(())
 }

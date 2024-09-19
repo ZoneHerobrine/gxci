@@ -34,14 +34,14 @@ pub fn gxi_set_chunk_selector(chunk_selector:i64) -> Result<()> {
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_chunk_selector_frame_id() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_CHUNK_SELECTOR,&0)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_CHUNK_SELECTOR,&0i64)?;
     println!("Now, chunk selector is frame id");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
 pub fn gxi_set_chunk_selector_timestamp() -> Result<()> {
-    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_CHUNK_SELECTOR,&1)?;
+    gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_CHUNK_SELECTOR,&1i64)?;
     println!("Now, chunk selector is timestamp");
     Ok(())
 }

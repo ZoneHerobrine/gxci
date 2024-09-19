@@ -62,7 +62,7 @@ pub fn gxi_set_feature_value(feature_id: GX_FEATURE_ID, value: &dyn std::any::An
 
                 gxi_set_enum(feature_id, *enum_value)
             } else {
-                Err(Error::new(ErrorKind::InvalidFeatureType("Expected i32.".to_string())))
+                Err(Error::new(ErrorKind::InvalidFeatureType("Expected i64 enum.".to_string())))
             }
         },
         GX_FEATURE_TYPE::GX_FEATURE_BOOL => {
