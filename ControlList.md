@@ -10,10 +10,18 @@
     - [x] gxi_get_device_user_id()
     - [x] gxi_set_device_user_id()
     - 
-    - [x] gxi_get_link_selector()
-    - [x] gxi_set_link_selector()
-    - [x] gxi_set_link_selector_on()
-    - [x] gxi_set_link_selector_off()
+    - [x] gxi_get_device_link_selector()
+    - [x] gxi_set_device_link_selector()
+    - 
+    - [x] gxi_get_device_link_throughput_limit_mode()
+    - [x] gxi_set_device_link_throughput_limit_mode()
+    - [x] gxi_set_device_link_throughput_limit_mode_off()
+    - [x] gxi_set_device_link_throughput_limit_mode_on()
+    - 
+    - [x] gxi_get_device_link_throughput_limit()
+    - [x] gxi_set_device_link_throughput_limit()
+    - 
+    - [x] gxi_get_device_link_current_throughput()
     - 
     - todo!()
   - image_format

@@ -1,7 +1,8 @@
 //! Placeholder
 
 
- 
+
+
 
 use crate::hal::config::*;
 
@@ -66,31 +67,65 @@ pub fn gxi_set_device_user_id(user_id:String) -> Result<()> {
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_get_link_selector() -> Result<i64> {
+pub fn gxi_get_device_link_selector() -> Result<i64> {
+    let link_selector:i64 = gxi_get_feature_value(GX_FEATURE_ID::GX_INT_DEVICE_LINK_SELECTOR)?;
+    println!("Now, link selector is {}",link_selector);
+    Ok(link_selector)
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_set_device_link_selector(link_selector:i64) -> Result<()> {
+    gxi_set_feature_value(GX_FEATURE_ID::GX_INT_DEVICE_LINK_SELECTOR,&link_selector)?;
+    println!("Now, link selector is {}",link_selector);
+    Ok(())
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_device_link_throughput_limit_mode() -> Result<i64> {
     let link_selector:i64 = gxi_get_feature_value(GX_FEATURE_ID::GX_ENUM_DEVICE_LINK_THROUGHPUT_LIMIT_MODE)?;
     println!("Now, link selector is {}",link_selector);
     Ok(link_selector)
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_set_link_selector(link_selector:i64) -> Result<()> {
+pub fn gxi_set_device_link_throughput_limit_mode(link_selector:i64) -> Result<()> {
     gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_DEVICE_LINK_THROUGHPUT_LIMIT_MODE,&link_selector)?;
     println!("Now, link selector is {}",link_selector);
     Ok(())
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_set_link_selector_on() -> Result<()> {
+pub fn gxi_set_device_link_throughput_limit_mode_on() -> Result<()> {
     gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_DEVICE_LINK_THROUGHPUT_LIMIT_MODE,&1)?;
     println!("Now, link selector is on");
     Ok(())
 }
 
 #[cfg(feature = "solo")]
-pub fn gxi_set_link_selector_off() -> Result<()> {
+pub fn gxi_set_device_link_throughput_limit_mode_off() -> Result<()> {
     gxi_set_feature_value(GX_FEATURE_ID::GX_ENUM_DEVICE_LINK_THROUGHPUT_LIMIT_MODE,&0)?;
     println!("Now, link selector is off");
     Ok(())
 }
 
+#[cfg(feature = "solo")]
+pub fn gxi_get_device_link_throughput_limit() -> Result<i64> {
+    let link_selector:i64 = gxi_get_feature_value(GX_FEATURE_ID::GX_INT_DEVICE_LINK_THROUGHPUT_LIMIT)?;
+    println!("Now, link selector is {}",link_selector);
+    Ok(link_selector)
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_set_device_link_throughput_limit(link_selector:i64) -> Result<()> {
+    gxi_set_feature_value(GX_FEATURE_ID::GX_INT_DEVICE_LINK_THROUGHPUT_LIMIT,&link_selector)?;
+    println!("Now, link selector is {}",link_selector);
+    Ok(())
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_device_link_current_throughput() -> Result<i64> {
+    let link_selector:i64 = gxi_get_feature_value(GX_FEATURE_ID::GX_INT_DEVICE_LINK_CURRENT_THROUGHPUT)?;
+    println!("Now, link selector is {}",link_selector);
+    Ok(link_selector)
+}
 
