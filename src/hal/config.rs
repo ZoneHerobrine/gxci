@@ -181,7 +181,19 @@ pub fn gxi_get_enum_entry_nums(feature_id: GX_FEATURE_ID) -> Result<u32> {
     Ok(enum_entry_nums)
 }
 
-// TODO 这里返回的DESC解析出来还有问题，有时间再修了，但是确实也懒得修了，躺
+// TODO  这里返回的DESC解析出来还有问题，有时间再修了，但是确实也懒得修了，躺
+// 仔细看了一下，其实问题是，数组前八位的数据都被截断了，例如Continuous只剩下了us，Once就直接没了
+// 我猜测是Rust结构体和C结构体对齐的问题
+// Buffer size for enum description: 0xd19e6ff2e0
+// Successfully get enum description.
+// GX_ENUM_DESCRIPTION { nValue: 0, szSymbolic: [79, 102, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], reserved: [0, 0, 0, 0, 0, 0, 0, 1] }
+// "Off"
+// GX_ENUM_DESCRIPTION { nValue: 8031446909689163587, szSymbolic: [117, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], reserved: [0, 0, 0, 0, 0, 2, 0, 1701015119] }
+// "us"
+// GX_ENUM_DESCRIPTION { nValue: 0, szSymbolic: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], reserved: [0, 0, 0, 0, 0, 0, 0, 0] }
+// ""
+// Successfully closed device
+// 很容易nValue的1和2都飘到数组里面去了，所以，Enum的描述暂时难以解决，版本三先搁置这一点了
 #[cfg(feature = "solo")]
 pub fn gxi_get_enum_description(feature_id: GX_FEATURE_ID) -> Result<Vec<GX_ENUM_DESCRIPTION>> {
     let gxi_device = gxi_get_device_handle()?;
@@ -196,7 +208,7 @@ pub fn gxi_get_enum_description(feature_id: GX_FEATURE_ID) -> Result<Vec<GX_ENUM
         vec![GX_ENUM_DESCRIPTION::new(); enum_entry_nums as usize];
     // Obtain a mutable pointer to the array's data
     let enum_descriptions_ptr: *mut GX_ENUM_DESCRIPTION = enum_descriptions.as_mut_ptr();
-    let mut buffer_size :usize = enum_entry_nums as usize * core::mem::size_of::<GX_ENUM_DESCRIPTION>() as usize;
+    let mut buffer_size :usize = enum_entry_nums as usize * core::mem::size_of::<GX_ENUM_DESCRIPTION>() as usize + 1usize;
 
     let status = gxi_check(|gxi| gxi.gx_get_enum_description(gxi_device, feature_id, enum_descriptions_ptr, &mut buffer_size))?;
 

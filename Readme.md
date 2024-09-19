@@ -21,6 +21,7 @@
 # New Things in 0.3
 1. [x] CHECK:   Check module for COMMON error handling
 2. [x] CONFIG:  Full HAL and Raw-binding config module
+   1. The Enum_Description part occurs a struct bug between rust and C, it's unfinished yet, and it's headached me for a long time. You can see it in the issue.
 3. [x] CONTROL: Commonly used part of control module
 
 
