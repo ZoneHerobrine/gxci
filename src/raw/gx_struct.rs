@@ -140,7 +140,7 @@ impl GX_FLOAT_RANGE {
 
 // The packed attribute is used to tell the compiler to avoid padding between structure fields. Here just like - 4
 #[repr(C, packed)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct GX_ENUM_DESCRIPTION {
     pub nValue: i64,
     // It's a AMAZING SOLUTION that - 4 to make the size of C's szSymbolic align to Rusts

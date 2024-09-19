@@ -7,6 +7,7 @@ use crate::raw::gx_enum::{GX_FEATURE_ID, GX_FEATURE_TYPE};
 use crate::raw::gx_interface::{Result,Error,ErrorKind, GXInterface};
 use crate::raw::gx_struct::{GX_ENUM_DESCRIPTION, GX_INT_RANGE, GX_FLOAT_RANGE};
 use crate::utils::matching::match_feature_type;
+use crate::utils::extract::{extract_n_value,extract_sz_symbolic};
 use std::ffi::CString;
 
 
@@ -87,6 +88,14 @@ pub fn gxi_set_feature_value(feature_id: GX_FEATURE_ID, value: &dyn std::any::An
         },
         _ => Err(Error::new(ErrorKind::InvalidFeatureType("Invalid feature type.".to_string())))
     }
+}
+
+#[cfg(feature = "solo")]
+#[derive(Debug, Clone)]
+pub struct GxiEnumDescription {
+    pub n_value: i64,
+    pub sz_symbolic: String,
+    pub feature_id: GX_FEATURE_ID,
 }
 
 //----------------------------------------------------------
@@ -181,40 +190,33 @@ pub fn gxi_get_enum_entry_nums(feature_id: GX_FEATURE_ID) -> Result<u32> {
     Ok(enum_entry_nums)
 }
 
-// TODO  这里返回的DESC解析出来还有问题，有时间再修了，但是确实也懒得修了，躺
-// 仔细看了一下，其实问题是，数组前八位的数据都被截断了，例如Continuous只剩下了us，Once就直接没了
-// 我猜测是Rust结构体和C结构体对齐的问题
-// Buffer size for enum description: 0xd19e6ff2e0
-// Successfully get enum description.
-// GX_ENUM_DESCRIPTION { nValue: 0, szSymbolic: [79, 102, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], reserved: [0, 0, 0, 0, 0, 0, 0, 1] }
-// "Off"
-// GX_ENUM_DESCRIPTION { nValue: 8031446909689163587, szSymbolic: [117, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], reserved: [0, 0, 0, 0, 0, 2, 0, 1701015119] }
-// "us"
-// GX_ENUM_DESCRIPTION { nValue: 0, szSymbolic: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], reserved: [0, 0, 0, 0, 0, 0, 0, 0] }
-// ""
-// Successfully closed device
-// 很容易nValue的1和2都飘到数组里面去了，所以，Enum的描述暂时难以解决，版本三先搁置这一点了
 #[cfg(feature = "solo")]
-pub fn gxi_get_enum_description(feature_id: GX_FEATURE_ID) -> Result<Vec<GX_ENUM_DESCRIPTION>> {
+pub fn gxi_get_enum_description(feature_id: GX_FEATURE_ID) -> Result<Vec<GxiEnumDescription>> {
     let gxi_device = gxi_get_device_handle()?;
     let enum_entry_nums = gxi_get_enum_entry_nums(feature_id)?;
-    // let mut enum_description = [GX_ENUM_DESCRIPTION::new();enum_entry_nums];
-    // let mut enum_description = Vec::with_capacity(enum_entry_nums as usize);
-    // for _ in 0..enum_entry_nums {
-    //     enum_description.push(GX_ENUM_DESCRIPTION::new());
-    // }
 
     let mut enum_descriptions: Vec<GX_ENUM_DESCRIPTION> =
         vec![GX_ENUM_DESCRIPTION::new(); enum_entry_nums as usize];
-    // Obtain a mutable pointer to the array's data
     let enum_descriptions_ptr: *mut GX_ENUM_DESCRIPTION = enum_descriptions.as_mut_ptr();
     let mut buffer_size :usize = enum_entry_nums as usize * core::mem::size_of::<GX_ENUM_DESCRIPTION>() as usize + 1usize;
 
     let status = gxi_check(|gxi| gxi.gx_get_enum_description(gxi_device, feature_id, enum_descriptions_ptr, &mut buffer_size))?;
 
+    let mut gxi_enum_descriptions: Vec<GxiEnumDescription> = Vec::new();
+
+    for i in 0..enum_entry_nums {
+        let n_value = extract_n_value(enum_descriptions[i as usize]);
+        let sz_symbolic = extract_sz_symbolic(enum_descriptions[i as usize]);
+        gxi_enum_descriptions.push(GxiEnumDescription {
+            n_value,
+            sz_symbolic,
+            feature_id,
+        });
+    }
+
     check_gx_status(status)?;
     println!("Successfully get enum description.");
-    Ok(enum_descriptions)
+    Ok(gxi_enum_descriptions)
 }
 
 #[cfg(feature = "solo")]

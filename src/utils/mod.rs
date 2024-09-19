@@ -6,3 +6,4 @@ pub mod facade;
 pub mod imgproc;
 pub mod matching;
 pub mod status;
+pub mod extract;
