@@ -20,7 +20,7 @@ fn main()->Result<()> {
 
     let gain_range = gxi_get_float_range(GX_FEATURE_ID::GX_FLOAT_GAIN)?;
     println!("{:?}",gain_range);
-    // 10 - 16
+    // 0 - 16
     
     let gain = 10.0;
     gxi_set_gain(gain)?;

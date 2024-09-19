@@ -23,7 +23,7 @@
    - Some FeatureID are missing, so the config module has a few functions are not implemented now.
 3. [x] CONTROL: Commonly used part of control module (Based on the Galaxy Viewer's sidebar)
 
-The plan of 0.4 can see the [Future Plan](#future-plan) in the bottom of README.
+The plan of 0.4 can see the [Roadmap](#roadmap) in the bottom of README.
 
 # Introduction
 gxci(Galaxy Camera Interface)是一款用Rust基于大恒工业相机GxIAPI的库进行的接口开发;
@@ -38,6 +38,8 @@ gxci(Galaxy Camera Interface)是一款用Rust基于大恒工业相机GxIAPI的�
 
 2024年9月8日21点15分，2.0更新！主要是错误处理和安全化，现在所有的库函数都是安全的了，同时建立了非常规范和健壮的错误处理。此外也更新了所有例子，消除了所有的Warning。
 
+2024年9月19日16点09分，3.0更新！主要是增加了config模块，现在所有的HAL和raw-binding的config模块都已经实现了，你可以调节宽高、增益、白平衡以及一切已实现的相机参数！但是由于inc中部分FeatureID的缺失，所以config模块还有一些函数没有实现。此外，增加了control模块，这是基于Galaxy Viewer的侧边栏常用部分的封装。
+
 Gxci (Galaxy Camera Interface) is an interface developed using Rust based on the Daxi API library of Daheng Industrial Camera; 
 
 At present, HAL library encapsulation for USB single camera has been implemented, and raw contains a direct Rust implementation of all contents (handles, constants, structures, enumerations, callback functions, etc.) of the C language interface except for the network camera; HAL has encapsulated the hardware abstraction layer (currently including connections, image capture, and streaming), which is suitable for practical development and use; Inside the utilities are some utility class functions (encapsulated with commonly used Builder and Facade pattern functions); 
@@ -49,6 +51,9 @@ The new version, also known as gxci, includes the implementation of three parts:
 As of 23:45 on July 11, 2024, the HAL library for the 'features=["solo"]' section has been completed, but the multi camera features have not been implemented yet. i'll update it when i have more free time (๑˃ᴗ˂)ﻭ.
 
 As of 21:15 on September 8, 2024, 2.0 update! Mainly error handling and security, now all library functions are safe, and very standardized and robust error handling has been established. In addition, all examples have been updated and all Warnings have been resolved.
+
+As of 16:09 on September 19, 2024, 3.0 update! Mainly added the config module, now all HAL and raw-binding config modules have been implemented, you can adjust the width, height, gain, white balance, and all the camera parameters that have been implemented! But due to the lack of some FeatureID in inc, there are still some functions in the config module that have not been implemented. In addition, the control module has been added, which is an encapsulation of the commonly used part of the sidebar of the Galaxy Viewer.
+
 
 # Overview
 You can get the sdk-dev-doc from the SDK of Daheng Imaging you have installed.
@@ -75,13 +80,12 @@ use gxci::hal::base::*;
 use gxci::utils::debug::print_device_info;
 
 fn main()->Result<()> {
-    let dll_path = "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; 
-    gxci_init(dll_path)?;
-
-    // or you can use the default path as the following:
     // the default path is "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"
+    // or you can use the custom path as the following:
+    // let dll_path = "D:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; 
+    // gxci_init(dll_path)?;
 
-    // gxci_init_default()?;
+    gxci_init_default()?;
 
     let device_num = gxi_count_devices(1000)?;
     println!("Device number: {}", device_num);
@@ -100,6 +104,7 @@ fn main()->Result<()> {
     gxi_close_device()?;
 
     gxci_close()?;
+
     Ok(())
 }
 ```
@@ -295,7 +300,6 @@ Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
 
 # Roadmap
 
-
 # 0.2
 1. [x] All the lib functions are safe now
 2. [x] The inner error handling
@@ -304,9 +308,15 @@ Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
 5. [x] (in 0.2.3)Added gxci_init_dufault() and gxi_check_device_handle()
 6. [x] (in 0.2.4)Added gxi_get_device_handle() and config module placeholder
 
+#  0.3
+1. [x] CHECK:   Check module for COMMON error handling
+2. [x] CONFIG:  Full HAL and Raw-binding config module
+   - Some FeatureID are missing, so the config module has a few functions are not implemented now.
+3. [x] CONTROL: Commonly used part of control module (Based on the Galaxy Viewer's sidebar)
+
+
 # 0.4
-1. [ ] Streaming-out support
-2. [ ] no-opencv feature
+1. [ ] Streaming-out support (to gRPC or to tauri etc.)
 
 # HAL Functions implemented status
 Here total 7 modules in HAL, they are:

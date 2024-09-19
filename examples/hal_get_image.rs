@@ -3,8 +3,7 @@ use gxci::hal::base::*;
 use gxci::utils::debug::print_device_info;
 
 fn main()->Result<()> {
-    let dll_path = "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; 
-    gxci_init(dll_path)?;
+    gxci_init_default()?;
 
     let device_num = gxi_count_devices( 1000)?;
     println!("Device number: {}", device_num);
@@ -23,5 +22,6 @@ fn main()->Result<()> {
     gxi_close_device()?;
 
     gxci_close()?;
+    
     Ok(())
 }

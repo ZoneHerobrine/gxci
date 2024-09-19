@@ -30,5 +30,6 @@ fn main()->Result<()> {
     gxi_close_device()?;
 
     gxci_close()?;
+    
     Ok(())
 }
