@@ -1,4 +1,5 @@
 //! Placeholder
+
 use crate::hal::config::*;
 use crate::hal::device::gxi_send_command;
 use crate::raw::gx_enum::GX_FEATURE_ID;

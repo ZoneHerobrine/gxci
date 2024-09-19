@@ -1,4 +1,5 @@
 //! Check module for COMMON error handling.
+
 use crate::raw::gx_interface::{Result, Error, ErrorKind, GxciError};
 
 pub fn check_status<F>(status: i32, error_fn: F) -> Result<()>

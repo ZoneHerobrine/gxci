@@ -21,7 +21,7 @@
 # New Things in 0.3
 1. [x] CHECK:   Check module for COMMON error handling
 2. [x] CONFIG:  Full HAL and Raw-binding config module
-   1. The Enum_Description part occurs a struct bug between rust and C, it's unfinished yet, and it's headached me for a long time. You can see it in the issue.
+   1. Some FeatureID are missing, so the config module has a few functions are not implemented now.
 3. [x] CONTROL: Commonly used part of control module
 
 
@@ -65,7 +65,7 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = {version="0.2.4", features=["solo","use-opencv"]}
+gxci = {version="0.3.0", features=["solo","use-opencv"]}
 ```
 The solo feature can simplify some operation if you only have one camera, because it will default to the first camera in all functions.
 
@@ -152,7 +152,7 @@ more codes just see the examples.
 if you want to use raw functions, you can see [gxi_hako](https://crates.io/crates/gxi_hako) crate. The only difference is that gxi_hako's functions need unsafe block.
 
 # Example
-Here 5 raw-examples and 3 hal-example are provided, they are:
+Here mainly 5 raw-examples and 3 hal-example are provided, they are:
 - raw-examples
   - [x] raw_open_device_by_index
   - [x] raw_open_device_by_sn

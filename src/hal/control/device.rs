@@ -1,4 +1,5 @@
 //! Placeholder
+
 use crate::hal::config::*;
 use crate::raw::gx_enum::GX_FEATURE_ID;
 use crate::raw::gx_interface::Result;
@@ -44,7 +45,6 @@ pub fn gxi_get_factory_setting_version() -> Result<String> {
     println!("Now, factory setting version is {}",factory_setting_version);
     Ok(factory_setting_version)
 }
-
 
 #[cfg(feature = "solo")]
 pub fn gxi_get_device_user_id() -> Result<String> {

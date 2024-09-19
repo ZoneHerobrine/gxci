@@ -16,22 +16,20 @@
 
 <hr />
 
-# New Things in 0.2
-1. [x] All the lib functions are safe now
-2. [x] The inner error handling
-3. [x] The readme images are on cloud now 
-
-# Plan in 0.3
-1. [ ] HAL config module
-2. [ ] Streaming-out support
-3. [ ] no-opencv feature
+# New Things in 0.3
+1. [x] CHECK:   Check module for COMMON error handling
+2. [x] CONFIG:  Full HAL and Raw-binding config module
+   1. Some FeatureID are missing, so the config module has a few functions are not implemented now.
+3. [x] CONTROL: Commonly used part of control module
 
 # Quick Start
 1. Ensure you have OpenCV Rust Bindings installed, if not, you can see the [crates page's README](https://crates.io/crates/gxci)
 2. Ensure your camera version is supported by the GxIAPI SDK,and ensure you have installed the GxIAPI SDK.
 
 # HAL Part
-There five main modules in the HAL: base, device, config, event and network. But until 0.2 version, only the base module and device module are implemented. The config module and control are planned in 0.3 version.
+There five main modules in the HAL: base, device, config, event and network. 
+
+But until 0.3, the event and network module are not implemented.
 
 
 # RAW Part

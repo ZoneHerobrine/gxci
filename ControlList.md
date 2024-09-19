@@ -205,22 +205,22 @@ And lots of feature_id are missing, so lots of functions are not implemented.
     - [x] gxi_set_balance_white_auto_continuous()
     - [x] gxi_set_balance_white_auto_once()
     - 
-    - [ ] gxi_get_awb_lamp_house()
-    - [ ] gxi_set_awb_lamp_house()
-    - [ ] gxi_set_awb_lamp_house_adaptive()
+    - [x] gxi_get_awb_lamp_house()
+    - [x] gxi_set_awb_lamp_house()
+    - [x] gxi_set_awb_lamp_house_adaptive()
     - [ ] todo!("more variants")
     - 
-    - [ ] gxi_get_awbroi_width()
-    - [ ] gxi_set_awbroi_width()
+    - [x] gxi_get_awbroi_width()
+    - [x] gxi_set_awbroi_width()
     - 
-    - [ ] gxi_get_awbroi_height()
-    - [ ] gxi_set_awbroi_height()
+    - [x] gxi_get_awbroi_height()
+    - [x] gxi_set_awbroi_height()
     - 
-    - [ ] gxi_get_awbroi_offset_x()
-    - [ ] gxi_set_awbroi_offset_x()
+    - [x] gxi_get_awbroi_offset_x()
+    - [x] gxi_set_awbroi_offset_x()
     - 
-    - [ ] gxi_get_awbroi_offset_y()
-    - [ ] gxi_set_awbroi_offset_y()
+    - [x] gxi_get_awbroi_offset_y()
+    - [x] gxi_set_awbroi_offset_y()
     - 
     - todo!()
   - transport_layer

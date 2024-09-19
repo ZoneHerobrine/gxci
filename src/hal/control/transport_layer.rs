@@ -1,4 +1,5 @@
 //! Placeholder
+
 use crate::hal::config::*;
 use crate::raw::gx_enum::GX_FEATURE_ID;
 use crate::raw::gx_interface::Result;
