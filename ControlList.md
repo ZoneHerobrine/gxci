@@ -2,6 +2,8 @@ This part's list is too long, so I devided it into this document.
 
 The special enum selection functions will be implemented in the future, but not 0.3.
 
+And lots of feature_id are missing, so lots of functions are not implemented.
+
 - control 
   - device
     - [x] gxi_get_device_vendor_name()
@@ -222,28 +224,36 @@ The special enum selection functions will be implemented in the future, but not 
     - [ ] gxi_set_awbroi_offset_y()
     - todo!()
   - transport_layer
-    - [ ] gxi_get_payload_size()
+    - [x] gxi_get_payload_size()
+    - 
     - todo!()
   - user_set
-    - [ ] gxi_get_user_set_selector()
-    - [ ] gxi_set_user_set_selector()
+    - [x] gxi_get_user_set_selector()
+    - [x] gxi_set_user_set_selector()
+    - [x] gxi_set_user_set_selector_default()
+    - [x] gxi_set_user_set_selector_user_set0()
     - 
-    - [ ] gxi_user_set_load()
-    - [ ] gxi_user_set_save()
+    - [x] gxi_user_set_load()
+    - [x] gxi_user_set_save()
     - 
-    - [ ] gxi_get_user_set_default()
-    - [ ] gxi_set_user_set_default()
+    - [x] gxi_get_user_set_default()
+    - [x] gxi_set_user_set_default()
+    - [x] gxi_set_user_set_default_default()
+    - [x] gxi_set_user_set_default_user_set0()
+    - 
     - todo!()
   - chunk_data
     - [x] gxi_get_chunk_mode_active()
     - [x] gxi_set_chunk_mode_active()
     - 
-    - [ ] gxi_get_chunk_selector()
-    - [ ] gxi_set_chunk_selector()
+    - [x] gxi_get_chunk_selector()
+    - [x] gxi_set_chunk_selector()
+    - [x] gxi_set_chunk_selector_frame_id()
+    - [x] gxi_set_chunk_selector_timestamp()
     - 
-    - [ ] gxi_get_chunk_enable()
-    - [ ] gxi_set_chunk_enable()
+    - [x] gxi_get_chunk_enable()
+    - [x] gxi_set_chunk_enable()
     - 
     - [ ] gxi_get_chunk_timestamp()
-    - [ ] gxi_set_chunk_timestamp()
+    - 
     - todo!()
