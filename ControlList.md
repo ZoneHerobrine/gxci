@@ -172,18 +172,18 @@ And lots of feature_id are missing, so lots of functions are not implemented.
     - [ ] gxi_set_user_output_value()
     - todo!()
   - analog
-    - [ ] gxi_get_gain_selector()
-    - [ ] gxi_set_gain_selector()
-    - [ ] gxi_set_gain_selector_analog_all()
+    - [x] gxi_get_gain_selector()
+    - [x] gxi_set_gain_selector()
+    - [x] gxi_set_gain_selector_analog_all()
     - 
     - [x] gxi_get_gain()
     - [x] gxi_set_gain()
     - 
-    - [ ] gxi_get_gain_auto()
-    - [ ] gxi_set_gain_auto()
-    - [ ] gxi_set_gain_auto_off()
-    - [ ] gxi_set_gain_auto_continuous()
-    - [ ] gxi_set_gain_auto_once()
+    - [x] gxi_get_gain_auto()
+    - [x] gxi_set_gain_auto()
+    - [x] gxi_set_gain_auto_off()
+    - [x] gxi_set_gain_auto_continuous()
+    - [x] gxi_set_gain_auto_once()
     - 
     - [x] gxi_get_auto_gain_min()
     - [x] gxi_set_auto_gain_min()
@@ -191,24 +191,23 @@ And lots of feature_id are missing, so lots of functions are not implemented.
     - [x] gxi_get_auto_gain_max()
     - [x] gxi_set_auto_gain_max()
     - 
-    - [ ] gxi_get_balance_ratio_selector()
-    - [ ] gxi_set_balance_ratio_selector()
-    - [ ] gxi_set_balance_ratio_selector_r()
-    - [ ] gxi_set_balance_ratio_selector_g()
-    - [ ] gxi_set_balance_ratio_selector_b() 
+    - [x] gxi_get_balance_ratio_selector()
+    - [x] gxi_set_balance_ratio_selector()
+    - [x] gxi_set_balance_ratio_selector_red()
+    - [x] gxi_set_balance_ratio_selector_green()
+    - [x] gxi_set_balance_ratio_selector_blue() 
     - 
     - [x] gxi_get_balance_ratio()
-    - [x] gxi_set_balance_ratio()
     - 
-    - [ ] gxi_get_balance_white_auto()
-    - [ ] gxi_set_balance_white_auto()
-    - [ ] gxi_set_balance_white_auto_off()
-    - [ ] gxi_set_balance_white_auto_continuous()
-    - [ ] gxi_set_balance_white_auto_once()
+    - [x] gxi_get_balance_white_auto()
+    - [x] gxi_set_balance_white_auto()
+    - [x] gxi_set_balance_white_auto_off()
+    - [x] gxi_set_balance_white_auto_continuous()
+    - [x] gxi_set_balance_white_auto_once()
     - 
-    - [ ] gxi_get_awbroi_lamp_house()
-    - [ ] gxi_set_awbroi_lamp_house()
-    - [ ] gxi_set_awbroi_lamp_house_adaptive()
+    - [ ] gxi_get_awb_lamp_house()
+    - [ ] gxi_set_awb_lamp_house()
+    - [ ] gxi_set_awb_lamp_house_adaptive()
     - [ ] todo!("more variants")
     - 
     - [ ] gxi_get_awbroi_width()
@@ -222,6 +221,7 @@ And lots of feature_id are missing, so lots of functions are not implemented.
     - 
     - [ ] gxi_get_awbroi_offset_y()
     - [ ] gxi_set_awbroi_offset_y()
+    - 
     - todo!()
   - transport_layer
     - [x] gxi_get_payload_size()
