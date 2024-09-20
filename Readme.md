@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/gxci" target="_blank"><img src="https://img.shields.io/crates/v/gxci"/></a>
-  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.3.0"/></a>
+  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.3.1"/></a>
   <a href="https://github.com/zoneherobrine/gxci" target="_blank"><img src="https://img.shields.io/badge/License-MIT-green.svg"/></a>
 
 </p>
@@ -68,7 +68,7 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = {version="0.3.0", features=["solo","use-opencv"]}
+gxci = { version = "0.3.1", features = [ "solo", "use-opencv" ] }
 ```
 The solo feature can simplify some operation if you only have one camera, because it will default to the first camera in all functions.
 
@@ -82,6 +82,7 @@ use gxci::utils::debug::print_device_info;
 fn main()->Result<()> {
     // the default path is "C:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"
     // or you can use the custom path as the following:
+
     // let dll_path = "D:\\Program Files\\Daheng Imaging\\GalaxySDK\\APIDll\\Win64\\GxIAPI.dll"; 
     // gxci_init(dll_path)?;
 
@@ -316,7 +317,11 @@ Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
 
 
 # 0.4
-1. [ ] Streaming-out support (to gRPC or to tauri etc.)
+1. [ ] Streaming-out support (to gRPC or to tauri, or to byte stream etc.)
+2. [ ] marco_rule! is under consideration.
+
+# 0.5
+1. [ ] multi-camera support feature
 
 # HAL Functions implemented status
 Here total 7 modules in HAL, they are:
@@ -374,16 +379,15 @@ Here total 7 modules in HAL, they are:
   - [x] gxi_get_buffer_length()
   - [x] gxi_get_buffer()
   - [x] gxi_set_buffer()
-- control (This part's list is too long, so just see [ControlList](./ControlList.md) markdown)
-  - module          impl-status
-  - device            0/n
-  - image_format      0/n
-  - acquisition       4/n
-  - digital_io        0/21      (But MISSING this module's FEATURE_ID)
-  - analog            8/40+ 
-  - transport_layer   1/1 
-  - user_set          0/6 
-  - chunk_data        2/8 
+- control (Here just listed the number of functions, this part's list is too long, so just see [ControlList](./ControlList.md) markdown)
+  - device             17
+  - image_format       27+
+  - acquisition        46+
+  - digital_io         0      (But MISSING this module's FEATURE_ID)
+  - analog             40+ 
+  - transport_layer    1 
+  - user_set           10 
+  - chunk_data         8 
 - event
   - todo!()
 - network
