@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/gxci" target="_blank"><img src="https://img.shields.io/crates/v/gxci"/></a>
-  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.3.1"/></a>
+  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.3.2"/></a>
   <a href="https://github.com/zoneherobrine/gxci" target="_blank"><img src="https://img.shields.io/badge/License-MIT-green.svg"/></a>
 </p>
 
@@ -21,6 +21,7 @@
 2. [x] CONFIG:  Full HAL and Raw-binding config module
    - Some FeatureID are missing, so the config module has a few functions are not implemented now.
 3. [x] CONTROL: Commonly used part of control module (Based on the Galaxy Viewer's sidebar)
+4. [x] (0.3.2) gxi_use_stream() allows you to use the custom stream callback function to process the image data. You can see the usage in the hal_use_stream example.
 
 # Quick Start
 1. Ensure you have OpenCV Rust Bindings installed, if not, you can see the [crates page's README](https://crates.io/crates/gxci)

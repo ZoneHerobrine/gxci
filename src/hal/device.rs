@@ -2,12 +2,12 @@
 
 use crate::hal::base::{gxi_check, GXI};
 use crate::hal::check::{check_gx_status, check_gx_status_with_ok_fn};
-use crate::raw::{gx_enum::*, gx_handle::*, gx_interface::*, gx_struct::*};
+use crate::raw::{gx_enum::*, gx_handle::*, gx_interface::*, gx_struct::*, gx_callback::*};
 use crate::utils::builder::GXDeviceBaseInfoBuilder;
 use crate::utils::imgproc::*;
 use crate::utils::facade::*;
+use crate::utils::extract::*;
 
-use std::slice;
 use std::ffi::c_void;
 use std::thread::sleep;
 use std::time::Duration;
@@ -179,7 +179,6 @@ pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
 
     if frame_data.nStatus == 0 {
         if let Some(data) = extract_image_data(&frame_data) {
-
             let mat = core::Mat::new_rows_cols_with_data(
                             frame_data.nHeight, 
                             frame_data.nWidth, 
@@ -224,34 +223,71 @@ pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
 
 //---------------Callback Fn-------------------------------
 
-#[cfg(all(feature = "solo", feature = "use-opencv"))]
-extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM) {
-    // For Debug if needed
-    // println!("Frame callback triggered.");
-    // println!("Frame status: {:?}", unsafe { (*p_frame_callback_data).status });
-    // println!("Frame All: {:?}", unsafe { *p_frame_callback_data });
+// Here have many try to streaming out.
+// 1. LAMO - It's danger to high io and parallelism.
+// 2. Channel - Anyway it need to be tryed.
+// 3.
 
-    unsafe {
-        let frame_callback_data = &*p_frame_callback_data;
-        if frame_callback_data.status == 0 {
-            let data = slice::from_raw_parts(frame_callback_data.pImgBuf as *const u8, (frame_callback_data.nWidth * frame_callback_data.nHeight) as usize);
-            let mat = core::Mat::new_rows_cols_with_data(
-                frame_callback_data.nHeight, 
-                frame_callback_data.nWidth, 
-                data
-            ).unwrap();
-            highgui::imshow("Camera Frame", &mat).unwrap();
-            if highgui::wait_key(10).unwrap() > 0 {
-                highgui::destroy_window("Camera Frame").unwrap();
-            }
-        }
+pub static FRAME_CALLBACK_DATA: LazyLock<Arc<Mutex<Option<GxiFrameCallbackData>>>> = LazyLock::new(|| {
+    Arc::new(Mutex::new(None))
+});
+
+pub struct GxiFrameCallbackData {
+    pub frame_callback_data: GX_FRAME_CALLBACK_PARAM,
+}
+
+unsafe impl Send for GxiFrameCallbackData {}
+
+#[cfg(all(feature = "solo", feature = "use-opencv"))]
+extern "C" fn frame_callback_opencv(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM) {
+    
+    let frame_callback_data = extract_frame_callback_param(p_frame_callback_data);
+    let data = extract_img_bug(frame_callback_data);
+
+    let mat = core::Mat::new_rows_cols_with_data(
+        frame_callback_data.nHeight, 
+        frame_callback_data.nWidth, 
+        data
+    ).unwrap();
+    
+    highgui::imshow("Camera Frame", &mat).unwrap();
+    if highgui::wait_key(10).unwrap() > 0 {
+        highgui::destroy_window("Camera Frame").unwrap();
     }
+}
+
+// fn gxi_get_frame_callback_data() -> Result<GxiFrameCallbackData> {
+//     let frame_callback_data = FRAME_CALLBACK_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameCallbackDataError(e)))?.as_ref().unwrap().frame_callback_data;
+//     Ok(GxiFrameCallbackData { frame_callback_data })
+// }
+
+// fn gxi_set_frame_callback_data(frame_callback_data: GX_FRAME_CALLBACK_PARAM) -> Result<()> {
+//     *FRAME_CALLBACK_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameCallbackDataError(e)))? = Some(GxiFrameCallbackData { frame_callback_data });
+//     Ok(())
+// }
+
+
+#[cfg(feature = "solo")]
+pub fn gxi_use_stream(frame_callback: GXCaptureCallBack) -> Result<()> {
+    let gxi_device = gxi_get_device_handle()?;
+    let status = gxi_check(|gxi| gxi.gx_register_capture_callback(gxi_device,frame_callback))?;
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
+    highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
+    loop {
+        sleep(Duration::from_secs(10));
+        break;
+    }
+
+    check_gx_status(status)?;
+    println!("Successfully opened stream");
+    Ok(())
 }
 
 #[cfg(all(feature = "solo", feature = "use-opencv"))]
 pub fn gxi_open_stream() -> Result<()> {
     let gxi_device = gxi_get_device_handle()?;
-    let status = gxi_check(|gxi| gxi.gx_register_capture_callback(gxi_device,frame_callback))?;
+    let status = gxi_check(|gxi| gxi.gx_register_capture_callback(gxi_device,frame_callback_opencv))?;
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
     highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();
@@ -279,7 +315,7 @@ pub fn gxi_close_stream() -> Result<()> {
 #[cfg(all(feature = "solo", feature = "use-opencv"))]
 pub fn gxi_open_stream_interval(interval_secs:u64) -> Result<()> {
     let gxi_device = gxi_get_device_handle()?;
-    gxi_check(|gxi| gxi.gx_register_capture_callback(gxi_device,frame_callback))?;
+    gxi_check(|gxi| gxi.gx_register_capture_callback(gxi_device,frame_callback_opencv))?;
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
     highgui::named_window("Camera", highgui::WINDOW_AUTOSIZE).unwrap();

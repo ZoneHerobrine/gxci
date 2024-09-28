@@ -49,7 +49,6 @@ pub struct GX_OPEN_PARAM {
 #[derive(Debug, Clone,Copy)]
 pub struct GX_FRAME_CALLBACK_PARAM {
     pub pUserParam: *mut c_void,
-    // pub status: GX_FRAME_STATUS,
     pub status: c_int,
     pub pImgBuf: *const c_void,
     pub nImgSize: i32,

@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/gxci" target="_blank"><img src="https://img.shields.io/crates/v/gxci"/></a>
-  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.3.1"/></a>
+  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.3.2"/></a>
   <a href="https://github.com/zoneherobrine/gxci" target="_blank"><img src="https://img.shields.io/badge/License-MIT-green.svg"/></a>
 
 </p>
@@ -22,6 +22,7 @@
 2. [x] CONFIG:  Full HAL and Raw-binding config module
    - Some FeatureID are missing, so the config module has a few functions are not implemented now.
 3. [x] CONTROL: Commonly used part of control module (Based on the Galaxy Viewer's sidebar)
+4. [x] (0.3.2) gxi_use_stream() allows you to use the custom stream callback function to process the image data. You can see the usage in the hal_use_stream example.
 
 The plan of 0.4 can see the [Roadmap](#roadmap) in the bottom of README.
 
@@ -68,7 +69,7 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = { version = "0.3.1", features = [ "solo", "use-opencv" ] }
+gxci = { version = "0.3.2", features = [ "solo", "use-opencv" ] }
 ```
 The solo feature can simplify some operation if you only have one camera, because it will default to the first camera in all functions.
 
@@ -319,6 +320,7 @@ Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
 # 0.4
 1. [ ] Streaming-out support (to gRPC or to tauri, or to byte stream etc.)
 2. [ ] marco_rule! is under consideration.
+3. [ ] Optimize the document because it's too long now.
 
 # 0.5
 1. [ ] multi-camera support feature
