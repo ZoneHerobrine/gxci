@@ -173,6 +173,79 @@ pub fn gxi_get_image() -> Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "solo")]
+pub fn gxi_get_image_as_frame_data() -> Result<GX_FRAME_DATA> {
+    let gxi_device = gxi_get_device_handle()?;
+    println!("gxi_device: {:?}", gxi_device);
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
+
+    let (frame_data_facade, image_buffer) = fetch_frame_data(&GXI.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionError(e)))?.as_ref().unwrap(), GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device).unwrap();
+    let mut frame_data = convert_to_frame_data(&frame_data_facade);
+
+    let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
+
+    *GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))? = Some(GxiFrameData { frame_data, image_buffer });
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
+
+    check_gx_status(status)?;
+    println!("Successfully got image");
+    Ok(frame_data)
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_image_as_raw() -> Result<&'static [u8]> {
+    let gxi_device = gxi_get_device_handle()?;
+    println!("gxi_device: {:?}", gxi_device);
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
+
+    let (frame_data_facade, image_buffer) = fetch_frame_data(&GXI.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionError(e)))?.as_ref().unwrap(), GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device).unwrap();
+    let mut frame_data = convert_to_frame_data(&frame_data_facade);
+
+    let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
+
+    *GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))? = Some(GxiFrameData { frame_data, image_buffer });
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
+
+    check_gx_status(status)?;
+    println!("Successfully got image");
+
+    let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
+
+    let raw = extract_img_buf(&frame_data);
+
+    Ok(raw)
+}
+
+#[cfg(feature = "solo")]
+pub fn gxi_get_image_as_bytes() -> Result<Vec<u8>> {
+    let gxi_device = gxi_get_device_handle()?;
+    println!("gxi_device: {:?}", gxi_device);
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
+
+    let (frame_data_facade, image_buffer) = fetch_frame_data(&GXI.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionError(e)))?.as_ref().unwrap(), GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device).unwrap();
+    let mut frame_data = convert_to_frame_data(&frame_data_facade);
+
+    let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
+
+    *GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))? = Some(GxiFrameData { frame_data, image_buffer });
+
+    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
+
+    check_gx_status(status)?;
+    println!("Successfully got image");
+
+    let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
+
+    let raw = extract_img_buf(&frame_data);
+
+    Ok(raw.to_vec())
+}
+
 #[cfg(all(feature = "solo", feature = "use-opencv"))]
 pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
     let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
@@ -242,7 +315,7 @@ unsafe impl Send for GxiFrameCallbackData {}
 extern "C" fn frame_callback_opencv(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM) {
     
     let frame_callback_data = extract_frame_callback_param(p_frame_callback_data);
-    let data = extract_img_bug(frame_callback_data);
+    let data = extract_callback_img_buf(frame_callback_data);
 
     let mat = core::Mat::new_rows_cols_with_data(
         frame_callback_data.nHeight, 

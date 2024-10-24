@@ -24,6 +24,7 @@
 3. [x] CONTROL: Commonly used part of control module (Based on the Galaxy Viewer's sidebar)
 4. [x] (in 0.3.2) gxi_use_stream() allows you to use the custom stream callback function to process the image data. You can see the usage in the hal_use_stream example.
 5. [x] (in 0.3.3) re-exported opencv and imageproc.
+6. [x] (in 0.3.4) gxi_get_image_as_frame_data(), gxi_get_image_as_raw() and gxi_get_image_as_bytes() provide interfaces to use the image data, and with examples
 
 The plan of 0.4 can see the [Roadmap](#roadmap) in the bottom of README.
 
@@ -70,7 +71,7 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = { version = "0.3.2", features = [ "solo", "use-opencv" ] }
+gxci = { version = "0.3.4", features = [ "solo", "use-opencv" ] }
 ```
 The solo feature can simplify some operation if you only have one camera, because it will default to the first camera in all functions.
 
@@ -101,6 +102,13 @@ fn main()->Result<()> {
     gxi_open_device()?;
 
     gxi_get_image()?;
+
+    // If you need the image data, you can use one of following:
+    // raw means &[u8], bytes means Vec<u8>
+    
+    // let image_raw = gxi_get_image_as_raw()?;
+    // let image_bytes = gxi_get_image_as_bytes()?;
+
     
     gxi_save_image_as_png("test.png")?;
 
@@ -158,7 +166,7 @@ more codes just see the examples.
 if you want to use raw functions, you can see [gxi_hako](https://crates.io/crates/gxi_hako) crate. The only difference is that gxi_hako's functions need unsafe block.
 
 # Example
-Here mainly 5 raw-examples and 5 hal-example are provided, they are:
+Here mainly 7 raw-examples and 5 hal-example are provided, they are:
 - raw-examples
   - [x] raw_open_device_by_index
   - [x] raw_open_device_by_sn
@@ -168,6 +176,7 @@ Here mainly 5 raw-examples and 5 hal-example are provided, they are:
 - hal-examples
   - [x] hal_list_device_info
   - [x] hal_get_image
+  - [x] gxi_get_image_as_raw
   - [x] hal_capture_callback
   - [x] hal_get_string
   - [x] hal_config_gain
@@ -319,11 +328,14 @@ Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
 3. [x] CONTROL: Commonly used part of control module (Based on the Galaxy Viewer's sidebar)
 4. [x] (in 0.3.2) gxi_use_stream() allows you to use the custom stream callback function to process the image data. You can see the usage in the hal_use_stream example.
 5. [x] (in 0.3.3) re-exported opencv and imageproc.
+6. [x] (in 0.3.4) gxi_get_image_as_frame_data(), gxi_get_image_as_raw() and gxi_get_image_as_bytes() provide interfaces to use the image data, and with examples
 
 # 0.4
-1. [ ] Streaming-out support (to gRPC or to tauri, or to byte stream etc.)
-2. [ ] marco_rule! is under consideration.
-3. [ ] Optimize the document because it's too long now.
+1. [ ] Streaming-out examples support (to gRPC or to tauri, or to byte stream etc.)
+2. [ ] To OpenCV 4.10.0
+3. [ ] Optimize the error-handling part
+4. [ ] Optimize the document because it's too long now.
+5. [ ] A Docs site
 
 # 0.5
 1. [ ] multi-camera support feature

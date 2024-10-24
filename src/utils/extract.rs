@@ -1,6 +1,4 @@
-use crate::raw::gx_struct::GX_ENUM_DESCRIPTION;
-use crate::raw::gx_struct::GX_FRAME_CALLBACK_PARAM;
-use std::slice;
+use crate::raw::gx_struct::{GX_ENUM_DESCRIPTION,GX_FRAME_DATA,GX_FRAME_CALLBACK_PARAM};
 
 pub fn extract_sz_symbolic(data: GX_ENUM_DESCRIPTION) -> String {
     let symbolic_bytes: Vec<u8> = data.szSymbolic
@@ -16,14 +14,30 @@ pub fn extract_n_value(data: GX_ENUM_DESCRIPTION) -> i64 {
     data.nValue
 }
 
-pub fn extract_img_bug(frame_callback_data: &GX_FRAME_CALLBACK_PARAM) -> &'static [u8] {
+pub fn extract_callback_img_buf(frame_callback_data: &GX_FRAME_CALLBACK_PARAM) -> &'static [u8] {
     unsafe {
         if frame_callback_data.status == 0 {
-            let data = slice::from_raw_parts(frame_callback_data.pImgBuf as *const u8, (frame_callback_data.nWidth * frame_callback_data.nHeight) as usize);
+            let data_len = (frame_callback_data.nWidth * frame_callback_data.nHeight) as usize;
+            let data = std::slice::from_raw_parts(frame_callback_data.pImgBuf as *const u8, data_len);
+            
             data
         } else {
             &[]
         }
+    }
+}
+
+pub fn extract_img_buf(frame_data: &GX_FRAME_DATA)  -> &'static [u8] {
+    unsafe {
+        if frame_data.nStatus == 0 {
+            let data_len = (frame_data.nWidth * frame_data.nHeight) as usize;
+            let data = std::slice::from_raw_parts(frame_data.pImgBuf as *const u8, data_len);
+
+            data
+        } else {
+            &[]
+        }
+        
     }
 }
 

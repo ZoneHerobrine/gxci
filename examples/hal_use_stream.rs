@@ -1,7 +1,7 @@
 use gxci::hal::device::*;
 use gxci::hal::base::*;
 use gxci::utils::debug::print_device_info;
-use gxci::utils::extract::{extract_img_bug,extract_frame_callback_param};
+use gxci::utils::extract::{extract_callback_img_buf,extract_frame_callback_param};
 use gxci::raw::gx_struct::GX_FRAME_CALLBACK_PARAM;
 use gxci::raw::gx_interface::Result;
 use opencv::{core, highgui};
@@ -10,7 +10,7 @@ use opencv::{core, highgui};
 extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM) {
     
     let frame_callback_data = extract_frame_callback_param(p_frame_callback_data);
-    let data = extract_img_bug(frame_callback_data);
+    let data = extract_callback_img_buf(frame_callback_data);
 
     let mat = core::Mat::new_rows_cols_with_data(
         frame_callback_data.nHeight, 

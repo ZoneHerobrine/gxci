@@ -1,4 +1,5 @@
 use gxci::hal::control::device::*;
+use gxci::hal::control::image_format::*;
 use gxci::hal::base::*;
 use gxci::hal::device::*;
 use gxci::utils::debug::print_device_info;
@@ -26,6 +27,19 @@ fn main()->Result<()> {
     println!("Version: {}", version);
     println!("Firmware version: {}", firmware_version);
     println!("Serial number: {}", serial_number);
+
+    let width = gxi_get_width()?;
+    let height = gxi_get_height()?;
+    println!("Width: {}", width);
+    println!("Height: {}", height);
+
+    // gxi_set_width(640)?;
+    // gxi_set_height(480)?;
+
+    // let width = gxi_get_width()?;
+    // let height = gxi_get_height()?;
+    // println!("Width: {}", width);
+    // println!("Height: {}", height);
 
     gxi_close_device()?;
 

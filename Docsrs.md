@@ -23,6 +23,7 @@
 3. [x] CONTROL: Commonly used part of control module (Based on the Galaxy Viewer's sidebar)
 4. [x] (in 0.3.2) gxi_use_stream() allows you to use the custom stream callback function to process the image data. You can see the usage in the hal_use_stream example.
 5. [x] (in 0.3.3) re-exported opencv and imageproc.
+6. [x] (in 0.3.4) gxi_get_image_as_frame_data(), gxi_get_image_as_raw() and gxi_get_image_as_bytes() provide interfaces to use the image data, and with examples
 
 # Quick Start
 1. Ensure you have OpenCV Rust Bindings installed, if not, you can see the [crates page's README](https://crates.io/crates/gxci)
