@@ -118,7 +118,7 @@ pub fn gxi_open_device() -> Result<()> {
     check_gx_status_with_ok_fn(
         status,
         || {
-            *GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))? = Some(GxiDevice { device });
+            *GXI_DEVICE.lock_safe(MutexType::Device)? = Some(GxiDevice { device });
             Ok(())
         }
     )?;
@@ -134,7 +134,7 @@ pub fn gxi_close_device() -> Result<()> {
     check_gx_status_with_ok_fn(
         status,
         || {
-            *GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))? = None;
+            *GXI_DEVICE.lock_safe(MutexType::Device)? = None;
            Ok(())
         }
     )?;
@@ -159,12 +159,18 @@ pub fn gxi_get_image() -> Result<()> {
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
-    let (frame_data_facade, image_buffer) = fetch_frame_data(&GXI.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionError(e)))?.as_ref().unwrap(), GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device).unwrap();
+    let gxi = GXI.lock_safe(MutexType::Gxi)?.as_ref()?;
+    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref()?.device;
+    
+    let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
 
     let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
 
-    *GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))? = Some(GxiFrameData { frame_data, image_buffer });
+    *GXI_FRAME_DATA.lock_safe(MutexType::FrameData)? = Some(GxiFrameData { 
+        frame_data, 
+        image_buffer 
+    });
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
 
@@ -178,14 +184,18 @@ pub fn gxi_get_image_as_frame_data() -> Result<GX_FRAME_DATA> {
     let gxi_device = gxi_get_device_handle()?;
     println!("gxi_device: {:?}", gxi_device);
 
-    gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
-
-    let (frame_data_facade, image_buffer) = fetch_frame_data(&GXI.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionError(e)))?.as_ref().unwrap(), GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device).unwrap();
+    let gxi = GXI.lock_safe(MutexType::Gxi)?.as_ref()?;
+    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref()?.device;
+    
+    let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
 
     let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
 
-    *GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))? = Some(GxiFrameData { frame_data, image_buffer });
+    *GXI_FRAME_DATA.lock_safe(MutexType::FrameData)? = Some(GxiFrameData { 
+        frame_data, 
+        image_buffer 
+    });
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
 
@@ -201,20 +211,26 @@ pub fn gxi_get_image_as_raw() -> Result<&'static [u8]> {
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
-    let (frame_data_facade, image_buffer) = fetch_frame_data(&GXI.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionError(e)))?.as_ref().unwrap(), GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device).unwrap();
+    let gxi = GXI.lock_safe(MutexType::Gxi)?.as_ref()?;
+    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref()?.device;
+    
+    let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
 
     let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
 
-    *GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))? = Some(GxiFrameData { frame_data, image_buffer });
+    *GXI_FRAME_DATA.lock_safe(MutexType::FrameData)? = Some(GxiFrameData { 
+        frame_data, 
+        image_buffer 
+    });
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
 
     check_gx_status(status)?;
     println!("Successfully got image");
 
-    let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
-
+    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref()?.frame_data;
+    
     let raw = extract_img_buf(&frame_data);
 
     Ok(raw)
@@ -227,20 +243,26 @@ pub fn gxi_get_image_as_bytes() -> Result<Vec<u8>> {
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
-    let (frame_data_facade, image_buffer) = fetch_frame_data(&GXI.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionError(e)))?.as_ref().unwrap(), GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device).unwrap();
+    let gxi = GXI.lock_safe(MutexType::Gxi)?.as_ref()?;
+    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref()?.device;
+    
+    let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
 
     let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
 
-    *GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))? = Some(GxiFrameData { frame_data, image_buffer });
+    *GXI_FRAME_DATA.lock_safe(MutexType::FrameData)? = Some(GxiFrameData { 
+        frame_data, 
+        image_buffer 
+    });
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
 
     check_gx_status(status)?;
     println!("Successfully got image");
 
-    let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
-
+    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref()?.frame_data;
+    
     let raw = extract_img_buf(&frame_data);
 
     Ok(raw.to_vec())
@@ -248,8 +270,8 @@ pub fn gxi_get_image_as_bytes() -> Result<Vec<u8>> {
 
 #[cfg(all(feature = "solo", feature = "use-opencv"))]
 pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
-    let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
-
+    // let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
+    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref()?.frame_data;
     if frame_data.nStatus == 0 {
         if let Some(data) = extract_image_data(&frame_data) {
             let mat = core::Mat::new_rows_cols_with_data(
@@ -272,7 +294,7 @@ pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
 
 #[cfg(all(feature = "solo", feature = "use-imageproc"))]
 pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
-    let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
+    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref()?.frame_data;
 
     if frame_data.nStatus == 0 {
         if let Some(data) = extract_image_data(&frame_data) {
@@ -299,7 +321,6 @@ pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
 // Here have many try to streaming out.
 // 1. LAMO - It's danger to high io and parallelism.
 // 2. Channel - Anyway it need to be tryed.
-// 3.
 
 pub static FRAME_CALLBACK_DATA: LazyLock<Arc<Mutex<Option<GxiFrameCallbackData>>>> = LazyLock::new(|| {
     Arc::new(Mutex::new(None))
@@ -328,17 +349,6 @@ extern "C" fn frame_callback_opencv(p_frame_callback_data: *mut GX_FRAME_CALLBAC
         highgui::destroy_window("Camera Frame").unwrap();
     }
 }
-
-// fn gxi_get_frame_callback_data() -> Result<GxiFrameCallbackData> {
-//     let frame_callback_data = FRAME_CALLBACK_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameCallbackDataError(e)))?.as_ref().unwrap().frame_callback_data;
-//     Ok(GxiFrameCallbackData { frame_callback_data })
-// }
-
-// fn gxi_set_frame_callback_data(frame_callback_data: GX_FRAME_CALLBACK_PARAM) -> Result<()> {
-//     *FRAME_CALLBACK_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameCallbackDataError(e)))? = Some(GxiFrameCallbackData { frame_callback_data });
-//     Ok(())
-// }
-
 
 #[cfg(feature = "solo")]
 pub fn gxi_use_stream(frame_callback: GXCaptureCallBack) -> Result<()> {

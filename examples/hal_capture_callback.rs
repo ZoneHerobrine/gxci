@@ -1,5 +1,6 @@
 use gxci::hal::device::*;
 use gxci::hal::base::*;
+use gxci::hal::control::image_format::*;
 use gxci::utils::debug::print_device_info;
 
 fn main()->Result<()> {
@@ -16,11 +17,15 @@ fn main()->Result<()> {
     
     gxi_open_device()?;
 
+    gxi_set_width(4024)?;
+    
+    gxi_set_height(3036)?;
+
     // gxi_open_stream(); // default in 10s,waiting for enhancement
 
     // gxi_close_stream();
 
-    gxi_open_stream_interval(10)?;
+    gxi_open_stream_interval(100)?;
 
     gxi_close_device()?;
 

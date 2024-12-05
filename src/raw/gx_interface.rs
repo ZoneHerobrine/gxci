@@ -53,18 +53,34 @@ impl From<GxciError> for Error {
     }
 }
 
-impl From<PoisonError<MutexGuard<'static, GXInstance>>> for Error {
-    fn from(e: PoisonError<MutexGuard<'static, GXInstance>>) -> Self {
-        Error::new(ErrorKind::MutexPoisonError(e))
-    }
-}
-
 impl From<std::ffi::NulError> for Error {
     fn from(err: std::ffi::NulError) -> Self {
         Error::new(ErrorKind::NulError(err))
     }
 }
 
+
+pub enum MutexType {
+    Gxi,
+    FrameData,
+    FrameCallback,
+    Device,
+}
+
+trait MutexExt<T> {
+    fn lock_safe(&self, mutex_type: MutexType) -> Result<MutexGuard<T>, Error>;
+}
+
+impl<T> MutexExt<T> for Mutex<T> {
+    fn lock_safe(&self, mutex_type: MutexType) -> Result<MutexGuard<T>, Error> {
+        self.lock().map_err(|e: PoisonError<MutexGuard<T>>| {
+            Error::new(ErrorKind::MutexPoisonError {
+                mutex_type,
+                message: format!("{:?}", e),
+            })
+        })
+    }
+}
 
 // ErrorKind
 
@@ -74,11 +90,10 @@ pub enum ErrorKind {
     InvalidFeatureType(String),
     DeviceHandleError(String),
     NulError(std::ffi::NulError),
-    MutexPoisonError(PoisonError<MutexGuard<'static, GXInstance>>),
-    MutexPoisonOptionError(PoisonError<MutexGuard<'static, Option<GXInstance>>>),
-    MutexPoisonOptionHandleError(PoisonError<MutexGuard<'static, Option<GxiDevice>>>),
-    MutexPoisonOptionFrameDataError(PoisonError<MutexGuard<'static, Option<GxiFrameData>>>),
-    MutexPoisonOptionFrameCallbackDataError(PoisonError<MutexGuard<'static, Option<GxiFrameCallbackData>>>),
+    MutexPoisonError {
+        mutex_type: MutexType,
+        message: String,
+    },
 }
 
 impl std::fmt::Display for ErrorKind {
@@ -89,16 +104,11 @@ impl std::fmt::Display for ErrorKind {
             ErrorKind::InvalidFeatureType(e) => write!(f, "InvalidFeatureType: {:?}", e),
             ErrorKind::NulError(e) => write!(f, "NulError: {:?}", e),
             ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
-            ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
-            ErrorKind::MutexPoisonOptionError(e) => write!(f, "MutexPoisonOptionError: {:?}", e),
-            ErrorKind::MutexPoisonOptionHandleError(e) => {
-                write!(f, "MutexPoisonOptionHandleError: {:?}", e)
-            }
-            ErrorKind::MutexPoisonOptionFrameDataError(e)=>{
-                write!(f, "MutexPoisonOptionFrameDataError: {:?}", e)
-            }
-            ErrorKind::MutexPoisonOptionFrameCallbackDataError(e)=>{
-                write!(f, "MutexPoisonOptionFrameCallbackDataError: {:?}", e)
+            ErrorKind::MutexPoisonError {
+                mutex_type,
+                message,
+            } => {
+                write!(f, "MutexPoisonError: {:?}, {:?}", mutex_type, message)
             }
         }
     }
@@ -112,16 +122,11 @@ impl std::fmt::Debug for ErrorKind {
             ErrorKind::InvalidFeatureType(e) => write!(f, "InvalidFeatureType: {:?}", e),
             ErrorKind::NulError(e) => write!(f, "NulError: {:?}", e),
             ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
-            ErrorKind::MutexPoisonError(e) => write!(f, "MutexPoisonError: {:?}", e),
-            ErrorKind::MutexPoisonOptionError(e) => write!(f, "MutexPoisonOptionError: {:?}", e),
-            ErrorKind::MutexPoisonOptionHandleError(e) => {
-                write!(f, "MutexPoisonOptionHandleError: {:?}", e)
-            }
-            ErrorKind::MutexPoisonOptionFrameDataError(e)=>{
-                write!(f, "MutexPoisonOptionFrameDataError: {:?}", e)
-            }
-            ErrorKind::MutexPoisonOptionFrameCallbackDataError(e)=>{
-                write!(f, "MutexPoisonOptionFrameCallbackDataError: {:?}", e)
+            ErrorKind::MutexPoisonError {
+                mutex_type,
+                message,
+            } => {
+                write!(f, "MutexPoisonError: {:?}, {:?}", mutex_type, message)
             }
         }
     }
@@ -143,7 +148,9 @@ impl std::fmt::Display for GxciError {
             GxciError::InitializationError(e) => write!(f, "InitializationError: {}", e),
             GxciError::FunctionCallError(e) => write!(f, "FunctionCallError: {}", e),
             GxciError::LibLoadingError(e) => write!(f, "LibLoadingError: {}", e),
-            GxciError::GalaxyError(e) => write!(f, "GalaxyError: {},{:?}", e,gx_status_describe(*e)),
+            GxciError::GalaxyError(e) => {
+                write!(f, "GalaxyError: {},{:?}", e, gx_status_describe(*e))
+            }
             GxciError::CommandError(e) => write!(f, "CommandError: {}", e),
         }
     }
@@ -155,7 +162,9 @@ impl std::fmt::Debug for GxciError {
             GxciError::InitializationError(e) => write!(f, "InitializationError: {}", e),
             GxciError::FunctionCallError(e) => write!(f, "FunctionCallError: {}", e),
             GxciError::LibLoadingError(e) => write!(f, "LibLoadingError: {}", e),
-            GxciError::GalaxyError(e) => write!(f, "GalaxyError: {},{:?}", e,gx_status_describe(*e)),
+            GxciError::GalaxyError(e) => {
+                write!(f, "GalaxyError: {},{:?}", e, gx_status_describe(*e))
+            }
             GxciError::CommandError(e) => write!(f, "CommandError: {}", e),
         }
     }
@@ -536,12 +545,13 @@ impl GXInterface for GXInstance {
     /// ```
     fn gx_close_lib(&self) -> Result<()> {
         unsafe {
-            let gx_close_lib: Symbol<extern "C" fn() -> i32> = self
-                .lib
-                .get(b"GXCloseLib")
-                .map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            let gx_close_lib: Symbol<extern "C" fn() -> i32> =
+                self.lib.get(b"GXCloseLib").map_err(|e| {
+                    GxciError::FunctionCallError(format!(
+                        "Failed to get GXCloseLib function: {}",
+                        e
+                    ))
+                })?;
             gx_close_lib();
             Ok(())
         }
@@ -1764,11 +1774,13 @@ impl GXInterface for GXInstance {
     /// ```
     fn gx_unregister_capture_callback(&self, device: *mut c_void) -> Result<i32> {
         unsafe {
-            let gx_unregister_capture_callback: Symbol<
-                extern "C" fn(device: *mut c_void) -> i32,
-            > = self.lib.get(b"GXUnregisterCaptureCallback").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            let gx_unregister_capture_callback: Symbol<extern "C" fn(device: *mut c_void) -> i32> =
+                self.lib.get(b"GXUnregisterCaptureCallback").map_err(|e| {
+                    GxciError::FunctionCallError(format!(
+                        "Failed to get GXCloseLib function: {}",
+                        e
+                    ))
+                })?;
             let status_code = gx_unregister_capture_callback(device);
             let status = convert_to_gx_status(status_code);
             match status {

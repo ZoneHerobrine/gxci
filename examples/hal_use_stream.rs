@@ -1,5 +1,7 @@
 use gxci::hal::device::*;
 use gxci::hal::base::*;
+use gxci::hal::control::analog::*;
+use gxci::hal::control::image_format::*;
 use gxci::utils::debug::print_device_info;
 use gxci::utils::extract::{extract_callback_img_buf,extract_frame_callback_param};
 use gxci::raw::gx_struct::GX_FRAME_CALLBACK_PARAM;
@@ -35,7 +37,16 @@ fn main()->Result<()> {
         print_device_info(&device);
     }
     
+
     gxi_open_device()?;
+
+    gxi_set_width(4024)?;
+    
+    gxi_set_height(3036)?;
+
+    gxi_set_gain_auto_continuous()?;
+
+    // gxi_set_gain(1.0)?;
 
     gxi_use_stream(frame_callback)?;
 
