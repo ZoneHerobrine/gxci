@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/gxci" target="_blank"><img src="https://img.shields.io/crates/v/gxci"/></a>
-  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.3.4"/></a>
+  <a href="https://docs.rs/gxci" target="_blank"><img src="https://img.shields.io/docsrs/gxci/0.3.5"/></a>
   <a href="https://github.com/zoneherobrine/gxci" target="_blank"><img src="https://img.shields.io/badge/License-MIT-green.svg"/></a>
 
 </p>
@@ -25,6 +25,7 @@
 4. [x] (in 0.3.2) gxi_use_stream() allows you to use the custom stream callback function to process the image data. You can see the usage in the hal_use_stream example.
 5. [x] (in 0.3.3) re-exported opencv and imageproc.
 6. [x] (in 0.3.4) gxi_get_image_as_frame_data(), gxi_get_image_as_raw() and gxi_get_image_as_bytes() provide interfaces to use the image data, and with examples
+7. [x] (in 0.3.5) independent error.rs module and optimized error-handling part
 
 The plan of 0.4 can see the [Roadmap](#roadmap) in the bottom of README.
 
@@ -71,7 +72,7 @@ in your Cargo.toml, add the following dependencies:
 
 ```toml
 [dependencies]
-gxci = { version = "0.3.4", features = [ "solo", "use-opencv" ] }
+gxci = { version = "0.3.5", features = [ "solo", "use-opencv" ] }
 ```
 The solo feature can simplify some operation if you only have one camera, because it will default to the first camera in all functions.
 
@@ -329,6 +330,7 @@ Also thanks to OpenAI's GPT model DELTA·E for drawing the cool LOGO :D
 4. [x] (in 0.3.2) gxi_use_stream() allows you to use the custom stream callback function to process the image data. You can see the usage in the hal_use_stream example.
 5. [x] (in 0.3.3) re-exported opencv and imageproc.
 6. [x] (in 0.3.4) gxi_get_image_as_frame_data(), gxi_get_image_as_raw() and gxi_get_image_as_bytes() provide interfaces to use the image data, and with examples
+7. [x] (in 0.3.5) independent error.rs module and optimized error-handling part
 
 # 0.4
 1. [ ] Streaming-out examples support (to gRPC or to tauri, or to byte stream etc.)

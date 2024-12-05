@@ -24,6 +24,7 @@
 4. [x] (in 0.3.2) gxi_use_stream() allows you to use the custom stream callback function to process the image data. You can see the usage in the hal_use_stream example.
 5. [x] (in 0.3.3) re-exported opencv and imageproc.
 6. [x] (in 0.3.4) gxi_get_image_as_frame_data(), gxi_get_image_as_raw() and gxi_get_image_as_bytes() provide interfaces to use the image data, and with examples
+7. [x] (in 0.3.5) independent error.rs module and optimized error-handling part
 
 # Quick Start
 1. Ensure you have OpenCV Rust Bindings installed, if not, you can see the [crates page's README](https://crates.io/crates/gxci)
