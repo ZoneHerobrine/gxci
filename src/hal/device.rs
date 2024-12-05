@@ -169,15 +169,13 @@ pub fn gxi_get_image() -> Result<()> {
     let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref().ok_or(Error::new(ErrorKind::DeviceHandleError("Device handle is None. Please check your device open situation.".to_string())))?.device;
     
     let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
+    std::mem::drop(byd);
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
-
     let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
-
     *GXI_FRAME_DATA.lock_safe(MutexType::FrameData)? = Some(GxiFrameData { 
         frame_data, 
         image_buffer 
     });
-
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_STOP)?;
 
     check_gx_status(status)?;
@@ -194,6 +192,7 @@ pub fn gxi_get_image_as_frame_data() -> Result<GX_FRAME_DATA> {
     let gxi = byd.as_ref().ok_or(Error::new(ErrorKind::GxiError("GXI is None. Please check your gxci_init situation.".to_string())))?;
     let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref().ok_or(Error::new(ErrorKind::DeviceHandleError("Device handle is None. Please check your device open situation.".to_string())))?.device;    
     let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
+    std::mem::drop(byd);
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
 
     let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
@@ -222,6 +221,7 @@ pub fn gxi_get_image_as_raw() -> Result<&'static [u8]> {
     let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref().ok_or(Error::new(ErrorKind::DeviceHandleError("Device handle is None. Please check your device open situation.".to_string())))?.device;
     
     let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
+    std::mem::drop(byd);
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
 
     let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
@@ -251,10 +251,12 @@ pub fn gxi_get_image_as_bytes() -> Result<Vec<u8>> {
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
     let byd = GXI.lock_safe(MutexType::Gxi)?;
+    
     let gxi = byd.as_ref().ok_or(Error::new(ErrorKind::GxiError("GXI is None. Please check your gxci_init situation.".to_string())))?;
     let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref().ok_or(Error::new(ErrorKind::DeviceHandleError("Device handle is None. Please check your device open situation.".to_string())))?.device;
     
-    let (frame_data_facade, image_buffer) = fetch_frame_data(&gxi, device)?;
+    let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
+    std::mem::drop(byd);
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
 
     let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
