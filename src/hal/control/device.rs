@@ -2,7 +2,7 @@
 
 use crate::hal::config::*;
 use crate::raw::gx_enum::GX_FEATURE_ID;
-use crate::raw::gx_interface::Result;
+use crate::error::Result;
 
 #[cfg(feature = "solo")]
 pub fn gxi_get_device_vendor_name() -> Result<String> {

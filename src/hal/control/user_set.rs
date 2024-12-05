@@ -3,7 +3,7 @@
 use crate::hal::config::*;
 use crate::hal::device::gxi_send_command;
 use crate::raw::gx_enum::GX_FEATURE_ID;
-use crate::raw::gx_interface::Result;
+use crate::error::Result;
 
 #[cfg(feature = "solo")]
 pub fn gxi_get_user_set_selector() -> Result<i64> {

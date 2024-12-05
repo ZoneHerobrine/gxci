@@ -7,6 +7,7 @@ use crate::utils::builder::GXDeviceBaseInfoBuilder;
 use crate::utils::imgproc::*;
 use crate::utils::facade::*;
 use crate::utils::extract::*;
+use crate::error::{Error, ErrorKind, Result, MutexExt, MutexType};
 
 use std::ffi::c_void;
 use std::thread::sleep;

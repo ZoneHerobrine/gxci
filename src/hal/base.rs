@@ -1,5 +1,6 @@
 //! Base functions for the HAL. Such as lib checking, initialization and closing.
-pub use crate::raw::gx_interface::Result;
+pub use crate::error::Result;
+use crate::error::{Error,ErrorKind,MutexExt,MutexType};
 use crate::raw::gx_interface::*;
 use std::sync::{LazyLock, Arc, Mutex};
 

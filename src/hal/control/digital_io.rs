@@ -2,7 +2,7 @@
 
 // use crate::hal::config::*;
 // use crate::raw::gx_enum::GX_FEATURE_ID;
-// use crate::raw::gx_interface::Result;
+// use crate::error::Result;
 
 // - [ ] gxi_get_user_output_value()
 // - [ ] gxi_set_user_output_value()

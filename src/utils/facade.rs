@@ -6,6 +6,7 @@ use crate::raw::{
     gx_enum::*,
     gx_struct::*,
 };
+use crate::error::Result;
 
 use std::ffi::{c_int,c_void};
 

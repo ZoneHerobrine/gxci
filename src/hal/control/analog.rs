@@ -1,7 +1,7 @@
 //! Placeholder
 use crate::hal::config::*;
 use crate::raw::gx_enum::GX_FEATURE_ID;
-use crate::raw::gx_interface::Result;
+use crate::error::Result;
 
 #[cfg(feature = "solo")]
 pub fn gxi_get_gain_selector() -> Result<i64> {
