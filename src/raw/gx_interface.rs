@@ -1,12 +1,9 @@
 //! Rust packed GxAPI interface. The most base part of this lib.
 #![allow(dead_code)]
 
-// The HAL use here is only for error handling.
-use crate::hal::device::{GxiDevice, GxiFrameCallbackData, GxiFrameData};
-use crate::utils::status::gx_status_describe;
-
 use libloading::{Library, Symbol};
 
+use std::sync::{LazyLock,Arc,Mutex};
 use std::ffi::{c_char, c_void, CStr};
 use std::sync::{MutexGuard, PoisonError};
 
@@ -45,11 +42,9 @@ impl From<ErrorKind> for Error {
     }
 }
 
-impl From<GxciError> for Error {
-    fn from(err: GxciError) -> Self {
-        Error {
-            inner: Box::new(ErrorKind::GxciError(err)),
-        }
+impl From<libloading::Error> for Error {
+    fn from(error: libloading::Error) -> Self {
+        Error::new(ErrorKind::LibLoadingError(error))
     }
 }
 
@@ -59,7 +54,7 @@ impl From<std::ffi::NulError> for Error {
     }
 }
 
-
+#[derive(Debug)]
 pub enum MutexType {
     Gxi,
     FrameData,
@@ -67,12 +62,12 @@ pub enum MutexType {
     Device,
 }
 
-trait MutexExt<T> {
-    fn lock_safe(&self, mutex_type: MutexType) -> Result<MutexGuard<T>, Error>;
+pub trait MutexExt<T> {
+    fn lock_safe(&self, mutex_type: MutexType) -> Result<MutexGuard<T>>;
 }
 
-impl<T> MutexExt<T> for Mutex<T> {
-    fn lock_safe(&self, mutex_type: MutexType) -> Result<MutexGuard<T>, Error> {
+impl<T> MutexExt<T> for LazyLock<Arc<Mutex<T>>> {
+    fn lock_safe(&self, mutex_type: MutexType) -> Result<MutexGuard<T>> {
         self.lock().map_err(|e: PoisonError<MutexGuard<T>>| {
             Error::new(ErrorKind::MutexPoisonError {
                 mutex_type,
@@ -85,11 +80,14 @@ impl<T> MutexExt<T> for Mutex<T> {
 // ErrorKind
 
 pub enum ErrorKind {
-    GxciError(GxciError),
     ConversionError(String),
     InvalidFeatureType(String),
-    DeviceHandleError(String),
     NulError(std::ffi::NulError),
+    LibLoadingError(libloading::Error),
+    GxiError(String),
+    GxStatusError(i32),
+    DeviceHandleError(String),
+    FrameDataError(String),
     MutexPoisonError {
         mutex_type: MutexType,
         message: String,
@@ -99,11 +97,14 @@ pub enum ErrorKind {
 impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
             ErrorKind::ConversionError(e) => write!(f, "ConversionError: {:?}", e),
             ErrorKind::InvalidFeatureType(e) => write!(f, "InvalidFeatureType: {:?}", e),
             ErrorKind::NulError(e) => write!(f, "NulError: {:?}", e),
             ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
+            ErrorKind::LibLoadingError(e) => write!(f, "LibLoadingError: {:?}", e),
+            ErrorKind::GxStatusError(e) => write!(f, "GxStatusError: {:?}", e),
+            ErrorKind::GxiError(e) => write!(f, "GxiError: {:?}", e),
+            ErrorKind::FrameDataError(e) => write!(f, "FrameDataError: {:?}", e),
             ErrorKind::MutexPoisonError {
                 mutex_type,
                 message,
@@ -117,11 +118,14 @@ impl std::fmt::Display for ErrorKind {
 impl std::fmt::Debug for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            ErrorKind::GxciError(e) => write!(f, "GxciError: {:?}", e),
             ErrorKind::ConversionError(e) => write!(f, "ConversionError: {:?}", e),
             ErrorKind::InvalidFeatureType(e) => write!(f, "InvalidFeatureType: {:?}", e),
             ErrorKind::NulError(e) => write!(f, "NulError: {:?}", e),
             ErrorKind::DeviceHandleError(e) => write!(f, "DeviceHandleError: {:?}", e),
+            ErrorKind::LibLoadingError(e) => write!(f, "LibLoadingError: {:?}", e),
+            ErrorKind::GxStatusError(e) => write!(f, "GxStatusError: {:?}", e),
+            ErrorKind::GxiError(e) => write!(f, "GxiError: {:?}", e),
+            ErrorKind::FrameDataError(e) => write!(f, "FrameDataError: {:?}", e),
             ErrorKind::MutexPoisonError {
                 mutex_type,
                 message,
@@ -133,42 +137,6 @@ impl std::fmt::Debug for ErrorKind {
 }
 
 // Old GxciError
-
-pub enum GxciError {
-    InitializationError(String),
-    FunctionCallError(String),
-    LibLoadingError(libloading::Error),
-    GalaxyError(i32),
-    CommandError(String),
-}
-
-impl std::fmt::Display for GxciError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            GxciError::InitializationError(e) => write!(f, "InitializationError: {}", e),
-            GxciError::FunctionCallError(e) => write!(f, "FunctionCallError: {}", e),
-            GxciError::LibLoadingError(e) => write!(f, "LibLoadingError: {}", e),
-            GxciError::GalaxyError(e) => {
-                write!(f, "GalaxyError: {},{:?}", e, gx_status_describe(*e))
-            }
-            GxciError::CommandError(e) => write!(f, "CommandError: {}", e),
-        }
-    }
-}
-
-impl std::fmt::Debug for GxciError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            GxciError::InitializationError(e) => write!(f, "InitializationError: {}", e),
-            GxciError::FunctionCallError(e) => write!(f, "FunctionCallError: {}", e),
-            GxciError::LibLoadingError(e) => write!(f, "LibLoadingError: {}", e),
-            GxciError::GalaxyError(e) => {
-                write!(f, "GalaxyError: {},{:?}", e, gx_status_describe(*e))
-            }
-            GxciError::CommandError(e) => write!(f, "CommandError: {}", e),
-        }
-    }
-}
 
 use crate::raw::{gx_callback::*, gx_enum::*, gx_handle::*, gx_struct::*};
 
@@ -191,20 +159,30 @@ fn convert_to_gx_status(status_code: i32) -> GX_STATUS_LIST {
         -14 => GX_STATUS_LIST::GX_STATUS_TIMEOUT,
         _ => GX_STATUS_LIST::GX_STATUS_ERROR, // Default error if unknown status code
     }
+    
 }
 
-// Define a custom error type
-#[derive(Debug)]
-pub enum CameraError {
-    LibraryError(libloading::Error),
-    OperationError(String),
-}
-
-impl From<libloading::Error> for CameraError {
-    fn from(err: libloading::Error) -> Self {
-        CameraError::LibraryError(err)
+fn deconvert_from_gx_status(status: GX_STATUS_LIST) -> i32 {
+    match status {
+        GX_STATUS_LIST::GX_STATUS_SUCCESS => 0,
+        GX_STATUS_LIST::GX_STATUS_ERROR => -1,
+        GX_STATUS_LIST::GX_STATUS_NOT_FOUND_TL => -2,
+        GX_STATUS_LIST::GX_STATUS_NOT_FOUND_DEVICE => -3,
+        GX_STATUS_LIST::GX_STATUS_OFFLINE => -4,
+        GX_STATUS_LIST::GX_STATUS_INVALID_PARAMETER => -5,
+        GX_STATUS_LIST::GX_STATUS_INVALID_HANDLE => -6,
+        GX_STATUS_LIST::GX_STATUS_INVALID_CALL => -7,
+        GX_STATUS_LIST::GX_STATUS_INVALID_ACCESS => -8,
+        GX_STATUS_LIST::GX_STATUS_NEED_MORE_BUFFER => -9,
+        GX_STATUS_LIST::GX_STATUS_ERROR_TYPE => -10,
+        GX_STATUS_LIST::GX_STATUS_OUT_OF_RANGE => -11,
+        GX_STATUS_LIST::GX_STATUS_NOT_IMPLEMENTED => -12,
+        GX_STATUS_LIST::GX_STATUS_NOT_INIT_API => -13,
+        GX_STATUS_LIST::GX_STATUS_TIMEOUT => -14,
     }
 }
+
+
 pub trait GXInterface {
     fn new(library_path: &str) -> Result<Self>
     where
@@ -488,7 +466,7 @@ impl GXInterface for GXInstance {
     /// ```
     fn new(library_path: &str) -> Result<Self> {
         unsafe {
-            let lib = Library::new(library_path).map_err(|e| GxciError::LibLoadingError(e))?;
+            let lib = Library::new(library_path)?;
             Ok(GXInstance { lib })
         }
     }
@@ -515,9 +493,7 @@ impl GXInterface for GXInstance {
     fn gx_init_lib(&self) -> Result<i32> {
         unsafe {
             let gx_init_lib: Symbol<extern "C" fn() -> i32> =
-                self.lib.get(b"GXInitLib").map_err(|e| {
-                    GxciError::FunctionCallError(format!("Failed to get GXInitLib function: {}", e))
-                })?;
+                self.lib.get(b"GXInitLib")?;
             Ok(gx_init_lib())
         }
     }
@@ -546,12 +522,7 @@ impl GXInterface for GXInstance {
     fn gx_close_lib(&self) -> Result<()> {
         unsafe {
             let gx_close_lib: Symbol<extern "C" fn() -> i32> =
-                self.lib.get(b"GXCloseLib").map_err(|e| {
-                    GxciError::FunctionCallError(format!(
-                        "Failed to get GXCloseLib function: {}",
-                        e
-                    ))
-                })?;
+                self.lib.get(b"GXCloseLib")?;
             gx_close_lib();
             Ok(())
         }
@@ -587,12 +558,7 @@ impl GXInterface for GXInstance {
         unsafe {
             let gx_update_device_list: Symbol<
                 extern "C" fn(device_num: *mut u32, timeout: u32) -> i32,
-            > = self.lib.get(b"GXUpdateDeviceList").map_err(|e| {
-                GxciError::FunctionCallError(format!(
-                    "Failed to get GXUpdateDeviceList function: {}",
-                    e
-                ))
-            })?;
+            > = self.lib.get(b"GXUpdateDeviceList")?;
             Ok(gx_update_device_list(device_num, timeout))
         }
     }
@@ -627,12 +593,7 @@ impl GXInterface for GXInstance {
         unsafe {
             let gx_update_all_device_list: Symbol<
                 extern "C" fn(num_devices: *mut u32, timeout: u32) -> i32,
-            > = self.lib.get(b"GXUpdateAllDeviceList").map_err(|e| {
-                GxciError::FunctionCallError(format!(
-                    "Failed to get GXUpdateDeviceList function: {}",
-                    e
-                ))
-            })?;
+            > = self.lib.get(b"GXUpdateAllDeviceList")?;
             println!("num_devices: {:?}, timeout: {:?}", num_devices, timeout);
             Ok(gx_update_all_device_list(num_devices, timeout))
         }
@@ -696,12 +657,7 @@ impl GXInterface for GXInstance {
                     p_device_info: *mut GX_DEVICE_BASE_INFO,
                     p_buffer_size: *mut usize,
                 ) -> i32,
-            > = self.lib.get(b"GXGetAllDeviceBaseInfo").map_err(|e| {
-                GxciError::FunctionCallError(format!(
-                    "Failed to get GXUpdateDeviceList function: {}",
-                    e
-                ))
-            })?;
+            > = self.lib.get(b"GXGetAllDeviceBaseInfo")?;
             println!(
                 "p_device_info: {:?}, p_buffer_size: {:?}",
                 p_device_info, p_buffer_size
@@ -724,12 +680,7 @@ impl GXInterface for GXInstance {
         unsafe {
             let gx_open_device_by_index: Symbol<
                 extern "C" fn(index: u32, device: *mut GX_DEV_HANDLE) -> i32,
-            > = self.lib.get(b"GXOpenDeviceByIndex").map_err(|e| {
-                GxciError::FunctionCallError(format!(
-                    "Failed to get GXUpdateDeviceList function: {}",
-                    e
-                ))
-            })?;
+            > = self.lib.get(b"GXOpenDeviceByIndex")?;
             Ok(gx_open_device_by_index(index, device))
         }
     }
@@ -752,12 +703,7 @@ impl GXInterface for GXInstance {
                     open_param: *const GX_OPEN_PARAM,
                     device_handle: *mut GX_DEV_HANDLE,
                 ) -> i32,
-            > = self.lib.get(b"GXOpenDevice").map_err(|e| {
-                GxciError::FunctionCallError(format!(
-                    "Failed to get GXUpdateDeviceList function: {}",
-                    e
-                ))
-            })?;
+            > = self.lib.get(b"GXOpenDevice")?;
 
             println!("device_handle: {:?}", device_handle);
             Ok(gx_open_device(open_param, device_handle))
@@ -776,12 +722,7 @@ impl GXInterface for GXInstance {
     fn gx_close_device(&self, device: GX_DEV_HANDLE) -> Result<i32> {
         unsafe {
             let gx_close_device: Symbol<extern "C" fn(device: GX_DEV_HANDLE) -> i32> =
-                self.lib.get(b"GXCloseDevice").map_err(|e| {
-                    GxciError::FunctionCallError(format!(
-                        "Failed to get GXUpdateDeviceList function: {}",
-                        e
-                    ))
-                })?;
+                self.lib.get(b"GXCloseDevice")?;
             Ok(gx_close_device(device))
         }
     }
@@ -801,12 +742,7 @@ impl GXInterface for GXInstance {
         unsafe {
             let gx_export_config_file: Symbol<
                 extern "C" fn(device: GX_DEV_HANDLE, file_path: *const c_char) -> i32,
-            > = self.lib.get(b"GXExportConfigFile").map_err(|e| {
-                GxciError::FunctionCallError(format!(
-                    "Failed to get GXUpdateDeviceList function: {}",
-                    e
-                ))
-            })?;
+            > = self.lib.get(b"GXExportConfigFile")?;
             println!("Exported config file to: {:?}", CStr::from_ptr(file_path));
             Ok(gx_export_config_file(device, file_path))
         }
@@ -827,12 +763,7 @@ impl GXInterface for GXInstance {
         unsafe {
             let gx_import_config_file: Symbol<
                 extern "C" fn(device: GX_DEV_HANDLE, file_path: *const c_char) -> i32,
-            > = self.lib.get(b"GXImportConfigFile").map_err(|e| {
-                GxciError::FunctionCallError(format!(
-                    "Failed to get GXUpdateDeviceList function: {}",
-                    e
-                ))
-            })?;
+            > = self.lib.get(b"GXImportConfigFile")?;
             println!("Imported config file from: {:?}", CStr::from_ptr(file_path));
             Ok(gx_import_config_file(device, file_path))
         }
@@ -850,20 +781,13 @@ impl GXInterface for GXInstance {
     fn gx_send_command(&self, device: GX_DEV_HANDLE, feature_id: GX_FEATURE_ID) -> Result<i32> {
         unsafe {
             let gx_send_command: Symbol<extern "C" fn(GX_DEV_HANDLE, GX_FEATURE_ID) -> i32> =
-                self.lib.get(b"GXSendCommand").map_err(|e| {
-                    GxciError::FunctionCallError(format!(
-                        "Failed to get GXUpdateDeviceList function: {}",
-                        e
-                    ))
-                })?;
+                self.lib.get(b"GXSendCommand")?;
 
             let status_code = gx_send_command(device, feature_id);
             let status = convert_to_gx_status(status_code);
             match status {
                 GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(0),
-                _ => Err(Error::new(ErrorKind::GxciError(GxciError::CommandError(
-                    format!("GXSendCommand failed with status: {:?}", status),
-                )))),
+                _ => Err(Error::new(ErrorKind::GxStatusError(deconvert_from_gx_status(status)))),
                 // Err(
                 //     GxciError::CommandError(format!(
                 //     "GXSendCommand failed with status: {:?}",
@@ -895,21 +819,14 @@ impl GXInterface for GXInstance {
                     p_frame_data: *mut GX_FRAME_DATA,
                     timeout: i32,
                 ) -> i32,
-            > = self.lib.get(b"GXGetImage").map_err(|e| {
-                GxciError::FunctionCallError(format!(
-                    "Failed to get GXUpdateDeviceList function: {}",
-                    e
-                ))
-            })?;
+            > = self.lib.get(b"GXGetImage")?;
             println!("p_frame_data: {:?}", p_frame_data);
             println!("frame_data: {:?}", *p_frame_data);
             let status_code = gx_get_image(device, p_frame_data, timeout);
             let status = convert_to_gx_status(status_code);
             match status {
                 GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(0),
-                _ => Err(Error::new(ErrorKind::GxciError(GxciError::CommandError(
-                    format!("Failed to get image with status: {:?}", status),
-                )))),
+                _ => Err(Error::new(ErrorKind::GxStatusError(deconvert_from_gx_status(status)))),
             }
         }
     }
@@ -924,12 +841,7 @@ impl GXInterface for GXInstance {
     fn gx_flush_queue(&self, device: GX_DEV_HANDLE) -> Result<i32> {
         unsafe {
             let gx_flush_queue: Symbol<extern "C" fn(device: GX_DEV_HANDLE) -> i32> =
-                self.lib.get(b"GXFlushQueue").map_err(|e| {
-                    GxciError::FunctionCallError(format!(
-                        "Failed to get GXCloseLib function: {}",
-                        e
-                    ))
-                })?;
+                self.lib.get(b"GXFlushQueue")?;
 
             // 调用 C 函数清空图像输出队列
             let result = gx_flush_queue(device);
@@ -948,12 +860,7 @@ impl GXInterface for GXInstance {
     fn gx_flush_event(&self, device: GX_DEV_HANDLE) -> Result<i32> {
         unsafe {
             let gx_flush_event: Symbol<extern "C" fn(device: GX_DEV_HANDLE) -> i32> =
-                self.lib.get(b"GXFlushEvent").map_err(|e| {
-                    GxciError::FunctionCallError(format!(
-                        "Failed to get GXCloseLib function: {}",
-                        e
-                    ))
-                })?;
+                self.lib.get(b"GXFlushEvent")?;
 
             // 调用 C 函数清空设备事件队列
             let result = gx_flush_event(device);
@@ -984,9 +891,7 @@ impl GXInterface for GXInstance {
                     name: *mut c_char,
                     size: *mut usize,
                 ) -> i32,
-            > = self.lib.get(b"GXGetFeatureName").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetFeatureName")?;
 
             // 调用 C 函数获取功能码对应的字符串描述
             let result = gx_get_feature_name(device, feature_id, name, size);
@@ -1015,9 +920,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     is_implemented: *mut bool,
                 ) -> i32,
-            > = self.lib.get(b"GXIsImplemented").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXIsImplemented")?;
             // 查询是否支持某功能
             println!("is_implemented: {:?}", is_implemented);
             Ok(gx_is_implemented(device, feature_id, is_implemented))
@@ -1044,9 +947,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     is_readable: *mut bool,
                 ) -> i32,
-            > = self.lib.get(b"GXIsReadable").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXIsReadable")?;
             // 查询功能码是否可读
             println!("is_readable: {:?}", is_readable);
             Ok(gx_is_readable(device, feature_id, is_readable))
@@ -1073,9 +974,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     is_writable: *mut bool,
                 ) -> i32,
-            > = self.lib.get(b"GXIsWritable").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXIsWritable")?;
             // 查询功能码是否可写
             println!("is_writable: {:?}", is_writable);
             Ok(gx_is_writable(device, feature_id, is_writable))
@@ -1104,9 +1003,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     int_value: *mut i64,
                 ) -> i32,
-            > = self.lib.get(b"GXGetInt").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetInt")?;
             println!("int_value: {:?}", int_value);
             Ok(gx_get_int(device, feature_id, int_value))
         }
@@ -1134,9 +1031,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     int_value: i64,
                 ) -> i32,
-            > = self.lib.get(b"GXSetInt").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXSetInt")?;
             println!("int_value: {:?}", int_value);
             Ok(gx_set_int(device, feature_id, int_value))
         }
@@ -1164,9 +1059,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     float_value: *mut f64,
                 ) -> i32,
-            > = self.lib.get(b"GXGetFloat").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetFloat")?;
             println!("float_value: {:?}", float_value);
             Ok(gx_get_float(device, feature_id, float_value))
         }
@@ -1194,9 +1087,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     float_value: f64,
                 ) -> i32,
-            > = self.lib.get(b"GXSetFloat").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXSetFloat")?;
             println!("float_value: {:?}", float_value);
             Ok(gx_set_float(device, feature_id, float_value))
         }
@@ -1222,9 +1113,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     entry_nums: *mut u32,
                 ) -> i32,
-            > = self.lib.get(b"GXGetEnumEntryNums").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetEnumEntryNums")?;
 
             // 调用 C 函数获取枚举项的可选项个数
             let result = gx_get_enum_entry_nums(device, feature_id, entry_nums);
@@ -1258,9 +1147,7 @@ impl GXInterface for GXInstance {
                     enum_description: *mut GX_ENUM_DESCRIPTION,
                     buffer_size: *mut usize,
                 ) -> i32,
-            > = self.lib.get(b"GXGetEnumDescription").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetEnumDescription")?;
 
             // 调用 C 函数获取枚举类型值的描述信息
             let result = gx_get_enum_description(device, feature_id, enum_description, buffer_size);
@@ -1291,9 +1178,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     enum_value: *mut i64,
                 ) -> i32,
-            > = self.lib.get(b"GXGetEnum").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetEnum")?;
             println!("enum_value: {:?}", enum_value);
             Ok(gx_get_enum(device, feature_id, enum_value))
         }
@@ -1321,9 +1206,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     enum_value: i64,
                 ) -> i32,
-            > = self.lib.get(b"GXSetEnum").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXSetEnum")?;
             println!("enum_value: {:?}", enum_value);
             Ok(gx_set_enum(device, feature_id, enum_value))
         }
@@ -1351,9 +1234,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     bool_value: *mut bool,
                 ) -> i32,
-            > = self.lib.get(b"GXGetBool").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetBool")?;
             println!("bool_value: {:?}", bool_value);
             Ok(gx_get_bool(device, feature_id, bool_value))
         }
@@ -1381,9 +1262,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     bool_value: bool,
                 ) -> i32,
-            > = self.lib.get(b"GXSetBool").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXSetBool")?;
             println!("bool_value: {:?}", bool_value);
             Ok(gx_set_bool(device, feature_id, bool_value))
         }
@@ -1409,9 +1288,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     size: *mut usize,
                 ) -> i32,
-            > = self.lib.get(b"GXGetStringLength").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetStringLength")?;
             println!("size: {:?}", size);
             Ok(gx_get_string_length(device, feature_id, size))
         }
@@ -1436,9 +1313,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     size: *mut usize,
                 ) -> i32,
-            > = self.lib.get(b"GXGetStringMaxLength").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetStringMaxLength")?;
             println!("size: {:?}", size);
             Ok(gx_get_string_max_length(device, feature_id, size))
         }
@@ -1466,9 +1341,7 @@ impl GXInterface for GXInstance {
                     content: *mut c_char,
                     size: *mut usize,
                 ) -> i32,
-            > = self.lib.get(b"GXGetString").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetString")?;
             println!("content: {:?}, size: {:?}", content, size);
             Ok(gx_get_string(device, feature_id, content, size))
         }
@@ -1494,9 +1367,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     content: *const c_char,
                 ) -> i32,
-            > = self.lib.get(b"GXSetString").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXSetString")?;
             println!("content: {:?}", content);
             Ok(gx_set_string(device, feature_id, content))
         }
@@ -1523,9 +1394,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     size: *mut usize,
                 ) -> i32,
-            > = self.lib.get(b"GXGetBufferLength").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetBufferLength")?;
             println!("size: {:?}", size);
             Ok(gx_get_buffer_length(device, feature_id, size))
         }
@@ -1552,9 +1421,7 @@ impl GXInterface for GXInstance {
                     buffer: *mut u8,
                     size: *mut usize,
                 ) -> i32,
-            > = self.lib.get(b"GXGetBuffer").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetBuffer")?;
             println!("buffer: {:?}, size: {:?}", buffer, size);
             Ok(gx_get_buffer(device, feature_id, buffer, size))
         }
@@ -1583,9 +1450,7 @@ impl GXInterface for GXInstance {
                     buffer: *const u8,
                     size: usize,
                 ) -> i32,
-            > = self.lib.get(b"GXSetBuffer").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXSetBuffer")?;
             println!("buffer: {:?}, size: {:?}", buffer, size);
             Ok(gx_set_buffer(device, feature_id, buffer, size))
         }
@@ -1611,9 +1476,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     int_range: *mut GX_INT_RANGE,
                 ) -> i32,
-            > = self.lib.get(b"GXGetIntRange").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetIntRange")?;
             println!("int_range: {:?}", int_range);
             Ok(gx_get_int_range(device, feature_id, int_range))
         }
@@ -1639,9 +1502,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     float_range: *mut GX_FLOAT_RANGE,
                 ) -> i32,
-            > = self.lib.get(b"GXGetFloatRange").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetFloatRange")?;
             println!("float_range: {:?}", float_range);
             Ok(gx_get_float_range(device, feature_id, float_range))
         }
@@ -1658,9 +1519,7 @@ impl GXInterface for GXInstance {
         unsafe {
             let gx_get_event_num_in_queue: Symbol<
                 extern "C" fn(device: GX_DEV_HANDLE, event_num: *mut u32) -> i32,
-            > = self.lib.get(b"GXGetEventNumInQueue").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetEventNumInQueue")?;
 
             // 调用 C 函数获取事件队列中的事件数量
             let result = gx_get_event_num_in_queue(device, event_num);
@@ -1692,9 +1551,7 @@ impl GXInterface for GXInstance {
                     err_text: *mut c_char,
                     size: *mut usize,
                 ) -> i32,
-            > = self.lib.get(b"GXGetLastError").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXGetLastError")?;
 
             let result = gx_get_last_error(error_code, err_text, size);
             if !err_text.is_null() && !size.is_null() {
@@ -1719,9 +1576,7 @@ impl GXInterface for GXInstance {
         unsafe {
             let gx_set_acquisition_buffer_number: Symbol<
                 extern "C" fn(device: GX_DEV_HANDLE, buffer_num: u64) -> i32,
-            > = self.lib.get(b"GXSetAcqusitionBufferNumber").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXSetAcqusitionBufferNumber")?;
 
             let result = gx_set_acquisition_buffer_number(device, buffer_num);
             println!("Set acquisition buffer number to: {}", buffer_num);
@@ -1750,16 +1605,12 @@ impl GXInterface for GXInstance {
                     user_param: *mut c_void,
                     callback: GXCaptureCallBack,
                 ) -> i32,
-            > = self.lib.get(b"GXRegisterCaptureCallback").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXRegisterCaptureCallback")?;
             let status_code = gx_register_capture_callback(device, std::ptr::null_mut(), callback);
             let status = convert_to_gx_status(status_code);
             match status {
                 GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(0),
-                _ => Err(Error::new(ErrorKind::GxciError(GxciError::CommandError(
-                    format!("Failed to register_callback with status: {:?}", status),
-                )))),
+                _ => Err(Error::new(ErrorKind::GxStatusError(deconvert_from_gx_status(status)))),
             }
         }
     }
@@ -1775,19 +1626,12 @@ impl GXInterface for GXInstance {
     fn gx_unregister_capture_callback(&self, device: *mut c_void) -> Result<i32> {
         unsafe {
             let gx_unregister_capture_callback: Symbol<extern "C" fn(device: *mut c_void) -> i32> =
-                self.lib.get(b"GXUnregisterCaptureCallback").map_err(|e| {
-                    GxciError::FunctionCallError(format!(
-                        "Failed to get GXCloseLib function: {}",
-                        e
-                    ))
-                })?;
+                self.lib.get(b"GXUnregisterCaptureCallback")?;
             let status_code = gx_unregister_capture_callback(device);
             let status = convert_to_gx_status(status_code);
             match status {
                 GX_STATUS_LIST::GX_STATUS_SUCCESS => Ok(0),
-                _ => Err(Error::new(ErrorKind::GxciError(GxciError::CommandError(
-                    format!("Failed to unregister_callback with status: {:?}", status),
-                )))),
+                _ => Err(Error::new(ErrorKind::GxStatusError(deconvert_from_gx_status(status)))),
             }
         }
     }
@@ -1815,13 +1659,7 @@ impl GXInterface for GXInstance {
                 ) -> i32,
             > = self
                 .lib
-                .get(b"GXRegisterDeviceOfflineCallback")
-                .map_err(|e| {
-                    GxciError::FunctionCallError(format!(
-                        "Failed to get GXCloseLib function: {}",
-                        e
-                    ))
-                })?;
+                .get(b"GXRegisterDeviceOfflineCallback")?;
 
             let result = gx_register_device_offline_callback(
                 device,
@@ -1852,13 +1690,7 @@ impl GXInterface for GXInstance {
                 ) -> i32,
             > = self
                 .lib
-                .get(b"GXUnregisterDeviceOfflineCallback")
-                .map_err(|e| {
-                    GxciError::FunctionCallError(format!(
-                        "Failed to get GXCloseLib function: {}",
-                        e
-                    ))
-                })?;
+                .get(b"GXUnregisterDeviceOfflineCallback")?;
 
             let result = gx_unregister_device_offline_callback(device, callback_handle);
             Ok(result)
@@ -1889,9 +1721,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     callback_handle: *mut GX_FEATURE_CALLBACK_HANDLE,
                 ) -> i32,
-            > = self.lib.get(b"GXRegisterFeatureCallback").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXRegisterFeatureCallback")?;
 
             let result = gx_register_feature_callback(
                 device,
@@ -1924,9 +1754,7 @@ impl GXInterface for GXInstance {
                     feature_id: GX_FEATURE_ID,
                     callback_handle: GX_FEATURE_CALLBACK_HANDLE,
                 ) -> i32,
-            > = self.lib.get(b"GXUnregisterFeatureCallback").map_err(|e| {
-                GxciError::FunctionCallError(format!("Failed to get GXCloseLib function: {}", e))
-            })?;
+            > = self.lib.get(b"GXUnregisterFeatureCallback")?;
 
             let result = gx_unregister_feature_callback(device, feature_id, callback_handle);
             Ok(result)

@@ -11,7 +11,8 @@ use crate::utils::extract::*;
 use std::ffi::c_void;
 use std::thread::sleep;
 use std::time::Duration;
-use std::sync::{LazyLock,Arc,Mutex};
+use std::sync::{LazyLock, Arc, Mutex};
+
 #[cfg(feature = "use-opencv")]
 use opencv::{
     highgui,
@@ -26,7 +27,7 @@ use imageproc::image::{ImageBuffer, Luma};
 //----------------------------------------------------------
 
 pub fn gxi_check_device_handle() -> Result<()> {
-    if GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.is_none() {
+    if GXI_DEVICE.lock_safe(MutexType::Device)?.is_none() {
         Err(Error::new(ErrorKind::DeviceHandleError("Device handle is None. Please check your device open situation.".to_string())))
     } else {
         Ok(())
@@ -35,7 +36,7 @@ pub fn gxi_check_device_handle() -> Result<()> {
 
 pub fn gxi_get_device_handle() -> Result<*mut c_void> {
     gxi_check_device_handle()?;
-    let gxi_device = GXI_DEVICE.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionHandleError(e)))?.as_ref().unwrap().device;
+    let gxi_device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref().ok_or(Error::new(ErrorKind::DeviceHandleError("Device handle is None. Please check your device open situation.".to_string())))?.device;
     Ok(gxi_device)
 }
 
@@ -63,12 +64,12 @@ pub fn gxi_list_devices() -> Result<Vec<GX_DEVICE_BASE_INFO>> {
     let mut size = (device_num as usize) * size_of::<GX_DEVICE_BASE_INFO>();
         
     // Populate the vector with device base information
-    let status = GXI.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionError(e)))?
+    let status = GXI.lock_safe(MutexType::Gxi)?
             .as_ref()
             .ok_or_else(|| {
-                GxciError::InitializationError(
+                Error::new(ErrorKind::GxiError(
                     "GXI is None. Please check your gxci_init situation.".to_string(),
-                )
+                ))
             })?
             .gx_get_all_device_base_info(base_info.as_mut_ptr(), &mut size)?;
 
@@ -85,9 +86,11 @@ pub struct GxiDevice {
 
 unsafe impl Send for GxiDevice {}
 
+
 pub static GXI_DEVICE: LazyLock<Arc<Mutex<Option<GxiDevice>>>> = LazyLock::new(|| {
     Arc::new(Mutex::new(None))
 });
+
 
 pub struct GxiFrameData {
     pub frame_data: GX_FRAME_DATA,
@@ -100,14 +103,16 @@ pub static GXI_FRAME_DATA: LazyLock<Arc<Mutex<Option<GxiFrameData>>>> = LazyLock
     Arc::new(Mutex::new(None))
 });
 
+
 pub static GXI_IMAGE_BUFFER: LazyLock<Arc<Mutex<Option<Vec<u8>>>>> = LazyLock::new(|| {
     Arc::new(Mutex::new(None))
 });
 
+
 #[cfg(feature = "solo")]
 pub fn gxi_open_device() -> Result<()> {
     let mut device_num = 0;
-    gxi_check(|gxi| {
+    gxi_check(|gxi: &GXInstance| {
         gxi.gx_update_device_list(&mut device_num, 1000)?;
         Ok(())
     })?;
@@ -159,8 +164,9 @@ pub fn gxi_get_image() -> Result<()> {
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
-    let gxi = GXI.lock_safe(MutexType::Gxi)?.as_ref()?;
-    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref()?.device;
+    let byd = GXI.lock_safe(MutexType::Gxi)?;
+    let gxi = byd.as_ref().ok_or(Error::new(ErrorKind::GxiError("GXI is None. Please check your gxci_init situation.".to_string())))?;
+    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref().ok_or(Error::new(ErrorKind::DeviceHandleError("Device handle is None. Please check your device open situation.".to_string())))?.device;
     
     let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
@@ -184,9 +190,9 @@ pub fn gxi_get_image_as_frame_data() -> Result<GX_FRAME_DATA> {
     let gxi_device = gxi_get_device_handle()?;
     println!("gxi_device: {:?}", gxi_device);
 
-    let gxi = GXI.lock_safe(MutexType::Gxi)?.as_ref()?;
-    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref()?.device;
-    
+    let byd = GXI.lock_safe(MutexType::Gxi)?;
+    let gxi = byd.as_ref().ok_or(Error::new(ErrorKind::GxiError("GXI is None. Please check your gxci_init situation.".to_string())))?;
+    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref().ok_or(Error::new(ErrorKind::DeviceHandleError("Device handle is None. Please check your device open situation.".to_string())))?.device;    
     let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
 
@@ -211,8 +217,9 @@ pub fn gxi_get_image_as_raw() -> Result<&'static [u8]> {
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
-    let gxi = GXI.lock_safe(MutexType::Gxi)?.as_ref()?;
-    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref()?.device;
+    let byd = GXI.lock_safe(MutexType::Gxi)?;
+    let gxi = byd.as_ref().ok_or(Error::new(ErrorKind::GxiError("GXI is None. Please check your gxci_init situation.".to_string())))?;
+    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref().ok_or(Error::new(ErrorKind::DeviceHandleError("Device handle is None. Please check your device open situation.".to_string())))?.device;
     
     let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
@@ -229,7 +236,7 @@ pub fn gxi_get_image_as_raw() -> Result<&'static [u8]> {
     check_gx_status(status)?;
     println!("Successfully got image");
 
-    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref()?.frame_data;
+    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref().ok_or(Error::new(ErrorKind::FrameDataError("Frame data is None. Please check your get image situation.".to_string())))?.frame_data;
     
     let raw = extract_img_buf(&frame_data);
 
@@ -243,10 +250,11 @@ pub fn gxi_get_image_as_bytes() -> Result<Vec<u8>> {
 
     gxi_send_command(GX_FEATURE_ID::GX_COMMAND_ACQUISITION_START)?;
 
-    let gxi = GXI.lock_safe(MutexType::Gxi)?.as_ref()?;
-    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref()?.device;
+    let byd = GXI.lock_safe(MutexType::Gxi)?;
+    let gxi = byd.as_ref().ok_or(Error::new(ErrorKind::GxiError("GXI is None. Please check your gxci_init situation.".to_string())))?;
+    let device = GXI_DEVICE.lock_safe(MutexType::Device)?.as_ref().ok_or(Error::new(ErrorKind::DeviceHandleError("Device handle is None. Please check your device open situation.".to_string())))?.device;
     
-    let (frame_data_facade, image_buffer) = fetch_frame_data(gxi, device)?;
+    let (frame_data_facade, image_buffer) = fetch_frame_data(&gxi, device)?;
     let mut frame_data = convert_to_frame_data(&frame_data_facade);
 
     let status = gxi_check(|gxi| gxi.gx_get_image(gxi_device, &mut frame_data, 1000))?;
@@ -261,7 +269,7 @@ pub fn gxi_get_image_as_bytes() -> Result<Vec<u8>> {
     check_gx_status(status)?;
     println!("Successfully got image");
 
-    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref()?.frame_data;
+    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref().ok_or(Error::new(ErrorKind::FrameDataError("Frame data is None. Please check your get image situation.".to_string())))?.frame_data;
     
     let raw = extract_img_buf(&frame_data);
 
@@ -271,7 +279,7 @@ pub fn gxi_get_image_as_bytes() -> Result<Vec<u8>> {
 #[cfg(all(feature = "solo", feature = "use-opencv"))]
 pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
     // let frame_data = GXI_FRAME_DATA.lock().map_err(|e| Error::new(ErrorKind::MutexPoisonOptionFrameDataError(e)))?.as_ref().unwrap().frame_data;
-    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref()?.frame_data;
+    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref().ok_or(Error::new(ErrorKind::FrameDataError("Frame data is None. Please check your get image situation.".to_string())))?.frame_data;
     if frame_data.nStatus == 0 {
         if let Some(data) = extract_image_data(&frame_data) {
             let mat = core::Mat::new_rows_cols_with_data(
@@ -294,7 +302,7 @@ pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
 
 #[cfg(all(feature = "solo", feature = "use-imageproc"))]
 pub fn gxi_save_image_as_png(filename:&str) -> Result<()> {
-    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref()?.frame_data;
+    let frame_data = GXI_FRAME_DATA.lock_safe(MutexType::FrameData)?.as_ref()..ok_or(Error::new(ErrorKind::FrameDataError("Frame data is None. Please check your get image situation.".to_string())))?.frame_data;
 
     if frame_data.nStatus == 0 {
         if let Some(data) = extract_image_data(&frame_data) {
