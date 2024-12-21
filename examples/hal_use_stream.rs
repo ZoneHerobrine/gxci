@@ -6,7 +6,7 @@ use gxci::utils::debug::print_device_info;
 use gxci::utils::extract::{extract_callback_img_buf,extract_frame_callback_param};
 use gxci::raw::gx_struct::GX_FRAME_CALLBACK_PARAM;
 use gxci::raw::gx_interface::Result;
-use opencv::{core, highgui};
+use gxci::opencv::{core, highgui};
 
 
 extern "C" fn frame_callback(p_frame_callback_data: *mut GX_FRAME_CALLBACK_PARAM) {

@@ -18,6 +18,7 @@ pub fn extract_image_data(frame_data: &GX_FRAME_DATA) -> Option<Vec<u8>> {
         Some(data.to_vec())
     }
 }
+
 // // 有待修改
 // pub unsafe fn mono8_to_mat(frame_data: &GX_FRAME_DATA) -> Mat {
 //     let mut mat = core::Mat::default();
