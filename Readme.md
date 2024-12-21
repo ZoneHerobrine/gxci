@@ -20,7 +20,7 @@
 
 # Now, the document site is available!
 
-1. English: [https://hakochest.github.io/gxci-en/](https://hakocheat.github.io/gxci-en/)
+1. English: [https://hakochest.github.io/gxci-en/](https://hakochest.github.io/gxci-en/)
 2. 中文: [https://hakochest.github.io/gxci-cn/](https://hakochest.github.io/gxci-cn/)
 
 
